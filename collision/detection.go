@@ -1,0 +1,3 @@
+package collision
+
+// Placeholder
