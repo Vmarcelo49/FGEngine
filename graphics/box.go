@@ -21,7 +21,6 @@ var (
 )
 
 // DrawBoxes draws all collision boxes for the current character's sprite on the screen.
-// If the character is nil, it does nothing.
 func DrawBoxes(character *character.Character, screen *ebiten.Image) error {
 	if character == nil {
 		return errors.New("cannot draw box: character is nil")
@@ -43,7 +42,7 @@ func DrawBoxes(character *character.Character, screen *ebiten.Image) error {
 	return nil
 }
 
-// DrawBoxesByType draws boxes of a specific type, probably slower than DrawBoxes.
+// DrawBoxesByType draws boxes of a specific type.
 func DrawBoxesByType(character *character.Character, screen *ebiten.Image, boxtype collision.BoxType) error {
 	if character == nil {
 		return errors.New("cannot draw box: character is nil")
