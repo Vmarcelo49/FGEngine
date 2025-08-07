@@ -4,10 +4,10 @@ import "FGEngine/types"
 
 // info that matters when the game is running
 type CharacterState struct {
-	Pos                 types.Vector2
-	Vel                 types.Vector2
+	Position            types.Vector2
+	Velocity            types.Vector2
 	HP                  int // 10000
-	IgnoreGravityframes int // some moves ignore gravity for a few frames
+	IgnoreGravityFrames int // some moves ignore gravity for a few frames
 	StateMachine        StateMachine
 }
 

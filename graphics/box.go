@@ -1,8 +1,8 @@
 package graphics
 
 import (
-	"errors"
 	"image/color"
+	"sync"
 
 	"FGEngine/character"
 	"FGEngine/collision"
@@ -14,48 +14,44 @@ import (
 
 var (
 	whitePixel *ebiten.Image
+	once       sync.Once
 	boxColors  = map[collision.BoxType]color.RGBA{
 		collision.Collision: {R: 80, G: 80, B: 80, A: 32},
 		collision.Hit:       {R: 100, G: 40, B: 40, A: 32},
 		collision.Hurt:      {R: 40, G: 100, B: 40, A: 32}}
 )
 
-// DrawBoxes draws all collision boxes for the current character's sprite on the screen.
-func DrawBoxes(character *character.Character, screen *ebiten.Image) error {
-	if character == nil {
-		return errors.New("cannot draw box: character is nil")
-	}
-
-	if character.CurrentSprite == nil {
-		return errors.New("cannot draw box: character has no current sprite")
-	}
-
-	if whitePixel == nil {
+// whitePixel should never be unloaded
+func initWhitePixel() {
+	once.Do(func() {
 		whitePixel = ebiten.NewImage(1, 1)
 		whitePixel.Fill(color.White)
+	})
+}
+
+// DrawBoxes draws all collision boxes for the current character's sprite on the screen.
+// If character or sprite data is invalid, the function returns early without drawing.
+func DrawBoxes(character *character.Character, screen *ebiten.Image) {
+	if checkDrawConditions(character) == false {
+		return
 	}
+
+	initWhitePixel()
 
 	for _, box := range character.GetAllBoxes() {
 		options := createBoxImageOptions(character, box)
 		screen.DrawImage(whitePixel, options)
 	}
-	return nil
 }
 
 // DrawBoxesByType draws boxes of a specific type.
-func DrawBoxesByType(character *character.Character, screen *ebiten.Image, boxtype collision.BoxType) error {
-	if character == nil {
-		return errors.New("cannot draw box: character is nil")
+// If character, sprite data, or box type is invalid, the function returns early without drawing.
+func DrawBoxesByType(character *character.Character, screen *ebiten.Image, boxtype collision.BoxType) {
+	if checkDrawConditions(character) == false {
+		return
 	}
 
-	if character.CurrentSprite == nil {
-		return errors.New("cannot draw box: character has no current sprite")
-	}
-
-	if whitePixel == nil {
-		whitePixel = ebiten.NewImage(1, 1)
-		whitePixel.Fill(color.White)
-	}
+	initWhitePixel()
 
 	switch boxtype {
 	case collision.Collision:
@@ -74,10 +70,8 @@ func DrawBoxesByType(character *character.Character, screen *ebiten.Image, boxty
 			screen.DrawImage(whitePixel, options)
 		}
 	default:
-		// If the box type is not recognized, we do nothing.
-		return errors.New("cannot draw box: unrecognized box type")
+		return
 	}
-	return nil
 }
 
 func createBoxImageOptions(character *character.Character, box collision.Box) *ebiten.DrawImageOptions {
