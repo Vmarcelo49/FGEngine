@@ -41,5 +41,9 @@ func loadCharacterImage(character *character.Character) *ebiten.Image {
 	return image
 }
 
-// TODO, Revise mutex usage
-// TODO, implement clearing of the image cache
+// ClearImageCache clears the image cache.
+func ClearImageCache() {
+	cacheMutex.Lock()
+	defer cacheMutex.Unlock()
+	imageCache = make(map[string]*ebiten.Image)
+}

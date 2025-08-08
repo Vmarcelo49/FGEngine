@@ -47,7 +47,7 @@ type Properties struct {
 }
 
 func (p *Properties) CanBeCounterHit() bool {
-	if p.MoveType == nonAttack || p.AnimPhase == recovery || p.IsInvincible {
+	if p.MoveType == NonAttack || p.AnimPhase == Recovery || p.IsInvincible {
 		return false
 	}
 	return true
@@ -56,38 +56,38 @@ func (p *Properties) CanBeCounterHit() bool {
 type attackCancelType int
 
 const (
-	cancelAll           attackCancelType = iota // when in idle?
-	cancelNone                                  // while taking damage, no commands do anything
-	cancelNormalAttack                          // from idle and other normals
-	cancelSpecialAttack                         // from idle and normals
-	cancelSuper                                 // from idle, normals and specials
-	cancelJump                                  // from idle and normals
+	CancelAll           attackCancelType = iota // when in idle?
+	CancelNone                                  // while taking damage, no commands do anything
+	CancelNormalAttack                          // from idle and other normals
+	CancelSpecialAttack                         // from idle and normals
+	CancelSuper                                 // from idle, normals and specials
+	CancelJump                                  // from idle and normals
 )
 
 type hitType int
 
 const (
-	mid hitType = iota
-	overhead
-	low
-	unblockable
+	Medium hitType = iota
+	Overhead
+	Low
+	Unblockable
 )
 
 type AnimationPhase int
 
 const (
-	startup AnimationPhase = iota
-	active
-	recovery
+	Startup AnimationPhase = iota
+	Active
+	Recovery
 )
 
 type MoveType int
 
 const (
-	nonAttack MoveType = iota
-	normalAttack
-	specialAttack
-	superAttack
-	grabAttack
+	NonAttack MoveType = iota
+	NormalAttack
+	SpecialAttack
+	SuperAttack
+	GrabAttack
 	// maybe add a type for projectiles
 )
