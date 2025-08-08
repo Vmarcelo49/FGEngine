@@ -5,8 +5,8 @@ import (
 	"log"
 	"sync"
 
-	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 var (
@@ -18,13 +18,20 @@ func loadCharacterImage(character *character.Character) *ebiten.Image {
 	if imageCache == nil {
 		imageCache = make(map[string]*ebiten.Image)
 	}
+
 	cacheMutex.RLock()
 	if img, exists := imageCache[character.CurrentSprite.ImagePath]; exists {
 		cacheMutex.RUnlock()
 		return img
 	}
+	cacheMutex.RUnlock()
+
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()
+
+	if img, exists := imageCache[character.CurrentSprite.ImagePath]; exists {
+		return img
+	}
 	image, _, err := ebitenutil.NewImageFromFile(character.CurrentSprite.ImagePath)
 	if err != nil {
 		log.Panic(err)
@@ -32,5 +39,7 @@ func loadCharacterImage(character *character.Character) *ebiten.Image {
 	}
 	imageCache[character.CurrentSprite.ImagePath] = image
 	return image
+}
+
 // TODO, Revise mutex usage
 // TODO, implement clearing of the image cache
