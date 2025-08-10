@@ -2,20 +2,22 @@ package config
 
 var (
 	WindowHeight, WindowWidth int
-	Zoom                      float64
+	WorldWidth, WorldHeight   float64
+	CameraWidth, CameraHeight int
+	ControllerDeadzone        float64
 	// worldSize
 	// ingameRes 640x360 seems good
 )
 
-func GetZoom() float64 {
-	if Zoom <= 0 {
-		return 1.0 // Default zoom level
-	}
-	return Zoom
-}
-
 func InitDefaultConfig() {
-	WindowHeight = 1600
-	WindowWidth = 900
-	Zoom = 1.0
+	WindowWidth = 1600
+	WindowHeight = 900
+
+	WorldWidth = 640
+	WorldHeight = 360
+
+	CameraWidth = 640
+	CameraHeight = 360
+
+	ControllerDeadzone = 0.3
 }

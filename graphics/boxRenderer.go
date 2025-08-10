@@ -77,9 +77,8 @@ func DrawBoxesByType(character *character.Character, screen *ebiten.Image, boxty
 func createBoxImageOptions(character *character.Character, box collision.Box) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
-	zoom := config.GetZoom()
-	position := calculateBoxScreenPosition(character, box, zoom)
-	scale := calculateBoxScale(box, zoom)
+	position := calculateBoxScreenPosition(character, box)
+	scale := calculateBoxScale(box)
 
 	boxImgOptions.GeoM.Scale(scale.X, scale.Y) // X is width, Y is height
 	boxImgOptions.GeoM.Translate(position.X, position.Y)
@@ -97,9 +96,9 @@ func createBoxImageOptions(character *character.Character, box collision.Box) *e
 	return boxImgOptions
 }
 
-func calculateBoxScale(box collision.Box, zoom float64) types.Vector2 {
-	scaleW := box.Rect.W * zoom
-	scaleH := box.Rect.H * zoom
+func calculateBoxScale(box collision.Box) types.Vector2 {
+	scaleW := box.Rect.W
+	scaleH := box.Rect.H
 
 	if scaleW <= 0 {
 		scaleW = 1 // Minimum scale
@@ -111,18 +110,18 @@ func calculateBoxScale(box collision.Box, zoom float64) types.Vector2 {
 	return types.Vector2{X: scaleW, Y: scaleH}
 }
 
-func calculateBoxScreenPosition(character *character.Character, box collision.Box, zoom float64) types.Vector2 {
+func calculateBoxScreenPosition(character *character.Character, box collision.Box) types.Vector2 {
 	sprite := character.CurrentSprite
 	// Calculate sprite center on screen
 	screenCenterX := float64(config.WindowWidth) / 2
 	screenCenterY := float64(config.WindowHeight) / 2
 
-	spriteScreenOriginX := screenCenterX - (sprite.SourceSize.W/2)*zoom
-	spriteScreenOriginY := screenCenterY - (sprite.SourceSize.H/2)*zoom
+	spriteScreenOriginX := screenCenterX - (sprite.SourceSize.W / 2)
+	spriteScreenOriginY := screenCenterY - (sprite.SourceSize.H / 2)
 
 	// Add box offset
 	return types.Vector2{
-		X: spriteScreenOriginX + box.Rect.X*zoom,
-		Y: spriteScreenOriginY + box.Rect.Y*zoom,
+		X: spriteScreenOriginX + box.Rect.X,
+		Y: spriteScreenOriginY + box.Rect.Y,
 	}
 }

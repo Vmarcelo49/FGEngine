@@ -1,0 +1,7 @@
+what should the game struct contain?
+scene
+players
+camera
+
+what do the players should have?
+only have a character and a controller assignment
