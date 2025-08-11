@@ -42,10 +42,14 @@ func MakeDefaultInputMap() InputMap {
 			D:     ebiten.KeyK,
 		},
 		GamepadButtons: map[GameInput]ebiten.StandardGamepadButton{
-			A: ebiten.StandardGamepadButtonRightLeft,
-			B: ebiten.StandardGamepadButtonRightTop,
-			C: ebiten.StandardGamepadButtonRightRight,
-			D: ebiten.StandardGamepadButtonRightBottom,
+			Up:    ebiten.StandardGamepadButtonLeftTop,
+			Down:  ebiten.StandardGamepadButtonLeftBottom,
+			Left:  ebiten.StandardGamepadButtonLeftLeft,
+			Right: ebiten.StandardGamepadButtonLeftRight,
+			A:     ebiten.StandardGamepadButtonRightLeft,
+			B:     ebiten.StandardGamepadButtonRightTop,
+			C:     ebiten.StandardGamepadButtonRightRight,
+			D:     ebiten.StandardGamepadButtonRightBottom,
 		},
 	}
 }
@@ -55,7 +59,7 @@ func NewInputManager() *InputManager {
 		InputMap:   MakeDefaultInputMap(),
 		GamepadIDs: []ebiten.GamepadID{},
 	}
-}
+}3
 
 func (im *InputManager) UpdateGamepadList() {
 	im.GamepadIDs = ebiten.AppendGamepadIDs(im.GamepadIDs[:0])
@@ -72,25 +76,11 @@ func (im *InputManager) GetLocalInputs() GameInput {
 	}
 
 	for _, gamepadID := range im.GamepadIDs {
-		// Check gamepad buttons
 		for gameInput, button := range im.InputMap.GamepadButtons {
 			if ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
 				localInputs |= gameInput
 			}
 		}
-		if ebiten.IsStandardGamepadButtonPressed(gamepadID, ebiten.StandardGamepadButtonLeftTop) {
-			localInputs |= Up
-		}
-		if ebiten.IsStandardGamepadButtonPressed(gamepadID, ebiten.StandardGamepadButtonLeftBottom) {
-			localInputs |= Down
-		}
-		if ebiten.IsStandardGamepadButtonPressed(gamepadID, ebiten.StandardGamepadButtonLeftLeft) {
-			localInputs |= Left
-		}
-		if ebiten.IsStandardGamepadButtonPressed(gamepadID, ebiten.StandardGamepadButtonLeftRight) {
-			localInputs |= Right
-		}
-
 		axisCount := ebiten.GamepadAxisCount(gamepadID)
 		if axisCount >= 2 {
 			// Left stick X axis (axis 0)
