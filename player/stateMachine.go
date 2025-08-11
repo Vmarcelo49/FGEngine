@@ -1,4 +1,4 @@
-package character
+package player
 
 // Each State constant is a unique flag (bitmask). Use bitwise operations to compose and test states.
 type State uint64

@@ -4,9 +4,9 @@ import (
 	"image/color"
 	"sync"
 
-	"FGEngine/character"
 	"FGEngine/collision"
 	"FGEngine/config"
+	"FGEngine/player"
 	"FGEngine/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,44 +29,45 @@ func initWhitePixel() {
 	})
 }
 
-// DrawBoxes draws all collision boxes for the current character's sprite on the screen.
-// If character or sprite data is invalid, the function returns early without drawing.
-func DrawBoxes(character *character.Character, screen *ebiten.Image) {
-	if checkDrawConditions(character) == false {
+// DrawBoxes draws all collision boxes for the current player's sprite on the screen.
+// If player or sprite data is invalid, the function returns early without drawing.
+func DrawBoxes(p *player.Player, screen *ebiten.Image) {
+	if checkDrawConditions(p) == false {
 		return
 	}
 
 	initWhitePixel()
 
-	for _, box := range character.GetAllBoxes() {
-		options := createBoxImageOptions(character, box)
+	for _, box := range p.GetAllBoxes() {
+		options := createBoxImageOptions(p, box)
 		screen.DrawImage(whitePixel, options)
 	}
 }
 
 // DrawBoxesByType draws boxes of a specific type.
-// If character, sprite data, or box type is invalid, the function returns early without drawing.
-func DrawBoxesByType(character *character.Character, screen *ebiten.Image, boxtype collision.BoxType) {
-	if checkDrawConditions(character) == false {
+// If player, sprite data, or box type is invalid, the function returns early without drawing.
+func DrawBoxesByType(p *player.Player, screen *ebiten.Image, boxtype collision.BoxType) {
+	if checkDrawConditions(p) == false {
 		return
 	}
 
 	initWhitePixel()
+	currentSprite := p.State.AnimationManager.CurrentSprite
 
 	switch boxtype {
 	case collision.Collision:
-		for _, boxRect := range character.CurrentSprite.CollisionBoxes {
-			options := createBoxImageOptions(character, collision.Box{Rect: boxRect, BoxType: collision.Collision})
+		for _, boxRect := range currentSprite.CollisionBoxes {
+			options := createBoxImageOptions(p, collision.Box{Rect: boxRect, BoxType: collision.Collision})
 			screen.DrawImage(whitePixel, options)
 		}
 	case collision.Hit:
-		for _, boxRect := range character.CurrentSprite.HitBoxes {
-			options := createBoxImageOptions(character, collision.Box{Rect: boxRect, BoxType: collision.Hit})
+		for _, boxRect := range currentSprite.HitBoxes {
+			options := createBoxImageOptions(p, collision.Box{Rect: boxRect, BoxType: collision.Hit})
 			screen.DrawImage(whitePixel, options)
 		}
 	case collision.Hurt:
-		for _, boxRect := range character.CurrentSprite.HurtBoxes {
-			options := createBoxImageOptions(character, collision.Box{Rect: boxRect, BoxType: collision.Hurt})
+		for _, boxRect := range currentSprite.HurtBoxes {
+			options := createBoxImageOptions(p, collision.Box{Rect: boxRect, BoxType: collision.Hurt})
 			screen.DrawImage(whitePixel, options)
 		}
 	default:
@@ -74,10 +75,10 @@ func DrawBoxesByType(character *character.Character, screen *ebiten.Image, boxty
 	}
 }
 
-func createBoxImageOptions(character *character.Character, box collision.Box) *ebiten.DrawImageOptions {
+func createBoxImageOptions(p *player.Player, box collision.Box) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
-	position := calculateBoxScreenPosition(character, box)
+	position := calculateBoxScreenPosition(p, box)
 	scale := calculateBoxScale(box)
 
 	boxImgOptions.GeoM.Scale(scale.X, scale.Y) // X is width, Y is height
@@ -110,8 +111,8 @@ func calculateBoxScale(box collision.Box) types.Vector2 {
 	return types.Vector2{X: scaleW, Y: scaleH}
 }
 
-func calculateBoxScreenPosition(character *character.Character, box collision.Box) types.Vector2 {
-	sprite := character.CurrentSprite
+func calculateBoxScreenPosition(p *player.Player, box collision.Box) types.Vector2 {
+	sprite := p.State.AnimationManager.CurrentSprite
 	// Calculate sprite center on screen
 	screenCenterX := float64(config.WindowWidth) / 2
 	screenCenterY := float64(config.WindowHeight) / 2

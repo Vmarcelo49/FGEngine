@@ -25,14 +25,14 @@ type InputMap struct { // TODO, check if we want to make a slice of buttons for 
 }
 
 type InputManager struct {
-	InputMap   InputMap
+	InputMap   *InputMap
 	GamepadIDs []ebiten.GamepadID
 }
 
-func MakeDefaultInputMap() InputMap {
-	return InputMap{
+func MakeDefaultInputMap() *InputMap {
+	return &InputMap{
 		KeyboardBindings: map[GameInput]ebiten.Key{
-			Up:    ebiten.KeyW,
+			Up:    ebiten.KeyW, // ebiten.KeySpace,
 			Down:  ebiten.KeyS,
 			Left:  ebiten.KeyA,
 			Right: ebiten.KeyD,
@@ -59,7 +59,7 @@ func NewInputManager() *InputManager {
 		InputMap:   MakeDefaultInputMap(),
 		GamepadIDs: []ebiten.GamepadID{},
 	}
-}3
+}
 
 func (im *InputManager) UpdateGamepadList() {
 	im.GamepadIDs = ebiten.AppendGamepadIDs(im.GamepadIDs[:0])

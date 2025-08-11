@@ -1,7 +1,7 @@
 package graphics
 
 import (
-	"FGEngine/character"
+	"FGEngine/player"
 	"log"
 	"sync"
 
@@ -14,13 +14,15 @@ var (
 	cacheMutex sync.RWMutex
 )
 
-func loadCharacterImage(character *character.Character) *ebiten.Image {
+func loadPlayerImage(p *player.Player) *ebiten.Image {
 	if imageCache == nil {
 		imageCache = make(map[string]*ebiten.Image)
 	}
 
+	imagePath := p.State.AnimationManager.CurrentSprite.ImagePath
+
 	cacheMutex.RLock()
-	if img, exists := imageCache[character.CurrentSprite.ImagePath]; exists {
+	if img, exists := imageCache[imagePath]; exists {
 		cacheMutex.RUnlock()
 		return img
 	}
@@ -29,15 +31,15 @@ func loadCharacterImage(character *character.Character) *ebiten.Image {
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()
 
-	if img, exists := imageCache[character.CurrentSprite.ImagePath]; exists {
+	if img, exists := imageCache[imagePath]; exists {
 		return img
 	}
-	image, _, err := ebitenutil.NewImageFromFile(character.CurrentSprite.ImagePath)
+	image, _, err := ebitenutil.NewImageFromFile(imagePath)
 	if err != nil {
 		log.Panic(err)
 		return nil
 	}
-	imageCache[character.CurrentSprite.ImagePath] = image
+	imageCache[imagePath] = image
 	return image
 }
 

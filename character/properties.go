@@ -2,16 +2,8 @@ package character
 
 import "FGEngine/types"
 
-// info that matters when the game is running
-type CharacterState struct {
-	Position            types.Vector2
-	Velocity            types.Vector2
-	HP                  int // 10000
-	IgnoreGravityFrames int // some moves ignore gravity for a few frames
-	StateMachine        StateMachine
-}
-
-type Properties struct {
+// FrameProperties represents static frame-specific data that varies per animation frame
+type FrameProperties struct {
 	CancelType attackCancelType
 	Priority   int // maybe used in trades
 
@@ -36,17 +28,18 @@ type Properties struct {
 
 	MoveType MoveType
 	// hit properties
-	HitType        hitType
-	AnimPhase      AnimationPhase
-	IsInvincible   bool
-	HasArmor       bool
-	State          State
+	HitType      hitType
+	AnimPhase    AnimationPhase
+	IsInvincible bool
+	HasArmor     bool
+
+	// Static hitboxes for this frame
 	HitBoxes       []types.Rect
 	HurtBoxes      []types.Rect
 	CollisionBoxes []types.Rect
 }
 
-func (p *Properties) CanBeCounterHit() bool {
+func (p *FrameProperties) CanBeCounterHit() bool {
 	if p.MoveType == NonAttack || p.AnimPhase == Recovery || p.IsInvincible {
 		return false
 	}

@@ -1,23 +1,23 @@
 package graphics
 
 import (
-	"FGEngine/character"
+	"FGEngine/player"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-func DrawCharacter(character *character.Character, screen *ebiten.Image) {
-	if checkDrawConditions(character) == false {
+func DrawPlayer(p *player.Player, screen *ebiten.Image) {
+	if checkDrawConditions(p) == false {
 		return
 	}
 
-	characterImage := loadCharacterImage(character)
+	characterImage := loadPlayerImage(p)
 	if characterImage == nil {
 		return
 	}
 
 	options := &ebiten.DrawImageOptions{}
-	options.GeoM.Translate(character.Position.X, character.Position.Y)
+	options.GeoM.Translate(p.State.Position.X, p.State.Position.Y)
 	screen.DrawImage(characterImage, options)
 }
 
