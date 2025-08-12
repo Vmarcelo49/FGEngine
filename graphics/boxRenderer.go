@@ -4,9 +4,9 @@ import (
 	"image/color"
 	"sync"
 
+	"FGEngine/animation"
 	"FGEngine/collision"
 	"FGEngine/config"
-	"FGEngine/player"
 	"FGEngine/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -29,45 +29,45 @@ func initWhitePixel() {
 	})
 }
 
-// DrawBoxes draws all collision boxes for the current player's sprite on the screen.
-// If player or sprite data is invalid, the function returns early without drawing.
-func DrawBoxes(p *player.Player, screen *ebiten.Image) {
-	if checkDrawConditions(p) == false {
+// DrawBoxes draws all collision boxes for the current renderable entity's sprite on the screen.
+// If entity or sprite data is invalid, the function returns early without drawing.
+func DrawBoxes(renderable animation.Renderable, screen *ebiten.Image) {
+	if checkDrawConditions(renderable) == false {
 		return
 	}
 
 	initWhitePixel()
 
-	for _, box := range p.GetAllBoxes() {
-		options := createBoxImageOptions(p, box)
+	for _, box := range renderable.GetAllBoxes() {
+		options := createBoxImageOptions(renderable, box)
 		screen.DrawImage(whitePixel, options)
 	}
 }
 
 // DrawBoxesByType draws boxes of a specific type.
-// If player, sprite data, or box type is invalid, the function returns early without drawing.
-func DrawBoxesByType(p *player.Player, screen *ebiten.Image, boxtype collision.BoxType) {
-	if checkDrawConditions(p) == false {
+// If entity, sprite data, or box type is invalid, the function returns early without drawing.
+func DrawBoxesByType(renderable animation.Renderable, screen *ebiten.Image, boxtype collision.BoxType) {
+	if checkDrawConditions(renderable) == false {
 		return
 	}
 
 	initWhitePixel()
-	currentSprite := p.AnimationManager.CurrentSprite
+	currentSprite := renderable.GetAnimationComponent().GetCurrentSprite()
 
 	switch boxtype {
 	case collision.Collision:
 		for _, boxRect := range currentSprite.CollisionBoxes {
-			options := createBoxImageOptions(p, collision.Box{Rect: boxRect, BoxType: collision.Collision})
+			options := createBoxImageOptions(renderable, collision.Box{Rect: boxRect, BoxType: collision.Collision})
 			screen.DrawImage(whitePixel, options)
 		}
 	case collision.Hit:
 		for _, boxRect := range currentSprite.HitBoxes {
-			options := createBoxImageOptions(p, collision.Box{Rect: boxRect, BoxType: collision.Hit})
+			options := createBoxImageOptions(renderable, collision.Box{Rect: boxRect, BoxType: collision.Hit})
 			screen.DrawImage(whitePixel, options)
 		}
 	case collision.Hurt:
 		for _, boxRect := range currentSprite.HurtBoxes {
-			options := createBoxImageOptions(p, collision.Box{Rect: boxRect, BoxType: collision.Hurt})
+			options := createBoxImageOptions(renderable, collision.Box{Rect: boxRect, BoxType: collision.Hurt})
 			screen.DrawImage(whitePixel, options)
 		}
 	default:
@@ -75,13 +75,11 @@ func DrawBoxesByType(p *player.Player, screen *ebiten.Image, boxtype collision.B
 	}
 }
 
-func createBoxImageOptions(p *player.Player, box collision.Box) *ebiten.DrawImageOptions {
+func createBoxImageOptions(renderable animation.Renderable, box collision.Box) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
-	position := calculateBoxScreenPosition(p, box)
-	scale := calculateBoxScale(box)
+	position := calculateBoxScreenPosition(renderable, box)
 
-	boxImgOptions.GeoM.Scale(scale.X, scale.Y) // X is width, Y is height
 	boxImgOptions.GeoM.Translate(position.X, position.Y)
 
 	// Set the color based on box type using ColorScale
@@ -97,30 +95,14 @@ func createBoxImageOptions(p *player.Player, box collision.Box) *ebiten.DrawImag
 	return boxImgOptions
 }
 
-func calculateBoxScale(box collision.Box) types.Vector2 {
-	scaleW := box.Rect.W
-	scaleH := box.Rect.H
-
-	if scaleW <= 0 {
-		scaleW = 1 // Minimum scale
-	}
-	if scaleH <= 0 {
-		scaleH = 1 // Minimum scale
-	}
-
-	return types.Vector2{X: scaleW, Y: scaleH}
-}
-
-func calculateBoxScreenPosition(p *player.Player, box collision.Box) types.Vector2 {
-	sprite := p.AnimationManager.CurrentSprite
-	// Calculate sprite center on screen
+func calculateBoxScreenPosition(renderable animation.Renderable, box collision.Box) types.Vector2 {
+	sprite := renderable.GetAnimationComponent().GetCurrentSprite()
 	screenCenterX := float64(config.WindowWidth) / 2
 	screenCenterY := float64(config.WindowHeight) / 2
 
 	spriteScreenOriginX := screenCenterX - (sprite.SourceSize.W / 2)
 	spriteScreenOriginY := screenCenterY - (sprite.SourceSize.H / 2)
 
-	// Add box offset
 	return types.Vector2{
 		X: spriteScreenOriginX + box.Rect.X,
 		Y: spriteScreenOriginY + box.Rect.Y,

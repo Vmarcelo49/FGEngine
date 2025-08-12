@@ -1,27 +1,28 @@
 package graphics
 
 import (
-	"FGEngine/player"
+	"FGEngine/animation"
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// Draws the current active sprite.
-func DrawPlayer(p *player.Player, screen *ebiten.Image) {
-	if checkDrawConditions(p) == false {
-		fmt.Println("Player is not in a drawable state")
+// DrawRenderable draws any renderable entity (player, projectile, etc.)
+func DrawRenderable(renderable animation.Renderable, screen *ebiten.Image) {
+	if checkDrawConditions(renderable) == false {
+		fmt.Println("Entity is not in a drawable state")
 		return
 	}
 
-	characterImage := loadPlayerImage(p)
-	if characterImage == nil {
+	entityImage := loadRenderableImage(renderable)
+	if entityImage == nil {
 		return
 	}
 
 	options := &ebiten.DrawImageOptions{}
-	options.GeoM.Translate(p.State.Position.X, p.State.Position.Y)
-	screen.DrawImage(characterImage, options)
+	pos := renderable.GetPosition()
+	options.GeoM.Translate(pos.X, pos.Y)
+	screen.DrawImage(entityImage, options)
 }
 
 // TODO, add sprite priority to control the z-index

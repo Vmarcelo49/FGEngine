@@ -1,17 +1,15 @@
 package graphics
 
 import (
-	"FGEngine/player"
+	"FGEngine/animation"
 )
 
 // Placeholder
 
 // TODO, this must be removed, we must implement a proper initialization
-func checkDrawConditions(p *player.Player) bool {
-	if p != nil && p.AnimationManager != nil {
-		if p.AnimationManager.CurrentSprite != nil {
-			return true
-		}
+func checkDrawConditions(renderable animation.Renderable) bool {
+	if renderable != nil && renderable.GetAnimationComponent() != nil {
+		return renderable.GetAnimationComponent().IsValid()
 	}
 	return false
 }

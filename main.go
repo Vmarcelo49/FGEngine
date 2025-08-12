@@ -1,6 +1,7 @@
 package main
 
 import (
+	"FGEngine/animation"
 	"FGEngine/config"
 	"FGEngine/graphics"
 	"FGEngine/player"
@@ -11,16 +12,19 @@ import (
 )
 
 type Game struct {
-	player []*player.Player
+	players          []*player.Player
+	animationManager *animation.ComponentManager
 }
 
 func (g *Game) Update() error {
+	// Update all animation components each frame
+	g.animationManager.UpdateAll()
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	for _, p := range g.player {
-		graphics.DrawPlayer(p, screen)
+	for _, p := range g.players {
+		graphics.DrawRenderable(p, screen)
 	}
 }
 
@@ -32,10 +36,21 @@ func main() {
 	initializeSystems()
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 	ebiten.SetWindowTitle("Fighting Game")
-	player1 := player.CreateDebugPlayer()
+
+	// Create the animation manager
+	animManager := animation.NewComponentManager()
+
+	// Create player with the animation manager
+	player1 := player.CreateDebugPlayer(animManager)
 	player1.SetAnimation("idle")
-	player1.State.Position = types.Vector2{X: config.WorldWidth / 2, Y: config.WorldHeight / 2}
-	if err := ebiten.RunGame(&Game{player: []*player.Player{player1}}); err != nil {
+	player1.Position = types.Vector2{X: config.WorldWidth / 2, Y: config.WorldHeight / 2}
+
+	game := &Game{
+		players:          []*player.Player{player1},
+		animationManager: animManager,
+	}
+
+	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
 }
