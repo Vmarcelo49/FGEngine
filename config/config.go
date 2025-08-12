@@ -2,9 +2,9 @@ package config
 
 var (
 	WindowHeight, WindowWidth int
-	WorldWidth, WorldHeight   float64
-	CameraWidth, CameraHeight int
 	ControllerDeadzone        float64
+	WorldWidth, WorldHeight   float64 // this should not be here, making just a global const seems fine
+	CameraWidth, CameraHeight int     // this too
 	// worldSize
 	// ingameRes 640x360 seems good
 )

@@ -8,7 +8,7 @@ import (
 	"FGEngine/types"
 )
 
-type SpriteEx struct {
+type Sprite struct {
 	ImagePath      string       `yaml:"imgPath"`
 	Duration       uint         `yaml:"duration"`
 	SourceSize     types.Rect   `yaml:"sourceSize"`

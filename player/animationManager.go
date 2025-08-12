@@ -4,7 +4,7 @@ import "FGEngine/character"
 
 type AnimationManager struct {
 	CurrentAnim                *character.Animation
-	CurrentSprite              *character.SpriteEx
+	CurrentSprite              *character.Sprite
 	FrameIndex                 uint
 	SpriteIndex                uint
 	ShouldLoopCurrentAnimation bool
@@ -21,12 +21,11 @@ func (am *AnimationManager) Update() {
 	if am.FrameIndex >= am.CurrentSprite.Duration { // should advance to the next sprite
 		am.FrameIndex = 0
 		if am.SpriteIndex < uint(len(am.CurrentAnim.Sprites))-1 { // if in range of current animation len of sprites
-			if am.SpriteIndex < uint(len(am.CurrentAnim.Sprites)-1) { // if in range of current animation len of sprites
-				am.SpriteIndex++
-				if am.SpriteIndex >= uint(len(am.CurrentAnim.Sprites)) { // if out of range of current animation len of sprites
-					am.SpriteIndex = 0
-				}
+			am.SpriteIndex++
+			if am.SpriteIndex >= uint(len(am.CurrentAnim.Sprites)) { // if out of range of current animation len of sprites
+				am.SpriteIndex = 0
 			}
+
 		}
 		if !am.ShouldLoopCurrentAnimation { // go to next animation in queue
 			am.SpriteIndex = 0
@@ -36,5 +35,18 @@ func (am *AnimationManager) Update() {
 	// Update the current sprite
 	if am.CurrentAnim != nil {
 		am.CurrentSprite = am.CurrentAnim.Sprites[am.SpriteIndex]
+	}
+}
+
+func (p *Player) SetAnimation(animName string) {
+	if p.AnimationManager == nil {
+		p.AnimationManager = &AnimationManager{}
+	}
+	for _, anim := range p.Character.Animations {
+		if anim.Name == animName {
+			p.AnimationManager.CurrentAnim = anim
+			p.AnimationManager.CurrentSprite = anim.Sprites[0]
+			return
+		}
 	}
 }

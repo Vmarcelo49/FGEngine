@@ -104,6 +104,10 @@ func (im *InputManager) GetLocalInputs() GameInput {
 	return localInputs
 }
 
+func (im *InputManager) AssignGamepadID(id ebiten.GamepadID) {
+	im.GamepadIDs = append(im.GamepadIDs, id)
+}
+
 func (gi GameInput) IsPressed(input GameInput) bool {
 	return gi&input != 0
 }

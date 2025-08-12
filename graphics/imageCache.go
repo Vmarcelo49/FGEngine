@@ -19,7 +19,7 @@ func loadPlayerImage(p *player.Player) *ebiten.Image {
 		imageCache = make(map[string]*ebiten.Image)
 	}
 
-	imagePath := p.State.AnimationManager.CurrentSprite.ImagePath
+	imagePath := p.AnimationManager.CurrentSprite.ImagePath
 
 	cacheMutex.RLock()
 	if img, exists := imageCache[imagePath]; exists {

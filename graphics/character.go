@@ -2,12 +2,15 @@ package graphics
 
 import (
 	"FGEngine/player"
+	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Draws the current active sprite.
 func DrawPlayer(p *player.Player, screen *ebiten.Image) {
 	if checkDrawConditions(p) == false {
+		fmt.Println("Player is not in a drawable state")
 		return
 	}
 

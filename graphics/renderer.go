@@ -6,9 +6,10 @@ import (
 
 // Placeholder
 
+// TODO, this must be removed, we must implement a proper initialization
 func checkDrawConditions(p *player.Player) bool {
-	if p != nil && p.State.AnimationManager != nil {
-		if p.State.AnimationManager.CurrentSprite != nil {
+	if p != nil && p.AnimationManager != nil {
+		if p.AnimationManager.CurrentSprite != nil {
 			return true
 		}
 	}

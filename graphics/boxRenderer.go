@@ -52,7 +52,7 @@ func DrawBoxesByType(p *player.Player, screen *ebiten.Image, boxtype collision.B
 	}
 
 	initWhitePixel()
-	currentSprite := p.State.AnimationManager.CurrentSprite
+	currentSprite := p.AnimationManager.CurrentSprite
 
 	switch boxtype {
 	case collision.Collision:
@@ -112,7 +112,7 @@ func calculateBoxScale(box collision.Box) types.Vector2 {
 }
 
 func calculateBoxScreenPosition(p *player.Player, box collision.Box) types.Vector2 {
-	sprite := p.State.AnimationManager.CurrentSprite
+	sprite := p.AnimationManager.CurrentSprite
 	// Calculate sprite center on screen
 	screenCenterX := float64(config.WindowWidth) / 2
 	screenCenterY := float64(config.WindowHeight) / 2

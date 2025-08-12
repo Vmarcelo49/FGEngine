@@ -5,6 +5,7 @@ import (
 	"FGEngine/collision"
 	"FGEngine/input"
 	"FGEngine/types"
+	"log"
 )
 
 type Player struct {
@@ -12,7 +13,8 @@ type Player struct {
 	Character    *character.Character
 	InputManager *input.InputManager
 
-	State *PlayerState
+	State            *PlayerState
+	AnimationManager *AnimationManager
 }
 
 type PlayerState struct {
@@ -22,8 +24,8 @@ type PlayerState struct {
 	IgnoreGravityFrames int
 
 	// Runtime animation state
-	AnimationManager *AnimationManager
-	StateMachine     *StateMachine
+
+	StateMachine *StateMachine
 
 	// Current frame properties (derived from current animation frame)
 	CurrentFrameProps *character.FrameProperties
@@ -31,12 +33,12 @@ type PlayerState struct {
 
 // GetAllBoxes returns all boxes of the current player's sprite.
 func (p *Player) GetAllBoxes() []collision.Box {
-	if p.State.AnimationManager.CurrentSprite == nil {
+	if p.AnimationManager.CurrentSprite == nil {
 		return []collision.Box{}
 	}
 
 	var boxes []collision.Box
-	currentSprite := p.State.AnimationManager.CurrentSprite
+	currentSprite := p.AnimationManager.CurrentSprite
 
 	for _, boxRect := range currentSprite.CollisionBoxes {
 		boxes = append(boxes, collision.Box{Rect: boxRect, BoxType: collision.Collision})
@@ -48,4 +50,20 @@ func (p *Player) GetAllBoxes() []collision.Box {
 		boxes = append(boxes, collision.Box{Rect: boxRect, BoxType: collision.Hurt})
 	}
 	return boxes
+}
+
+// Makes a player with helmet for debugging
+func CreateDebugPlayer() *Player {
+	character, err := character.LoadCharacter("./assets/characters/helmet.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	p1InputManager := input.NewInputManager()
+	p1InputManager.AssignGamepadID(0) // TODO, this should check for available gamepads and return an error if none found
+	return &Player{
+		ID:           0,
+		Character:    character,
+		InputManager: p1InputManager,
+		State:        &PlayerState{},
+	}
 }
