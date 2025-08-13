@@ -1,7 +1,7 @@
 package collision
 
 import (
-	"FGEngine/types"
+	"fgengine/types"
 )
 
 type BoxType uint8

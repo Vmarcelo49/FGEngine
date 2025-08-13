@@ -1,6 +1,6 @@
 package animation
 
-import "FGEngine/types"
+import "fgengine/types"
 
 // FrameProperties represents static frame-specific data that varies per animation frame
 type FrameProperties struct {

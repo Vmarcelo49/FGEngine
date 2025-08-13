@@ -1,10 +1,10 @@
 package player
 
 import (
-	"FGEngine/animation"
-	"FGEngine/collision"
-	"FGEngine/input"
-	"FGEngine/types"
+	"fgengine/animation"
+	"fgengine/collision"
+	"fgengine/input"
+	"fgengine/types"
 	"log"
 )
 

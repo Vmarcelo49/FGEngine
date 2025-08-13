@@ -1,7 +1,7 @@
 package main
 
 import (
-	"FGEngine/config"
+	"fgengine/config"
 )
 
 func initializeSystems() {

@@ -1,7 +1,7 @@
 package input
 
 import (
-	"FGEngine/config"
+	"fgengine/config"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

@@ -1,9 +1,9 @@
 package graphics
 
 import (
-	"FGEngine/animation"
-	"FGEngine/collision"
-	"FGEngine/types"
+	"fgengine/animation"
+	"fgengine/collision"
+	"fgengine/types"
 )
 
 // Renderable represents any game entity that can be rendered and animated

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"FGEngine/animation"
-	"FGEngine/camera"
-	"FGEngine/config"
-	"FGEngine/constants"
-	"FGEngine/graphics"
-	"FGEngine/player"
-	"FGEngine/types"
+	"fgengine/animation"
+	"fgengine/camera"
+	"fgengine/config"
+	"fgengine/constants"
+	"fgengine/graphics"
+	"fgengine/player"
+	"fgengine/types"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"

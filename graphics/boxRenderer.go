@@ -4,9 +4,9 @@ import (
 	"image/color"
 	"sync"
 
-	"FGEngine/collision"
-	"FGEngine/config"
-	"FGEngine/types"
+	"fgengine/collision"
+	"fgengine/config"
+	"fgengine/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

@@ -1,6 +1,6 @@
 package animation
 
-import "FGEngine/types"
+import "fgengine/types"
 
 type Sprite struct {
 	ImagePath      string       `yaml:"imgPath"`
