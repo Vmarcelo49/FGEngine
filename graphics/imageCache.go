@@ -1,7 +1,6 @@
 package graphics
 
 import (
-	"FGEngine/animation"
 	"log"
 	"sync"
 
@@ -14,7 +13,7 @@ var (
 	cacheMutex sync.RWMutex
 )
 
-func loadRenderableImage(renderable animation.Renderable) *ebiten.Image {
+func loadRenderableImage(renderable Renderable) *ebiten.Image {
 	if imageCache == nil {
 		imageCache = make(map[string]*ebiten.Image)
 	}

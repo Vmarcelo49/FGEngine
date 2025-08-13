@@ -4,7 +4,6 @@ import (
 	"image/color"
 	"sync"
 
-	"FGEngine/animation"
 	"FGEngine/collision"
 	"FGEngine/config"
 	"FGEngine/types"
@@ -31,7 +30,7 @@ func initWhitePixel() {
 
 // DrawBoxes draws all collision boxes for the current renderable entity's sprite on the screen.
 // If entity or sprite data is invalid, the function returns early without drawing.
-func DrawBoxes(renderable animation.Renderable, screen *ebiten.Image) {
+func DrawBoxes(renderable Renderable, screen *ebiten.Image) {
 	if checkDrawConditions(renderable) == false {
 		return
 	}
@@ -46,7 +45,7 @@ func DrawBoxes(renderable animation.Renderable, screen *ebiten.Image) {
 
 // DrawBoxesByType draws boxes of a specific type.
 // If entity, sprite data, or box type is invalid, the function returns early without drawing.
-func DrawBoxesByType(renderable animation.Renderable, screen *ebiten.Image, boxtype collision.BoxType) {
+func DrawBoxesByType(renderable Renderable, screen *ebiten.Image, boxtype collision.BoxType) {
 	if checkDrawConditions(renderable) == false {
 		return
 	}
@@ -75,7 +74,7 @@ func DrawBoxesByType(renderable animation.Renderable, screen *ebiten.Image, boxt
 	}
 }
 
-func createBoxImageOptions(renderable animation.Renderable, box collision.Box) *ebiten.DrawImageOptions {
+func createBoxImageOptions(renderable Renderable, box collision.Box) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
 	position := calculateBoxScreenPosition(renderable, box)
@@ -95,7 +94,7 @@ func createBoxImageOptions(renderable animation.Renderable, box collision.Box) *
 	return boxImgOptions
 }
 
-func calculateBoxScreenPosition(renderable animation.Renderable, box collision.Box) types.Vector2 {
+func calculateBoxScreenPosition(renderable Renderable, box collision.Box) types.Vector2 {
 	sprite := renderable.GetAnimationComponent().GetCurrentSprite()
 	screenCenterX := float64(config.WindowWidth) / 2
 	screenCenterY := float64(config.WindowHeight) / 2

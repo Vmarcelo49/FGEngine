@@ -1,10 +1,10 @@
-package character
+package animation
 
 import "FGEngine/types"
 
 // FrameProperties represents static frame-specific data that varies per animation frame
 type FrameProperties struct {
-	CancelType attackCancelType
+	CancelType AttackCancelType
 	Priority   int // maybe used in trades
 
 	Damage    int
@@ -28,7 +28,7 @@ type FrameProperties struct {
 
 	MoveType MoveType
 	// hit properties
-	HitType      hitType
+	HitType      HitType
 	AnimPhase    AnimationPhase
 	IsInvincible bool
 	HasArmor     bool
@@ -46,10 +46,10 @@ func (p *FrameProperties) CanBeCounterHit() bool {
 	return true
 }
 
-type attackCancelType int
+type AttackCancelType int
 
 const (
-	CancelAll           attackCancelType = iota // when in idle?
+	CancelAll           AttackCancelType = iota // when in idle?
 	CancelNone                                  // while taking damage, no commands do anything
 	CancelNormalAttack                          // from idle and other normals
 	CancelSpecialAttack                         // from idle and normals
@@ -57,10 +57,10 @@ const (
 	CancelJump                                  // from idle and normals
 )
 
-type hitType int
+type HitType int
 
 const (
-	Medium hitType = iota
+	Medium HitType = iota
 	Overhead
 	Low
 	Unblockable

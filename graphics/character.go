@@ -1,14 +1,13 @@
 package graphics
 
 import (
-	"FGEngine/animation"
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // DrawRenderable draws any renderable entity (player, projectile, etc.)
-func DrawRenderable(renderable animation.Renderable, screen *ebiten.Image) {
+func DrawRenderable(renderable Renderable, screen *ebiten.Image) {
 	if checkDrawConditions(renderable) == false {
 		fmt.Println("Entity is not in a drawable state")
 		return

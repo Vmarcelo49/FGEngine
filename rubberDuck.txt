@@ -1,0 +1,16 @@
+Which other packages we still need?
+proably:
+
+stages
+gameLogic?
+netplay
+
+why would a stages package be useless?
+a stage is an animation that takes the whole screen, so it would only have info to load an animation, initialize/clean the anim, play a music file
+could fit inside the animation package, just a file called stages.go probably would work
+
+why would gameLogic be bad?
+hmmm, i dont have a good grasp on how the game logic will work from now, this package proably will be needed
+
+netplay code sucks
+rollback seems hard af

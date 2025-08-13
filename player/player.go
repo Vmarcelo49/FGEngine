@@ -2,7 +2,6 @@ package player
 
 import (
 	"FGEngine/animation"
-	"FGEngine/character"
 	"FGEngine/collision"
 	"FGEngine/input"
 	"FGEngine/types"
@@ -13,9 +12,9 @@ type Player struct {
 	PlayerState
 
 	ID                 int
-	Character          *character.Character
+	Character          *animation.Character
 	InputManager       *input.InputManager
-	AnimationComponent *animation.AnimationComponent
+	AnimationComponent *animation.AnimationManager
 }
 
 type PlayerState struct {
@@ -24,7 +23,7 @@ type PlayerState struct {
 	HP                  int
 	IgnoreGravityFrames int
 	StateMachine        *StateMachine
-	CurrentFrameProps   *character.FrameProperties // Current frame properties (derived from current animation frame)
+	CurrentFrameProps   *animation.FrameProperties // Current frame properties (derived from current animation frame)
 }
 
 // GetAllBoxes returns all boxes of the current player's sprite.
@@ -55,7 +54,7 @@ func (p *Player) GetPosition() types.Vector2 {
 }
 
 // GetAnimationComponent returns the animation component. Implements the Renderable interface
-func (p *Player) GetAnimationComponent() *animation.AnimationComponent {
+func (p *Player) GetAnimationComponent() *animation.AnimationManager {
 	return p.AnimationComponent
 }
 
@@ -73,7 +72,7 @@ func (p *Player) SetAnimation(animName string) {
 
 // Makes a player with helmet for debugging
 func CreateDebugPlayer(animManager *animation.ComponentManager) *Player {
-	character, err := character.LoadCharacter("./assets/characters/helmet.yaml")
+	character, err := animation.LoadCharacter("./assets/characters/helmet.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
