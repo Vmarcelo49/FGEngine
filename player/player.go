@@ -71,7 +71,7 @@ func (p *Player) SetAnimation(animName string) {
 }
 
 // Makes a player with helmet for debugging
-func CreateDebugPlayer(animManager *animation.ComponentManager) *Player {
+func CreateDebugPlayer(animManager *animation.AnimationRegistry) *Player {
 	character, err := animation.LoadCharacter("./assets/characters/helmet.yaml")
 	if err != nil {
 		log.Fatal(err)

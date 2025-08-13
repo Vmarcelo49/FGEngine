@@ -15,7 +15,7 @@ import (
 
 type Game struct {
 	players          []*player.Player
-	animationManager *animation.ComponentManager
+	animationManager *animation.AnimationRegistry
 }
 
 func (g *Game) Update() error {
@@ -38,7 +38,7 @@ func main() {
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 	ebiten.SetWindowTitle("Fighting Game")
 
-	animManager := animation.NewComponentManager()
+	animManager := animation.NewAnimationRegistry()
 
 	player1 := player.CreateDebugPlayer(animManager)
 	player1.AnimationComponent.SetAnimation("idle")
