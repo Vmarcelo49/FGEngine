@@ -1,14 +1,14 @@
 module fgengine
 
-go 1.24.5
+go 1.25.0
 
 require (
+	github.com/ebitengine/debugui v0.2.0-alpha.6.0.20250813070520-e1125f6351c9
 	github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.13.0.20250813034658-e67f7e3ae298
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
-	github.com/ebitengine/debugui v0.2.0-alpha.6.0.20250813070520-e1125f6351c9 // indirect
 	github.com/ebitengine/gomobile v0.0.0-20250329061421-6d0a8e981e4c // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/ebitengine/purego v0.9.0-alpha.10 // indirect
