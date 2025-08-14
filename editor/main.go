@@ -2,6 +2,7 @@ package editor
 
 import (
 	"github.com/ebitengine/debugui"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
@@ -13,25 +14,22 @@ type Game struct {
 	debugui debugui.DebugUI
 }
 
-func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return outsideWidth, outsideHeight
+func (g *Game) Update() error {
+	return nil
 }
 
-/*
+func (g *Game) Draw(screen *ebiten.Image) {
+}
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	return WindowWidth, WindowHeight
+}
+
 func main() {
 	ebiten.SetWindowTitle("Animation Editor")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 	ebiten.SetWindowSize(WindowWidth, WindowHeight)
 
-	game := &Game{
-		imageCache:        newImageCache(),
-		zoom:              DefaultZoom,
-		zoomSelectorIndex: 1,
-		anim:              AnimationState{},
-	}
-
-	if err := ebiten.RunGame(game); err != nil {
+	if err := ebiten.RunGame(&Game{}); err != nil {
 		panic(err)
 	}
 }
-*/
