@@ -1,6 +1,7 @@
 # Editor Migration Completion
 
 serialization is all here :)
+old animation.go now is editorManager, still missing some functionality
 
 little marcelo, do the ui next!
 

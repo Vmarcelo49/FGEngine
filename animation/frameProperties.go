@@ -4,39 +4,39 @@ import "fgengine/types"
 
 // FrameProperties represents static frame-specific data that varies per animation frame
 type FrameProperties struct {
-	CancelType AttackCancelType
-	Priority   int // maybe used in trades
+	CancelType AttackCancelType `yaml:"cancelType"`
+	Priority   int              `yaml:"priority"` // maybe used in trades
 
-	Damage    int
-	Hitstun   int
-	Blockstun int
-	Pushback  int
-	Knockback int
-	Knockup   int
+	Damage    int `yaml:"damage"`
+	Hitstun   int `yaml:"hitstun"`
+	Blockstun int `yaml:"blockstun"`
+	Pushback  int `yaml:"pushback"`
+	Knockback int `yaml:"knockback"`
+	Knockup   int `yaml:"knockup"`
 
 	// walk, jump, dash, etc.
-	ChangeXSpeed int
-	ChangeYSpeed int
+	ChangeXSpeed int `yaml:"changeXSpeed"`
+	ChangeYSpeed int `yaml:"changeYSpeed"`
 
 	// attack flags
-	CanHardKnockdown bool
-	CanWallBounce    bool
-	CanGroundBounce  bool
-	CanOTG           bool
+	CanHardKnockdown bool `yaml:"canHardKnockdown"`
+	CanWallBounce    bool `yaml:"canWallBounce"`
+	CanGroundBounce  bool `yaml:"canGroundBounce"`
+	CanOTG           bool `yaml:"canOTG"`
 
-	SoundID int // sound effect ID, 0 means no sound
+	SoundID int `yaml:"soundID"` // sound effect ID, 0 means no sound
 
-	MoveType MoveType
+	MoveType MoveType `yaml:"moveType"`
 	// hit properties
-	HitType      HitType
-	AnimPhase    AnimationPhase
-	IsInvincible bool
-	HasArmor     bool
+	HitType      HitType        `yaml:"hitType"`
+	AnimPhase    AnimationPhase `yaml:"animPhase"`
+	IsInvincible bool           `yaml:"isInvincible"`
+	HasArmor     bool           `yaml:"hasArmor"`
 
 	// Static hitboxes for this frame
-	HitBoxes       []types.Rect
-	HurtBoxes      []types.Rect
-	CollisionBoxes []types.Rect
+	HitBoxes       []types.Rect `yaml:"hitBoxes"`
+	HurtBoxes      []types.Rect `yaml:"hurtBoxes"`
+	CollisionBoxes []types.Rect `yaml:"collisionBoxes"`
 }
 
 func (p *FrameProperties) CanBeCounterHit() bool {

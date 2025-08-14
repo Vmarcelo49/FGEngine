@@ -12,14 +12,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func ExportAnimationToYaml(s *animation.Animation, path string) error {
+func ExportAnimationToYaml(source *animation.Animation, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("failed to create YAML file: %w", err)
 	}
 	defer file.Close()
 
-	yamlInfo, err := yaml.Marshal(s)
+	yamlInfo, err := yaml.Marshal(source)
 	if err != nil {
 		return fmt.Errorf("failed to marshal animation to YAML: %w", err)
 	}
@@ -118,7 +118,7 @@ func resolveRelativePath(relativePath, referencePath string) string {
 	return filepath.Clean(filepath.Join(referenceDir, relativePath))
 }
 
-func loadCharacter(path string) (*animation.Character, error) {
+func LoadCharacterFromYAML() (*animation.Character, error) {
 	path, err := dialog.File().Filter(".yaml", "yaml").Load()
 	if err != nil {
 		return nil, errors.New("failed to load character: user cancelled")
@@ -136,6 +136,17 @@ func loadCharacter(path string) (*animation.Character, error) {
 		dialog.Message("Failed to decode character: %s", err.Error()).Error()
 		return nil, errors.New("failed to decode character")
 	}
+
+	// Convert relative paths to absolute paths based on YAML file location
+	for _, anim := range character.Animations {
+		for _, sprite := range anim.Sprites {
+			if sprite.ImagePath != "" {
+				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, path)
+			}
+		}
+	}
+
+	character.FilePath = path
 	return character, nil
 }
 

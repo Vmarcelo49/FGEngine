@@ -1,6 +1,8 @@
 package editor
 
 import (
+	"fgengine/animation"
+
 	"github.com/ebitengine/debugui"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -12,6 +14,10 @@ const (
 
 type Game struct {
 	debugui debugui.DebugUI
+
+	activeCharacter *animation.Character
+
+	editorManager *EditorManager
 }
 
 func (g *Game) Update() error {
