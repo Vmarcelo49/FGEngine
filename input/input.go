@@ -2,7 +2,7 @@ package input
 
 import (
 	"fgengine/config"
-
+	"fmt" // Only used to check the keys
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -71,6 +71,10 @@ func (im *InputManager) GetLocalInputs() GameInput {
 
 	for gameInput, key := range im.InputMap.KeyboardBindings {
 		if ebiten.IsKeyPressed(key) {
+			if im.SCODCheck() { // Needs improvement!!!
+				gameInput = 0
+			}
+			fmt.Printf("Key pressed: %s (GameInput: %v)\n", key.String(), gameInput)
 			localInputs |= gameInput
 		}
 	}
@@ -78,6 +82,9 @@ func (im *InputManager) GetLocalInputs() GameInput {
 	for _, gamepadID := range im.GamepadIDs {
 		for gameInput, button := range im.InputMap.GamepadButtons {
 			if ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
+				if im.SCODCheck() {
+					gameInput = 0
+				}
 				localInputs |= gameInput
 			}
 		}
@@ -110,4 +117,62 @@ func (im *InputManager) AssignGamepadID(id ebiten.GamepadID) {
 
 func (gi GameInput) IsPressed(input GameInput) bool {
 	return gi&input != 0
+}
+
+// There should be a better way of doing this. me very bad coder
+func (im *InputManager) SCODCheck() bool {
+	leftPressed := false
+	rightPressed := false
+	upPressed := false
+	downPressed := false
+
+	// I feel like having the same for loop as the main controller function is bad. idk should look more into this later
+	for gameInput, key := range im.InputMap.KeyboardBindings {
+		if gameInput == Left && ebiten.IsKeyPressed(key) {
+			leftPressed = true
+		}
+		if gameInput == Right && ebiten.IsKeyPressed(key) {
+			rightPressed = true
+		}
+	}
+	for gameInput, key := range im.InputMap.KeyboardBindings {
+		if gameInput == Up && ebiten.IsKeyPressed(key) {
+			upPressed = true
+		}
+		if gameInput == Down && ebiten.IsKeyPressed(key) {
+			downPressed = true
+		}
+	}
+
+	for _, gamepadID := range im.GamepadIDs {
+		for gameInput, button := range im.InputMap.GamepadButtons {
+			if gameInput == Left && ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
+				leftPressed = true
+			}
+			if gameInput == Right && ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
+				rightPressed = true
+			}
+		}
+	}
+
+	for _, gamepadID := range im.GamepadIDs {
+		for gameInput, button := range im.InputMap.GamepadButtons {
+			if gameInput == Up && ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
+				upPressed = true
+			}
+			if gameInput == Down && ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
+				downPressed = true
+			}
+		}
+	}
+
+	if leftPressed && rightPressed {
+		return leftPressed && rightPressed
+	}
+
+	if upPressed && downPressed {
+		return upPressed && downPressed
+	}
+
+	return false
 }
