@@ -2,7 +2,7 @@ package input
 
 import (
 	"fgengine/config"
-
+	"fmt" // Only used to check the keys
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -100,7 +100,7 @@ func (im *InputManager) GetLocalInputs() GameInput {
 			}
 		}
 	}
-
+	checkSOCD(&localInputs)
 	return localInputs
 }
 
@@ -110,4 +110,24 @@ func (im *InputManager) AssignGamepadID(id ebiten.GamepadID) {
 
 func (gi GameInput) IsPressed(input GameInput) bool {
 	return gi&input != 0
+}
+
+// This is way better
+func checkSOCD(input *GameInput) {
+	var leftpressed = input.IsPressed(Left)
+	var rightPressed = input.IsPressed(Right)
+
+	var upPressed = input.IsPressed(Up)
+	var downPressed = input.IsPressed(Down)
+
+
+	if leftpressed && rightPressed {
+		*input &^= (Left | Right)
+		fmt.Printf("SOCD: Detected")
+	}
+
+	if upPressed && downPressed {
+		*input &^= (Up | Down)
+		fmt.Printf("SOCD: Detected")
+	}
 }
