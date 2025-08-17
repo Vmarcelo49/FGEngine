@@ -17,6 +17,11 @@ type EditorManager struct {
 	frameCount      int
 	frameIndex      int
 	playingAnim     bool
+
+	// UI related
+	uiPrevAnimationName string
+	logBuf              string
+	logUpdated          bool
 }
 
 func (e *EditorManager) SetActiveAnimation(anim *animation.Animation) {
