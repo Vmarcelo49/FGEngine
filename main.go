@@ -21,8 +21,6 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	g.inputManager.UpdateGamepadList() // logging user input
-	g.inputManager.GetLocalInputs()	   //
 	g.animationManager.UpdateAll()
 	return nil
 }

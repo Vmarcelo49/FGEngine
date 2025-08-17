@@ -2,7 +2,6 @@ package input
 
 import (
 	"fgengine/config"
-	"fmt" // Only used to check the keys
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -112,22 +111,14 @@ func (gi GameInput) IsPressed(input GameInput) bool {
 	return gi&input != 0
 }
 
-// This is way better
+
 func checkSOCD(input *GameInput) {
-	var leftpressed = input.IsPressed(Left)
-	var rightPressed = input.IsPressed(Right)
 
-	var upPressed = input.IsPressed(Up)
-	var downPressed = input.IsPressed(Down)
-
-
-	if leftpressed && rightPressed {
+	if input.IsPressed(Left) && input.IsPressed(Right) {
 		*input &^= (Left | Right)
-		fmt.Printf("SOCD: Detected")
 	}
 
-	if upPressed && downPressed {
+	if input.IsPressed(Up) && input.IsPressed(Down) {
 		*input &^= (Up | Down)
-		fmt.Printf("SOCD: Detected")
 	}
 }
