@@ -1,7 +1,6 @@
 package editor
 
 import (
-	"errors"
 	"fgengine/animation"
 	"fgengine/types"
 	"fmt"
@@ -121,12 +120,12 @@ func resolveRelativePath(relativePath, referencePath string) string {
 func LoadCharacterFromYAML() (*animation.Character, error) {
 	path, err := dialog.File().Filter(".yaml", "yaml").Load()
 	if err != nil {
-		return nil, errors.New("failed to load character: user cancelled")
+		return nil, fmt.Errorf("failed to load character: user cancelled")
 	}
 	file, err := os.Open(path)
 	if err != nil {
 		dialog.Message("Failed to open file: %s", err.Error()).Error()
-		return nil, errors.New("failed to open character file")
+		return nil, fmt.Errorf("failed to open character file")
 	}
 	defer file.Close()
 
@@ -134,7 +133,7 @@ func LoadCharacterFromYAML() (*animation.Character, error) {
 	character := &animation.Character{}
 	if err := decoder.Decode(character); err != nil {
 		dialog.Message("Failed to decode character: %s", err.Error()).Error()
-		return nil, errors.New("failed to decode character")
+		return nil, fmt.Errorf("failed to decode character")
 	}
 
 	// Convert relative paths to absolute paths based on YAML file location
