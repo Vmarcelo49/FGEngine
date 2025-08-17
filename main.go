@@ -6,6 +6,7 @@ import (
 	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/graphics"
+	"fgengine/input"
 	"fgengine/player"
 	"fgengine/types"
 	"log"
@@ -16,6 +17,7 @@ import (
 type Game struct {
 	players          []*player.Player
 	animationManager *animation.AnimationRegistry
+	inputManager     *input.InputManager // Needed to make logging the inputs work properly.
 }
 
 func (g *Game) Update() error {
@@ -39,6 +41,7 @@ func main() {
 	ebiten.SetWindowTitle("Fighting Game")
 
 	animManager := animation.NewAnimationRegistry()
+	inputManager := input.NewInputManager()
 
 	player1 := player.CreateDebugPlayer(animManager)
 	player1.AnimationComponent.SetAnimation("idle")
@@ -47,6 +50,7 @@ func main() {
 	game := &Game{
 		players:          []*player.Player{player1},
 		animationManager: animManager,
+		inputManager:     inputManager,
 	}
 
 	if err := ebiten.RunGame(game); err != nil {
