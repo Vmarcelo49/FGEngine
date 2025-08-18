@@ -2,6 +2,7 @@ package input
 
 import (
 	"fgengine/config"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -111,9 +112,7 @@ func (gi GameInput) IsPressed(input GameInput) bool {
 	return gi&input != 0
 }
 
-
 func checkSOCD(input *GameInput) {
-
 	if input.IsPressed(Left) && input.IsPressed(Right) {
 		*input &^= (Left | Right)
 	}

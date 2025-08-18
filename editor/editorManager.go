@@ -22,6 +22,7 @@ type EditorManager struct {
 	uiPrevAnimationName string
 	logBuf              string
 	logUpdated          bool
+	logSubmitBuf        string
 }
 
 func (e *EditorManager) SetActiveAnimation(anim *animation.Animation) {

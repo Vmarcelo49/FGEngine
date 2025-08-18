@@ -46,20 +46,15 @@ func (g *Game) saveCharacter() {
 
 	var path string
 	var err error
-
-	// If we have a saved file path, use it directly
 	if g.activeCharacter.FilePath != "" {
 		path = g.activeCharacter.FilePath
 	} else {
-		// Ask for file path if we don't have one
 		path, err = dialog.File().Filter(".yaml", "yaml").Save()
 		if err != nil {
 			g.writeLog("Failed to save character: " + err.Error())
 			return
 		}
-		// Ensure the path has the correct .yaml extension
 		path = ensureExtension(path, "yaml")
-		// Remember the file path for future saves
 		g.activeCharacter.FilePath = path
 	}
 
