@@ -5,29 +5,26 @@ import (
 	"fgengine/collision"
 	"fgengine/input"
 	"fgengine/types"
+	"fmt"
 	"log"
 )
 
 type Player struct {
-	PlayerState
+	// values that maybe make sense to be here
+	ID           int
+	Character    *animation.Character
+	InputManager *input.InputManager
+	HP           int
 
-	ID                 int
-	Character          *animation.Character
-	InputManager       *input.InputManager
-	AnimationComponent *animation.AnimationManager
-}
-
-type PlayerState struct {
+	// wtf is wrong with me values
+	AnimationComponent  *animation.AnimationManager
 	Position            types.Vector2
 	Velocity            types.Vector2
-	HP                  int
 	IgnoreGravityFrames int
 	StateMachine        *StateMachine
-	CurrentFrameProps   *animation.FrameProperties // Current frame properties (derived from current animation frame)
 }
 
 // GetAllBoxes returns all boxes of the current player's sprite.
-// Implements the Renderable interface
 func (p *Player) GetAllBoxes() []collision.Box {
 	if p.AnimationComponent == nil || !p.AnimationComponent.IsValid() {
 		return []collision.Box{}
@@ -48,24 +45,10 @@ func (p *Player) GetAllBoxes() []collision.Box {
 	return boxes
 }
 
-// GetPosition returns the player's position. Implements the Renderable interface
-func (p *Player) GetPosition() types.Vector2 {
-	return p.Position
-}
-
-// GetAnimationComponent returns the animation component. Implements the Renderable interface
-func (p *Player) GetAnimationComponent() *animation.AnimationManager {
-	return p.AnimationComponent
-}
-
-// GetID returns the player's ID. Implements the Renderable interface
-func (p *Player) GetID() int {
-	return p.ID
-}
-
 // SetAnimation is a convenience method to set animations
 func (p *Player) SetAnimation(animName string) {
 	if p.AnimationComponent != nil {
+		fmt.Println("Stop using player.SetAnimation()! use AnimationComponent.SetAnimation() instead.")
 		p.AnimationComponent.SetAnimation(animName)
 	}
 }
@@ -87,6 +70,5 @@ func CreateDebugPlayer(animManager *animation.AnimationRegistry) *Player {
 		Character:          character,
 		InputManager:       p1InputManager,
 		AnimationComponent: animComponent,
-		PlayerState:        PlayerState{},
 	}
 }
