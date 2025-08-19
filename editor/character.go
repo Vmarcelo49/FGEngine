@@ -25,7 +25,7 @@ func (g *Game) createCharacter() {
 
 func (g *Game) loadCharacter() {
 	g.checkIfResetNeeded()
-	character, err := LoadCharacterFromYAML()
+	character, err := loadCharacterFromYAML()
 	if err != nil {
 		g.writeLog("Failed to load character: " + err.Error())
 		return
@@ -58,7 +58,7 @@ func (g *Game) saveCharacter() {
 		g.activeCharacter.FilePath = path
 	}
 
-	err = ExportCharacterToYaml(g.activeCharacter, path)
+	err = exportCharacterToYAML(g.activeCharacter, path)
 	if err != nil {
 		g.writeLog("Failed to export character: " + err.Error())
 	} else {

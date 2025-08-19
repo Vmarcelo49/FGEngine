@@ -1,9 +1,15 @@
 package animation
 
-import "fgengine/types"
+import (
+	"fgengine/state"
+	"fgengine/types"
+)
 
 // FrameProperties represents static frame-specific data that varies per animation frame
 type FrameProperties struct {
+	// State represents the character state during this frame
+	State state.State `yaml:"state"`
+
 	CancelType AttackCancelType `yaml:"cancelType"`
 	Priority   int              `yaml:"priority"` // maybe used in trades
 

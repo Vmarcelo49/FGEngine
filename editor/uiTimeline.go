@@ -72,12 +72,12 @@ func (g *Game) AddImageToFrame() {
 
 	path, err := dialog.File().Filter("Image files", "png").Load()
 	if err != nil {
-		g.writeLog(fmt.Sprintf("Error loading image: %s", err))
+		g.writeLog(fmt.Sprintf("failed to load image: %s", err))
 		return
 	}
 
 	if err := g.editorManager.addSpriteByFile(path); err != nil {
-		g.writeLog(fmt.Sprintf("Error adding image to frame: %s", err))
+		g.writeLog(fmt.Sprintf("failed to add image to frame: %s", err))
 		return
 	}
 

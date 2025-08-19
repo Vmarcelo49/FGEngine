@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func ExportAnimationToYaml(source *animation.Animation, path string) error {
+func exportAnimationToYaml(source *animation.Animation, path string) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("failed to create YAML file: %w", err)
@@ -30,7 +30,7 @@ func ExportAnimationToYaml(source *animation.Animation, path string) error {
 	return nil
 }
 
-func LoadAnimationFromYAML() (animation.Animation, error) {
+func loadAnimationFromYAML() (animation.Animation, error) {
 	path, err := dialog.File().Filter(".yaml", "yaml").Load()
 	if err != nil {
 		return animation.Animation{}, err
@@ -51,7 +51,7 @@ func LoadAnimationFromYAML() (animation.Animation, error) {
 	return anim, nil
 }
 
-func ExportCharacterToYaml(c *animation.Character, path string) error {
+func exportCharacterToYAML(c *animation.Character, path string) error {
 	tempCharacter := *c
 	tempCharacter.Animations = make(map[string]*animation.Animation)
 
@@ -117,22 +117,20 @@ func resolveRelativePath(relativePath, referencePath string) string {
 	return filepath.Clean(filepath.Join(referenceDir, relativePath))
 }
 
-func LoadCharacterFromYAML() (*animation.Character, error) {
+func loadCharacterFromYAML() (*animation.Character, error) {
 	path, err := dialog.File().Filter(".yaml", "yaml").Load()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load character: user cancelled")
 	}
 	file, err := os.Open(path)
 	if err != nil {
-		dialog.Message("Failed to open file: %s", err.Error()).Error()
-		return nil, fmt.Errorf("failed to open character file")
+		return nil, fmt.Errorf("failed to open character file: %w", err)
 	}
 	defer file.Close()
 
 	decoder := yaml.NewDecoder(file)
 	character := &animation.Character{}
 	if err := decoder.Decode(character); err != nil {
-		dialog.Message("Failed to decode character: %s", err.Error()).Error()
 		return nil, fmt.Errorf("failed to decode character")
 	}
 

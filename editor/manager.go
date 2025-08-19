@@ -13,16 +13,17 @@ import (
 )
 
 type EditorManager struct {
-	activeAnimation *animation.Animation
-	frameCount      int
-	frameIndex      int
-	playingAnim     bool
+	activeAnimation         *animation.Animation
+	frameCount              int
+	frameIndex              int
+	animationSelectionIndex int
+	playingAnim             bool
+	previousAnimationName   string
 
 	// UI related
-	uiPrevAnimationName string
-	logBuf              string
-	logUpdated          bool
-	logSubmitBuf        string
+	logBuf       string
+	logUpdated   bool
+	logSubmitBuf string
 }
 
 func (e *EditorManager) SetActiveAnimation(anim *animation.Animation) {
@@ -42,7 +43,6 @@ func (e *EditorManager) addSpriteByFile(path string) error {
 	return nil
 }
 
-// newAnimationFileDialog opens a file dialog to select a PNG file and creates a new animation
 func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
 	path, err := dialog.File().Filter(".png Image", "png").Load()
 	if err != nil {
@@ -94,12 +94,12 @@ func newSpriteFromImage(path string) (*animation.Sprite, error) {
 	}, nil
 }
 
-func (em *EditorManager) getCurrentSprite() *animation.Sprite {
-	if em.activeAnimation == nil {
+func (e *EditorManager) getCurrentSprite() *animation.Sprite {
+	if e.activeAnimation == nil {
 		return nil
 	}
-	if em.frameIndex < 0 || em.frameIndex >= len(em.activeAnimation.Sprites) {
+	if e.frameIndex < 0 || e.frameIndex >= len(e.activeAnimation.Sprites) {
 		return nil
 	}
-	return em.activeAnimation.Sprites[em.frameIndex]
+	return e.activeAnimation.Sprites[e.frameIndex]
 }

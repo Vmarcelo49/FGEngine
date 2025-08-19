@@ -53,7 +53,7 @@ func (g *Game) resetCharacterState() {
 	g.activeCharacter = nil
 	g.editorManager.activeAnimation = nil
 	// g.editorManager.boxRenderer = nil // TODO, we have to check how the current box renderer interacts with the editor
-	g.editorManager.uiPrevAnimationName = ""
+	g.editorManager.previousAnimationName = ""
 	g.writeLog("Cleared current state")
 }
 
@@ -72,12 +72,6 @@ func (g *Game) uiToolbar(ctx *debugui.Context) {
 			})
 		}
 	})
-}
-
-func (g *Game) uiProjectPanel(ctx *debugui.Context) {
-}
-
-func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 }
 
 func (g *Game) logWindow(ctx *debugui.Context) {
