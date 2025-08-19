@@ -20,10 +20,14 @@ type EditorManager struct {
 	playingAnim             bool
 	previousAnimationName   string
 
+	boxEditor *BoxEditor
+
 	// UI related
-	logBuf       string
-	logUpdated   bool
-	logSubmitBuf string
+	logBuf             string
+	logUpdated         bool
+	logSubmitBuf       string
+	choiceShowAllBoxes bool
+	boxActionIndex     int
 }
 
 func (e *EditorManager) SetActiveAnimation(anim *animation.Animation) {

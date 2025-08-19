@@ -1,5 +1,9 @@
 package editor
 
+// Editor can edit characters and animations
+// every animation has a set of properties and boxes that can be adjusted
+// run go run .\cmd\editor\
+
 import (
 	"fgengine/animation"
 	"fgengine/config"
