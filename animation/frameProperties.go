@@ -2,7 +2,6 @@ package animation
 
 import (
 	"fgengine/state"
-	"fgengine/types"
 )
 
 // FrameProperties represents static frame-specific data that varies per animation frame
@@ -38,11 +37,6 @@ type FrameProperties struct {
 	AnimPhase    AnimationPhase `yaml:"animPhase"`
 	IsInvincible bool           `yaml:"isInvincible"`
 	HasArmor     bool           `yaml:"hasArmor"`
-
-	// Static hitboxes for this frame
-	HitBoxes       []types.Rect `yaml:"hitBoxes"`
-	HurtBoxes      []types.Rect `yaml:"hurtBoxes"`
-	CollisionBoxes []types.Rect `yaml:"collisionBoxes"`
 }
 
 func (p *FrameProperties) CanBeCounterHit() bool {
