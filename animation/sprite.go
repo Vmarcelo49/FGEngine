@@ -2,6 +2,7 @@ package animation
 
 import "fgengine/types"
 
+// TODO, check if sprite can be simplified and other info be sent do frame properties
 type Sprite struct {
 	ImagePath      string       `yaml:"imgPath"`
 	Duration       uint         `yaml:"duration"`

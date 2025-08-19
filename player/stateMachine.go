@@ -40,6 +40,7 @@ func (sm *StateMachine) RemoveState(stateToRemove state.State) {
 	}
 }
 
+// sample of how to check if the character is attacking or other new functions may be added in this package
 func (sm *StateMachine) IsAttacking() bool {
 	return sm.HasAnyState(state.StateAttack | state.StateSpecialAttack | state.StateSuperAttack)
 }
