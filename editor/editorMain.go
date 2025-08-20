@@ -24,6 +24,7 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
+	// g.handleMouseInput()
 	if err := g.updateDebugUI(); err != nil {
 		return err
 	}

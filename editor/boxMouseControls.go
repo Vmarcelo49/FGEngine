@@ -10,7 +10,7 @@ import (
 
 // handleMouseInput processes mouse input for box selection and dragging
 func (g *Game) handleMouseInput() {
-	if g.editorManager == nil || g.editorManager.boxEditor == nil || g.editorManager.activeAnimation == nil {
+	if g.editorManager.boxEditor == nil || g.editorManager.activeAnimation == nil {
 		return
 	}
 
