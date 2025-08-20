@@ -5,7 +5,6 @@ import (
 	"fgengine/camera"
 	"fgengine/config"
 	"fgengine/constants"
-	"fgengine/graphics"
 	"fgengine/input"
 	"fgengine/player"
 	"fgengine/types"
@@ -26,9 +25,10 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	for _, p := range g.players {
-		graphics.DrawRenderable(p, screen)
-	}
+	/*
+		for _, p := range g.players {
+			graphics.DrawRenderable(p, screen)
+		}*/
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
