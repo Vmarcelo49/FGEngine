@@ -60,7 +60,7 @@ func (g *Game) resetCharacterState() {
 }
 
 func (g *Game) uiToolbar(ctx *debugui.Context) {
-	ctx.Window("Toolbar", image.Rect(0, 0, config.WindowWidth, toolbarHeight), func(layout debugui.ContainerLayout) {
+	ctx.Window("Toolbar", image.Rect(0, 0, config.WindowWidth, toolbarHeight-1), func(layout debugui.ContainerLayout) {
 		ctx.SetGridLayout([]int{toolBarButtonWidth, toolBarButtonWidth, toolBarButtonWidth, toolBarButtonWidth, -1, 35, 70}, nil)
 		ctx.Button("New Character").On(func() {
 			g.createCharacter()
@@ -77,7 +77,7 @@ func (g *Game) uiToolbar(ctx *debugui.Context) {
 }
 
 func (g *Game) logWindow(ctx *debugui.Context) {
-	ctx.Window("Log Window", image.Rect(320, toolbarHeight, 650, 290), func(layout debugui.ContainerLayout) {
+	ctx.Window("Log Window", image.Rect(panelWidth+1, toolbarHeight, 650, 290), func(layout debugui.ContainerLayout) {
 		ctx.SetGridLayout([]int{-1}, []int{-1, 0})
 		ctx.Panel(func(layout debugui.ContainerLayout) {
 			ctx.SetGridLayout([]int{-1}, []int{-1})
