@@ -13,17 +13,17 @@ var (
 	cacheMutex sync.RWMutex
 )
 
-func loadRenderableImage(renderable Renderable) *ebiten.Image {
+func loadImage(renderable Renderable) *ebiten.Image {
 	if imageCache == nil {
 		imageCache = make(map[string]*ebiten.Image)
 	}
 
-	animComp := renderable.GetAnimationComponent()
-	if animComp == nil || !animComp.IsValid() {
+	sprite := renderable.GetSprite()
+	if sprite == nil {
 		return nil
 	}
 
-	imagePath := animComp.GetCurrentSprite().ImagePath
+	imagePath := sprite.ImagePath
 
 	cacheMutex.RLock()
 	if img, exists := imageCache[imagePath]; exists {

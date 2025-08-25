@@ -1,19 +1,19 @@
 package animation
 
 type AnimationRegistry struct {
-	components map[int]*AnimationManager
+	components map[int]*AnimationSystem
 	nextID     int
 }
 
 func NewAnimationRegistry() *AnimationRegistry {
 	return &AnimationRegistry{
-		components: make(map[int]*AnimationManager),
+		components: make(map[int]*AnimationSystem),
 		nextID:     1,
 	}
 }
 
-func (ar *AnimationRegistry) CreateComponent(char *Character) *AnimationManager {
-	component := CreateAnimationManager(ar.nextID, char)
+func (ar *AnimationRegistry) CreateComponent(char *Character) *AnimationSystem {
+	component := NewAnimationSystem(ar.nextID, char)
 	ar.components[ar.nextID] = component
 	ar.nextID++
 	return component
@@ -32,7 +32,7 @@ func (ar *AnimationRegistry) RemoveComponent(id int) {
 }
 
 // GetComponent retrieves a component by ID
-func (ar *AnimationRegistry) GetComponent(id int) *AnimationManager {
+func (ar *AnimationRegistry) GetComponent(id int) *AnimationSystem {
 	return ar.components[id]
 }
 

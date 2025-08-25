@@ -4,11 +4,9 @@ import (
 	"fgengine/animation"
 	"fgengine/camera"
 	"fgengine/config"
-	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/input"
 	"fgengine/player"
-	"fgengine/types"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -17,7 +15,7 @@ import (
 type Game struct {
 	players          []*player.Player
 	animationManager *animation.AnimationRegistry
-	inputManager     *input.InputManager // Needed to make logging the inputs work properly.
+	inputManager     *input.InputManager
 }
 
 func (g *Game) Update() error {
@@ -27,7 +25,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	for _, p := range g.players {
-		graphics.DrawRenderable(p, screen)
+		graphics.DrawRenderable(p.Character, screen)
 	}
 }
 
@@ -44,8 +42,6 @@ func main() {
 	inputManager := input.NewInputManager()
 
 	player1 := player.CreateDebugPlayer(animManager)
-	player1.AnimationComponent.SetAnimation("idle")
-	player1.Position = types.Vector2{X: constants.WorldWidth / 2, Y: constants.WorldHeight / 2}
 
 	game := &Game{
 		players:          []*player.Player{player1},

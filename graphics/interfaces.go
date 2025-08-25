@@ -8,8 +8,8 @@ import (
 
 // Renderable represents any game entity that can be rendered and animated
 type Renderable interface {
-	GetPosition() types.Vector2
-	GetAnimationComponent() *animation.AnimationManager
-	GetAllBoxes() []collision.Box
 	GetID() int
+	GetPosition() types.Vector2
+	GetAllBoxes() []collision.Box
+	GetSprite() *animation.Sprite
 }

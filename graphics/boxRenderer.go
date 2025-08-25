@@ -17,10 +17,11 @@ var (
 	boxColors  = map[collision.BoxType]color.RGBA{
 		collision.Collision: {R: 80, G: 80, B: 80, A: 32},
 		collision.Hit:       {R: 100, G: 40, B: 40, A: 32},
-		collision.Hurt:      {R: 40, G: 100, B: 40, A: 32}}
+		collision.Hurt:      {R: 40, G: 100, B: 40, A: 32},
+	}
 )
 
-// whitePixel should never be unloaded
+// whitePixel should never be unloaded and only is created once
 func initWhitePixel() {
 	once.Do(func() {
 		whitePixel = ebiten.NewImage(1, 1)
@@ -28,15 +29,9 @@ func initWhitePixel() {
 	})
 }
 
-// DrawBoxes draws all collision boxes for the current renderable entity's sprite on the screen.
-// If entity or sprite data is invalid, the function returns early without drawing.
-func DrawBoxes(renderable Renderable, screen *ebiten.Image) {
-	if checkDrawConditions(renderable) == false {
-		return
-	}
-
+// DrawBoxesOf draws all collision boxes for the current renderable entity's sprite on the screen.
+func DrawBoxesOf(renderable Renderable, screen *ebiten.Image) {
 	initWhitePixel()
-
 	for _, box := range renderable.GetAllBoxes() {
 		options := createBoxImageOptions(renderable, box)
 		screen.DrawImage(whitePixel, options)
@@ -44,14 +39,9 @@ func DrawBoxes(renderable Renderable, screen *ebiten.Image) {
 }
 
 // DrawBoxesByType draws boxes of a specific type.
-// If entity, sprite data, or box type is invalid, the function returns early without drawing.
 func DrawBoxesByType(renderable Renderable, screen *ebiten.Image, boxtype collision.BoxType) {
-	if checkDrawConditions(renderable) == false {
-		return
-	}
-
 	initWhitePixel()
-	currentSprite := renderable.GetAnimationComponent().GetCurrentSprite()
+	currentSprite := renderable.GetSprite()
 
 	switch boxtype {
 	case collision.Collision:
@@ -95,7 +85,7 @@ func createBoxImageOptions(renderable Renderable, box collision.Box) *ebiten.Dra
 }
 
 func calculateBoxScreenPosition(renderable Renderable, box collision.Box) types.Vector2 {
-	sprite := renderable.GetAnimationComponent().GetCurrentSprite()
+	sprite := renderable.GetSprite()
 	screenCenterX := float64(config.WindowWidth) / 2
 	screenCenterY := float64(config.WindowHeight) / 2
 

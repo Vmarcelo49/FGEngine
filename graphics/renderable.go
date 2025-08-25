@@ -1,19 +1,12 @@
 package graphics
 
 import (
-	"fmt"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // DrawRenderable draws any renderable entity (player, projectile, etc.)
 func DrawRenderable(renderable Renderable, screen *ebiten.Image) {
-	if checkDrawConditions(renderable) == false {
-		fmt.Println("Entity is not in a drawable state")
-		return
-	}
-
-	entityImage := loadRenderableImage(renderable)
+	entityImage := loadImage(renderable)
 	if entityImage == nil {
 		return
 	}

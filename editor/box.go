@@ -120,32 +120,57 @@ func (g *Game) deleteSelectedBox() {
 		return
 	}
 
+	sprite := g.editorManager.getCurrentSprite()
+	if sprite == nil {
+		return
+	}
+
 	activeBox := g.editorManager.boxEditor.activeBox
+	activeIndex := g.editorManager.boxEditor.activeBoxIndex
+
 	switch activeBox.BoxType {
 	case collision.Collision:
+		// Delete from editor's collision boxes
 		for i, box := range g.editorManager.boxEditor.collisionBoxes {
 			if box == *activeBox {
 				g.editorManager.boxEditor.collisionBoxes = append(g.editorManager.boxEditor.collisionBoxes[:i], g.editorManager.boxEditor.collisionBoxes[i+1:]...)
 				break
 			}
 		}
+		// Delete from sprite's collision boxes
+		if activeIndex >= 0 && activeIndex < len(sprite.CollisionBoxes) {
+			sprite.CollisionBoxes = append(sprite.CollisionBoxes[:activeIndex], sprite.CollisionBoxes[activeIndex+1:]...)
+		}
 	case collision.Hit:
+		// Delete from editor's hit boxes
 		for i, box := range g.editorManager.boxEditor.hitBoxes {
 			if box == *activeBox {
 				g.editorManager.boxEditor.hitBoxes = append(g.editorManager.boxEditor.hitBoxes[:i], g.editorManager.boxEditor.hitBoxes[i+1:]...)
 				break
 			}
 		}
+		// Delete from sprite's hit boxes
+		if activeIndex >= 0 && activeIndex < len(sprite.HitBoxes) {
+			sprite.HitBoxes = append(sprite.HitBoxes[:activeIndex], sprite.HitBoxes[activeIndex+1:]...)
+		}
 	case collision.Hurt:
+		// Delete from editor's hurt boxes
 		for i, box := range g.editorManager.boxEditor.hurtBoxes {
 			if box == *activeBox {
 				g.editorManager.boxEditor.hurtBoxes = append(g.editorManager.boxEditor.hurtBoxes[:i], g.editorManager.boxEditor.hurtBoxes[i+1:]...)
 				break
 			}
 		}
+		// Delete from sprite's hurt boxes
+		if activeIndex >= 0 && activeIndex < len(sprite.HurtBoxes) {
+			sprite.HurtBoxes = append(sprite.HurtBoxes[:activeIndex], sprite.HurtBoxes[activeIndex+1:]...)
+		}
 	default:
 		return
 	}
+
+	// Invalidate the box cache since we deleted a box
+	sprite.InvalidateBoxCache()
 	g.clearBoxSelection()
 }
 
@@ -198,21 +223,30 @@ func (g *Game) updateBoxSlice(boxType collision.BoxType, sprite *animation.Sprit
 			sprite.HurtBoxes[index] = rect
 		}
 	}
+	// Invalidate the box cache since we modified the boxes
+	sprite.InvalidateBoxCache()
 }
 
 func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.BoxType) (*collision.Box, int) {
 	newRect := types.Rect{X: 0, Y: 0, W: 50, H: 50}
 
+	var box *collision.Box
+	var index int
+
 	switch typeOfBox {
 	case collision.Collision:
-		return g.appendBoxToSlices(&currentFrame.CollisionBoxes, &g.editorManager.boxEditor.collisionBoxes, newRect, typeOfBox)
+		box, index = g.appendBoxToSlices(&currentFrame.CollisionBoxes, &g.editorManager.boxEditor.collisionBoxes, newRect, typeOfBox)
 	case collision.Hit:
-		return g.appendBoxToSlices(&currentFrame.HitBoxes, &g.editorManager.boxEditor.hitBoxes, newRect, typeOfBox)
+		box, index = g.appendBoxToSlices(&currentFrame.HitBoxes, &g.editorManager.boxEditor.hitBoxes, newRect, typeOfBox)
 	case collision.Hurt:
-		return g.appendBoxToSlices(&currentFrame.HurtBoxes, &g.editorManager.boxEditor.hurtBoxes, newRect, typeOfBox)
+		box, index = g.appendBoxToSlices(&currentFrame.HurtBoxes, &g.editorManager.boxEditor.hurtBoxes, newRect, typeOfBox)
+	default:
+		return nil, -1
 	}
 
-	return nil, -1
+	// Invalidate the box cache since we added a new box
+	currentFrame.InvalidateBoxCache()
+	return box, index
 }
 
 func (g *Game) appendBoxToSlices(frameSlice *[]types.Rect, editorSlice *[]collision.Box, newRect types.Rect, boxType collision.BoxType) (*collision.Box, int) {
