@@ -34,7 +34,7 @@ type Character struct {
 
 	// animation related
 	ActiveAnimation *animation.Animation
-	activeSprite    *animation.Sprite
+	ActiveSprite    *animation.Sprite
 	FrameIndex      int
 	SpriteIndex     int
 	ShouldLoop      bool
@@ -48,13 +48,40 @@ const (
 	Helmet CharacterID = iota
 )
 
+// LoadCharacter loads a character by its ID.
+// in the future, this and update should be the only two exported functions
 func LoadCharacter(id CharacterID) (*Character, error) {
+	chara := &Character{}
+	var err error
 	switch id {
 	case Helmet:
-		return loadCharacterByFile(defaultCharacterPath + "helmet.yaml")
+		chara, err = loadCharacterByFile(defaultCharacterPath + "helmet.yaml")
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("unknown character ID: %d", id)
 	}
+	chara.initialize()
+	return chara, nil
+}
+
+func (c *Character) initialize() {
+	c.setAnimation("idle")
+	if c.ActiveAnimation == nil {
+		panic("Character must have an 'idle' animation")
+	}
+	c.ActiveSprite = c.ActiveAnimation.Sprites[0]
+	c.StateMachine = &state.StateMachine{}
+}
+
+func (c *Character) setAnimation(name string) {
+	anim, ok := c.Animations[name]
+	if !ok {
+		return
+	}
+	c.ActiveAnimation = anim
+	c.ShouldLoop = true
 }
 
 func loadCharacterByFile(filePath string) (*Character, error) {
@@ -71,20 +98,19 @@ func loadCharacterByFile(filePath string) (*Character, error) {
 	return &character, nil
 }
 
+// Funcs for the Renderable interface:
 func (c *Character) GetID() int {
 	return c.ID
 }
-
-// Funcs for the Renderable interface:
 
 func (c *Character) GetPosition() types.Vector2 {
 	return c.Position
 }
 
 func (c *Character) GetAllBoxes() []collision.Box {
-	return c.AnimationSystem.GetCurrentSprite().GetAllBoxes()
+	return c.ActiveSprite.GetAllBoxes()
 }
 
 func (c *Character) GetSprite() *animation.Sprite {
-	return c.AnimationSystem.GetCurrentSprite()
+	return c.ActiveSprite
 }
