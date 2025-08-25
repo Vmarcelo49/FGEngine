@@ -70,7 +70,7 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 
 			g.editorManager.previousAnimationName = g.editorManager.activeAnimation.Name
 		})
-		//g.boxEditor()
+		g.boxEditor(ctx)
 	})
 }
 

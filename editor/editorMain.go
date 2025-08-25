@@ -24,6 +24,7 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
+	// g.handleMouseInput()
 	if err := g.updateDebugUI(); err != nil {
 		return err
 	}
@@ -49,11 +50,13 @@ func Run() {
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 
-	if err := ebiten.RunGame(&Game{
+	game := &Game{
 		editorManager: &EditorManager{
 			logBuf: "Animation Editor Started",
 		},
-	}); err != nil {
+	}
+
+	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
 	}
 }

@@ -38,6 +38,9 @@ func (e *EditorManager) SetActiveAnimation(anim *animation.Animation) {
 
 // Opens a PNG file, appends a new sprite to the active animation
 func (e *EditorManager) addSpriteByFile(path string) error {
+	if e == nil || e.activeAnimation == nil {
+		return fmt.Errorf("no active animation available")
+	}
 	sprite, err := newSpriteFromImage(path)
 	if err != nil {
 		return fmt.Errorf("error creating sprite from image: %w", err)
@@ -99,7 +102,7 @@ func newSpriteFromImage(path string) (*animation.Sprite, error) {
 }
 
 func (e *EditorManager) getCurrentSprite() *animation.Sprite {
-	if e.activeAnimation == nil {
+	if e == nil || e.activeAnimation == nil {
 		return nil
 	}
 	if e.frameIndex < 0 || e.frameIndex >= len(e.activeAnimation.Sprites) {

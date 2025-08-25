@@ -11,12 +11,10 @@ import (
 )
 
 func (g *Game) guiTimeline(ctx *debugui.Context) {
-
 	topY := config.WindowHeight - framePanelHeight
-	leftX := framePanelHeight
-	rightX := config.WindowWidth - framePanelHeight
+	rightX := config.WindowWidth - panelWidth - 1
 
-	ctx.Window("Timeline", image.Rect(leftX, topY, rightX, config.WindowHeight), func(layout debugui.ContainerLayout) {
+	ctx.Window("Timeline", image.Rect(panelWidth, topY, rightX, config.WindowHeight), func(layout debugui.ContainerLayout) {
 		currentFrame := g.editorManager.getCurrentSprite()
 		if currentFrame == nil {
 			ctx.Text("No frame selected")

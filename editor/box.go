@@ -13,25 +13,64 @@ type BoxEditor struct {
 	collisionBoxes []collision.Box
 	hurtBoxes      []collision.Box
 	hitBoxes       []collision.Box
-	activeBoxType  collision.BoxType
-	activeBoxIndex int
 
-	activeBox *collision.Box
-
+	boxTypeSelectionDropdown collision.BoxType // needed for box creation
+	activeBox                *collision.Box
 	// mouse input related
 	dragged           bool
 	dragStartMousePos struct{ X, Y float64 }
 	dragStartBoxPos   struct{ X, Y float64 }
 }
 
-func (g *Game) GetActiveBoxType() collision.BoxType {
-	if g.editorManager.boxEditor != nil && g.editorManager.boxEditor.activeBox != nil {
-		return g.editorManager.boxEditor.activeBox.BoxType
+func (g *Game) getActiveBox() *collision.Box {
+	if g.editorManager != nil && g.editorManager.boxEditor != nil {
+		return g.editorManager.boxEditor.activeBox
+	}
+	return nil
+}
+
+func (g *Game) getActiveBoxType() collision.BoxType {
+	if activeBox := g.getActiveBox(); activeBox != nil {
+		return activeBox.BoxType
 	}
 	return collision.Collision // theres no default or unknown box type, 0 is Collision
 }
 
+func (g *Game) getActiveBoxindex() int {
+	activeBox := g.getActiveBox()
+	if activeBox == nil {
+		return -1
+	}
+
+	switch g.getActiveBoxType() {
+	case collision.Collision:
+		for i, box := range g.editorManager.boxEditor.collisionBoxes {
+			if box == *activeBox {
+				return i
+			}
+		}
+	case collision.Hit:
+		for i, box := range g.editorManager.boxEditor.hitBoxes {
+			if box == *activeBox {
+				return i
+			}
+		}
+	case collision.Hurt:
+		for i, box := range g.editorManager.boxEditor.hurtBoxes {
+			if box == *activeBox {
+				return i
+			}
+		}
+	}
+	return -1
+}
+
 func (g *Game) boxEditor(ctx *debugui.Context) {
+	if g.editorManager == nil {
+		ctx.Text("Editor manager not initialized")
+		return
+	}
+
 	ctx.Header("Box Editor", true, func() {
 		sprite := g.editorManager.getCurrentSprite()
 		if sprite == nil {
@@ -47,7 +86,7 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 		ctx.Text(fmt.Sprintf("Boxes - Collision: %d, Hurt: %d, Hit: %d", len(sprite.CollisionBoxes), len(sprite.HurtBoxes), len(sprite.HitBoxes)))
 		ctx.Checkbox(&g.editorManager.choiceShowAllBoxes, "Show All Boxes")
 		if g.editorManager.boxEditor.activeBox != nil {
-			boxTypeStr := g.GetActiveBoxType().String()
+			boxTypeStr := g.getActiveBoxType().String()
 			ctx.Text(fmt.Sprintf("Selected: %s Box", boxTypeStr))
 
 			ctx.SetGridLayout([]int{-1, -1}, nil)
@@ -70,7 +109,7 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{-2, -1}, nil)
 		ctx.Dropdown(&g.editorManager.boxActionIndex, []string{collision.Collision.String(), collision.Hit.String(), collision.Hurt.String()}).On(func() {
 			g.clearBoxSelection()
-			g.editorManager.boxEditor.activeBoxType = collision.BoxType(g.editorManager.boxActionIndex)
+			g.editorManager.boxEditor.boxTypeSelectionDropdown = collision.BoxType(g.editorManager.boxActionIndex)
 		})
 		ctx.Button("Add Box").On(func() {
 			g.addBox()
@@ -97,7 +136,11 @@ func (g *Game) loadBoxEditor(sprite *animation.Sprite) {
 	if sprite == nil {
 		return
 	}
-	g.editorManager.boxEditor = &BoxEditor{}
+	g.editorManager.boxEditor = &BoxEditor{
+		collisionBoxes: make([]collision.Box, 0, len(sprite.CollisionBoxes)),
+		hurtBoxes:      make([]collision.Box, 0, len(sprite.HurtBoxes)),
+		hitBoxes:       make([]collision.Box, 0, len(sprite.HitBoxes)),
+	}
 
 	for _, box := range sprite.CollisionBoxes {
 		g.editorManager.boxEditor.collisionBoxes = append(g.editorManager.boxEditor.collisionBoxes, collision.Box{Rect: box, BoxType: collision.Collision})
@@ -112,7 +155,9 @@ func (g *Game) loadBoxEditor(sprite *animation.Sprite) {
 }
 
 func (g *Game) clearBoxSelection() {
-	g.editorManager.boxEditor.activeBox = nil
+	if g.editorManager != nil && g.editorManager.boxEditor != nil {
+		g.editorManager.boxEditor.activeBox = nil
+	}
 }
 
 func (g *Game) deleteSelectedBox() {
@@ -175,7 +220,7 @@ func (g *Game) deleteSelectedBox() {
 }
 
 func (g *Game) addBox() {
-	if g.editorManager.boxEditor == nil || g.editorManager.activeAnimation == nil {
+	if g.editorManager == nil || g.editorManager.boxEditor == nil || g.editorManager.activeAnimation == nil {
 		return
 	}
 
@@ -186,25 +231,18 @@ func (g *Game) addBox() {
 
 	// any edits are saved to the frame before adding a new box
 	g.updateFrameBoxes(sprite)
+	selectedBox := g.addBoxOfType(sprite, g.editorManager.boxEditor.boxTypeSelectionDropdown)
 
-	typeOfBox := g.editorManager.boxEditor.activeBoxType
-
-	// Use the helper function to add the box and get a pointer to it
-	selectedBox, selectedIndex := g.addBoxOfType(sprite, typeOfBox)
-
-	// Update selection state
 	g.editorManager.boxEditor.activeBox = selectedBox
-	g.editorManager.boxEditor.activeBoxIndex = selectedIndex
-	g.editorManager.boxEditor.activeBoxType = typeOfBox
 }
 
 // updateFrameBoxes updates the current frame's box arrays with the modified box data
 func (g *Game) updateFrameBoxes(sprite *animation.Sprite) {
-	if sprite == nil || g.editorManager.boxEditor.activeBox == nil {
+	if g.editorManager == nil || g.editorManager.boxEditor == nil || g.editorManager.boxEditor.activeBox == nil || sprite == nil {
 		return
 	}
 
-	g.updateBoxSlice(g.editorManager.boxEditor.activeBox.BoxType, sprite, g.editorManager.boxEditor.activeBoxIndex, g.editorManager.boxEditor.activeBox.Rect)
+	g.updateBoxSlice(g.editorManager.boxEditor.activeBox.BoxType, sprite, g.getActiveBoxindex(), g.editorManager.boxEditor.activeBox.Rect)
 }
 
 // updateBoxSlice updates a specific box in the appropriate slice based on box type
@@ -227,7 +265,7 @@ func (g *Game) updateBoxSlice(boxType collision.BoxType, sprite *animation.Sprit
 	sprite.InvalidateBoxCache()
 }
 
-func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.BoxType) (*collision.Box, int) {
+func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.BoxType) *collision.Box {
 	newRect := types.Rect{X: 0, Y: 0, W: 50, H: 50}
 
 	var box *collision.Box
@@ -249,10 +287,9 @@ func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.
 	return box, index
 }
 
-func (g *Game) appendBoxToSlices(frameSlice *[]types.Rect, editorSlice *[]collision.Box, newRect types.Rect, boxType collision.BoxType) (*collision.Box, int) {
+func (g *Game) appendBoxToSlices(frameSlice *[]types.Rect, editorSlice *[]collision.Box, newRect types.Rect, boxType collision.BoxType) *collision.Box {
 	*frameSlice = append(*frameSlice, newRect)
 	newBox := collision.Box{Rect: newRect, BoxType: boxType}
 	*editorSlice = append(*editorSlice, newBox)
-	newBoxIndex := len(*editorSlice) - 1
-	return &(*editorSlice)[newBoxIndex], newBoxIndex
+	return &(*editorSlice)[len(*editorSlice)-1]
 }
