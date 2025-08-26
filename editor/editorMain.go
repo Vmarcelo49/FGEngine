@@ -5,7 +5,7 @@ package editor
 // run go run .\cmd\editor\
 
 import (
-	"fgengine/animation"
+	"fgengine/character"
 	"fgengine/config"
 	"fgengine/constants"
 
@@ -19,7 +19,7 @@ var (
 
 type Game struct {
 	debugui         debugui.DebugUI
-	activeCharacter *animation.Character
+	activeCharacter *character.Character
 	editorManager   *EditorManager
 }
 

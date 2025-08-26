@@ -2,6 +2,7 @@ package editor
 
 import (
 	"fgengine/animation"
+	"fgengine/character"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -17,7 +18,7 @@ func (g *Game) checkIfResetNeeded() {
 
 func (g *Game) createCharacter() {
 	g.checkIfResetNeeded()
-	g.activeCharacter = &animation.Character{
+	g.activeCharacter = &character.Character{
 		Animations: make(map[string]*animation.Animation),
 		Name:       "character",
 	}

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fgengine/animation"
 	"fgengine/camera"
 	"fgengine/config"
 	"fgengine/graphics"
@@ -13,13 +12,11 @@ import (
 )
 
 type Game struct {
-	players          []*player.Player
-	animationManager *animation.AnimationRegistry
-	inputManager     *input.InputManager
+	players      []*player.Player
+	inputManager *input.InputManager
 }
 
 func (g *Game) Update() error {
-	g.animationManager.UpdateAll()
 	return nil
 }
 
@@ -38,15 +35,13 @@ func main() {
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 	ebiten.SetWindowTitle("Fighting Game")
 
-	animManager := animation.NewAnimationRegistry()
 	inputManager := input.NewInputManager()
 
-	player1 := player.CreateDebugPlayer(animManager)
+	player1 := player.CreateDebugPlayer()
 
 	game := &Game{
-		players:          []*player.Player{player1},
-		animationManager: animManager,
-		inputManager:     inputManager,
+		players:      []*player.Player{player1},
+		inputManager: inputManager,
 	}
 
 	if err := ebiten.RunGame(game); err != nil {

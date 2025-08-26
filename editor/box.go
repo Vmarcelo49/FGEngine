@@ -18,8 +18,8 @@ type BoxEditor struct {
 	activeBox                *collision.Box
 	// mouse input related
 	dragged           bool
-	dragStartMousePos struct{ X, Y float64 }
-	dragStartBoxPos   struct{ X, Y float64 }
+	dragStartMousePos types.Vector2
+	dragStartBoxPos   types.Vector2
 }
 
 func (g *Game) getActiveBox() *collision.Box {
@@ -161,7 +161,7 @@ func (g *Game) clearBoxSelection() {
 }
 
 func (g *Game) deleteSelectedBox() {
-	if g.editorManager.boxEditor == nil || g.editorManager.boxEditor.activeBox == nil {
+	if g.editorManager.boxEditor.activeBox == nil {
 		return
 	}
 
@@ -171,7 +171,7 @@ func (g *Game) deleteSelectedBox() {
 	}
 
 	activeBox := g.editorManager.boxEditor.activeBox
-	activeIndex := g.editorManager.boxEditor.activeBoxIndex
+	activeIndex := g.getActiveBoxindex()
 
 	switch activeBox.BoxType {
 	case collision.Collision:
@@ -269,22 +269,21 @@ func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.
 	newRect := types.Rect{X: 0, Y: 0, W: 50, H: 50}
 
 	var box *collision.Box
-	var index int
 
 	switch typeOfBox {
 	case collision.Collision:
-		box, index = g.appendBoxToSlices(&currentFrame.CollisionBoxes, &g.editorManager.boxEditor.collisionBoxes, newRect, typeOfBox)
+		box = g.appendBoxToSlices(&currentFrame.CollisionBoxes, &g.editorManager.boxEditor.collisionBoxes, newRect, typeOfBox)
 	case collision.Hit:
-		box, index = g.appendBoxToSlices(&currentFrame.HitBoxes, &g.editorManager.boxEditor.hitBoxes, newRect, typeOfBox)
+		box = g.appendBoxToSlices(&currentFrame.HitBoxes, &g.editorManager.boxEditor.hitBoxes, newRect, typeOfBox)
 	case collision.Hurt:
-		box, index = g.appendBoxToSlices(&currentFrame.HurtBoxes, &g.editorManager.boxEditor.hurtBoxes, newRect, typeOfBox)
+		box = g.appendBoxToSlices(&currentFrame.HurtBoxes, &g.editorManager.boxEditor.hurtBoxes, newRect, typeOfBox)
 	default:
-		return nil, -1
+		return nil
 	}
 
 	// Invalidate the box cache since we added a new box
 	currentFrame.InvalidateBoxCache()
-	return box, index
+	return box
 }
 
 func (g *Game) appendBoxToSlices(frameSlice *[]types.Rect, editorSlice *[]collision.Box, newRect types.Rect, boxType collision.BoxType) *collision.Box {

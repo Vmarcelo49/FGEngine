@@ -1,7 +1,6 @@
 package player
 
 import (
-	"fgengine/animation"
 	"fgengine/character"
 	"fgengine/input"
 	"log"
@@ -13,7 +12,7 @@ type Player struct {
 }
 
 // Makes a player with helmet for debugging
-func CreateDebugPlayer(animManager *animation.AnimationRegistry) *Player {
+func CreateDebugPlayer() *Player {
 	character, err := character.LoadCharacter(character.Helmet)
 	if err != nil {
 		log.Fatal(err)

@@ -2,6 +2,7 @@ package editor
 
 import (
 	"fgengine/animation"
+	"fgengine/character"
 	"fgengine/types"
 	"fmt"
 	"os"
@@ -51,7 +52,7 @@ func loadAnimationFromYAML() (animation.Animation, error) {
 	return anim, nil
 }
 
-func exportCharacterToYAML(c *animation.Character, path string) error {
+func exportCharacterToYAML(c *character.Character, path string) error {
 	tempCharacter := *c
 	tempCharacter.Animations = make(map[string]*animation.Animation)
 
@@ -117,7 +118,7 @@ func resolveRelativePath(relativePath, referencePath string) string {
 	return filepath.Clean(filepath.Join(referenceDir, relativePath))
 }
 
-func loadCharacterFromYAML() (*animation.Character, error) {
+func loadCharacterFromYAML() (*character.Character, error) {
 	path, err := dialog.File().Filter(".yaml", "yaml").Load()
 	if err != nil {
 		return nil, fmt.Errorf("failed to load character: user cancelled")
@@ -129,7 +130,7 @@ func loadCharacterFromYAML() (*animation.Character, error) {
 	defer file.Close()
 
 	decoder := yaml.NewDecoder(file)
-	character := &animation.Character{}
+	character := &character.Character{}
 	if err := decoder.Decode(character); err != nil {
 		return nil, fmt.Errorf("failed to decode character")
 	}
