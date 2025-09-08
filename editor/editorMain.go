@@ -8,6 +8,7 @@ import (
 	"fgengine/character"
 	"fgengine/config"
 	"fgengine/constants"
+	"fgengine/graphics"
 
 	"github.com/ebitengine/debugui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -32,10 +33,9 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.editorManager.activeAnimation != nil { // this will be a fun rewrite
-		//g.renderCurrentFrame(screen)
-		//g.drawBoxes(screen)
-
+	if g.editorManager.activeAnimation != nil && g.activeCharacter != nil {
+		graphics.DrawRenderable(g.activeCharacter, screen)
+		graphics.DrawBoxesOf(g.activeCharacter, screen)
 	}
 	g.debugui.Draw(screen)
 }

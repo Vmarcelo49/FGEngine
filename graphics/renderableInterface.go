@@ -1,8 +1,20 @@
 package graphics
 
 import (
+	"fgengine/animation"
+	"fgengine/collision"
+	"fgengine/types"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
+
+// Renderable represents any game entity that can be rendered and animated
+type Renderable interface {
+	GetID() int // maybe useful for debugging?
+	GetPosition() types.Vector2
+	GetAllBoxes() []collision.Box
+	GetSprite() *animation.Sprite
+}
 
 // DrawRenderable draws any renderable entity (player, projectile, etc.)
 func DrawRenderable(renderable Renderable, screen *ebiten.Image) {
