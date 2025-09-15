@@ -1,16 +1,13 @@
-Which other packages we still need?
-proably:
+What is needed to be done next:
+(in order of importance)
 
-stages
-gameLogic?
-netplay
+- Finish the editor port, it currently only renders the character on 0,0 and the box rendering seems wrong.
 
-why would a stages package be useless?
-a stage is an animation that takes the whole screen, so it would only have info to load an animation, initialize/clean the anim, play a music file
-could fit inside the animation package, just a file called stages.go probably would work
+- The actual game duh...
 
-why would gameLogic be bad?
-hmmm, i dont have a good grasp on how the game logic will work from now, this package proably will be needed
 
-netplay code sucks
-rollback seems hard af
+Things for the future:
+
+- Scene Manager
+- netplay package
+- Proper configuration of the window and audio related stuff

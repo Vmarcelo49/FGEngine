@@ -19,14 +19,13 @@ const (
 	D
 )
 
+func (gi GameInput) IsPressed(input GameInput) bool {
+	return gi&input != 0
+}
+
 type InputMap struct { // TODO, check if we want to make a slice of buttons for each input type, then we can have more flexibility
 	KeyboardBindings map[GameInput]ebiten.Key
 	GamepadButtons   map[GameInput]ebiten.StandardGamepadButton
-}
-
-type InputManager struct {
-	InputMap   *InputMap
-	GamepadIDs []ebiten.GamepadID
 }
 
 func MakeDefaultInputMap() *InputMap {
@@ -54,6 +53,11 @@ func MakeDefaultInputMap() *InputMap {
 	}
 }
 
+type InputManager struct {
+	InputMap   *InputMap
+	GamepadIDs []ebiten.GamepadID
+}
+
 func NewInputManager() *InputManager {
 	return &InputManager{
 		InputMap:   MakeDefaultInputMap(),
@@ -66,7 +70,7 @@ func (im *InputManager) UpdateGamepadList() {
 }
 
 // GetLocalInputs retrieves the current local input state.
-func (im *InputManager) GetLocalInputs() GameInput {
+func (im *InputManager) GetLocalInputs() GameInput { // TODO, refactor to only check inputs of assigned gamepads and keyboard
 	var localInputs GameInput
 
 	for gameInput, key := range im.InputMap.KeyboardBindings {
@@ -106,10 +110,6 @@ func (im *InputManager) GetLocalInputs() GameInput {
 
 func (im *InputManager) AssignGamepadID(id ebiten.GamepadID) {
 	im.GamepadIDs = append(im.GamepadIDs, id)
-}
-
-func (gi GameInput) IsPressed(input GameInput) bool {
-	return gi&input != 0
 }
 
 func checkSOCD(input *GameInput) {
