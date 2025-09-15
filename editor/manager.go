@@ -69,7 +69,6 @@ func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
 		Sprites: []*animation.Sprite{sprite},
 		Prop:    []animation.FrameProperties{{}},
 	}
-	e.activeAnimation = anim
 	return anim, nil
 }
 

@@ -82,20 +82,21 @@ func (g *Game) getAnimationNames() []string {
 	for name := range g.activeCharacter.Animations {
 		anims = append(anims, name)
 	}
-	slices.Sort(anims) // Sorting alphabetically for consistent ordering
+	slices.Sort(anims) // consistent ordering for dropdown
 	return anims
 }
 
 func (g *Game) menuBarNewAnim() {
 	newAnim, err := g.editorManager.newAnimationFileDialog()
 	if err != nil {
-		g.writeLog(fmt.Sprintf("Error creating new animation: %v", err.Error()))
-	} else {
-		if g.activeCharacter != nil {
-			g.activeCharacter.Animations[newAnim.Name] = newAnim
-		}
-		g.editorManager.activeAnimation = g.activeCharacter.Animations[newAnim.Name]
-		g.editorManager.previousAnimationName = newAnim.Name
-		g.writeLog("New animation created successfully")
+		g.writeLog(fmt.Sprintf("Error creating new animation: %v", err))
+		return
 	}
+	if g.activeCharacter != nil {
+		g.activeCharacter.Animations[newAnim.Name] = newAnim
+	}
+	g.editorManager.activeAnimation = g.activeCharacter.Animations[newAnim.Name]
+	g.editorManager.previousAnimationName = newAnim.Name
+	g.writeLog("New animation created successfully")
+	g.activeCharacter.ActiveSprite = newAnim.Sprites[0]
 }
