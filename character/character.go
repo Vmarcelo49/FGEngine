@@ -2,7 +2,6 @@ package character
 
 import (
 	"fgengine/animation"
-	"fgengine/collision"
 	"fgengine/state"
 	"fgengine/types"
 	"fmt"
@@ -27,7 +26,7 @@ type Character struct {
 
 	// Ingame Related
 	HP                  int
-	Position            types.Vector2
+	Position            types.Vector2 // Sprite also has it own position in Rect
 	Velocity            types.Vector2
 	IgnoreGravityFrames int
 	StateMachine        *state.StateMachine
@@ -105,10 +104,6 @@ func (c *Character) GetID() int {
 
 func (c *Character) GetPosition() types.Vector2 {
 	return c.Position
-}
-
-func (c *Character) GetAllBoxes() []collision.Box {
-	return c.ActiveSprite.GetAllBoxes()
 }
 
 func (c *Character) GetSprite() *animation.Sprite {

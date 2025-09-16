@@ -2,7 +2,6 @@ package graphics
 
 import (
 	"fgengine/animation"
-	"fgengine/collision"
 	"fgengine/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,7 +11,6 @@ import (
 type Renderable interface {
 	GetID() int // maybe useful for debugging?
 	GetPosition() types.Vector2
-	GetAllBoxes() []collision.Box
 	GetSprite() *animation.Sprite
 }
 
