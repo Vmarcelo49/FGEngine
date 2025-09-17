@@ -10,56 +10,38 @@ import (
 )
 
 type BoxEditor struct {
-	collisionBoxes []collision.Box
-	hurtBoxes      []collision.Box
-	hitBoxes       []collision.Box
+	boxes map[collision.BoxType][]types.Rect
 
-	boxTypeSelectionDropdown collision.BoxType // needed for box creation
-	activeBox                *collision.Box
+	activeBoxType collision.BoxType // needed for box creation
+	activeBox     *types.Rect
 	// mouse input related
 	dragged           bool
 	dragStartMousePos types.Vector2
 	dragStartBoxPos   types.Vector2
 }
 
-func (g *Game) getActiveBox() *collision.Box {
+func (g *Game) getActiveBox() *types.Rect {
 	if g.editorManager != nil && g.editorManager.boxEditor != nil {
 		return g.editorManager.boxEditor.activeBox
 	}
 	return nil
 }
 
+// needs to be remade from scratch
 func (g *Game) getActiveBoxType() collision.BoxType {
-	if activeBox := g.getActiveBox(); activeBox != nil {
-		return activeBox.BoxType
-	}
-	return collision.Collision // theres no default or unknown box type, 0 is Collision
+	return collision.Collision
 }
 
 func (g *Game) getActiveBoxindex() int {
-	activeBox := g.getActiveBox()
-	if activeBox == nil {
+	sprite := g.editorManager.getCurrentSprite()
+	if sprite == nil {
 		return -1
 	}
 
-	switch g.getActiveBoxType() {
-	case collision.Collision:
-		for i, box := range g.editorManager.boxEditor.collisionBoxes {
-			if box == *activeBox {
-				return i
-			}
-		}
-	case collision.Hit:
-		for i, box := range g.editorManager.boxEditor.hitBoxes {
-			if box == *activeBox {
-				return i
-			}
-		}
-	case collision.Hurt:
-		for i, box := range g.editorManager.boxEditor.hurtBoxes {
-			if box == *activeBox {
-				return i
-			}
+	boxes := sprite.Boxes[g.editorManager.boxEditor.activeBoxType]
+	for i, box := range boxes {
+		if box == *g.editorManager.boxEditor.activeBox {
+			return i
 		}
 	}
 	return -1
@@ -136,21 +118,9 @@ func (g *Game) loadBoxEditor(sprite *animation.Sprite) {
 	if sprite == nil {
 		return
 	}
-	g.editorManager.boxEditor = &BoxEditor{
-		collisionBoxes: make([]collision.Box, 0, len(sprite.CollisionBoxes)),
-		hurtBoxes:      make([]collision.Box, 0, len(sprite.HurtBoxes)),
-		hitBoxes:       make([]collision.Box, 0, len(sprite.HitBoxes)),
-	}
-
-	for _, box := range sprite.CollisionBoxes {
-		g.editorManager.boxEditor.collisionBoxes = append(g.editorManager.boxEditor.collisionBoxes, collision.Box{Rect: box, BoxType: collision.Collision})
-	}
-	for _, box := range sprite.HitBoxes {
-		g.editorManager.boxEditor.hitBoxes = append(g.editorManager.boxEditor.hitBoxes, collision.Box{Rect: box, BoxType: collision.Hit})
-	}
-	for _, box := range sprite.HurtBoxes {
-		g.editorManager.boxEditor.hurtBoxes = append(g.editorManager.boxEditor.hurtBoxes, collision.Box{Rect: box, BoxType: collision.Hurt})
-	}
+	g.editorManager.boxEditor = &BoxEditor{}
+	g.editorManager.boxEditor.boxes = make(map[collision.BoxType][]types.Rect)
+	g.editorManager.boxEditor.boxes[collision.Collision] = make([]types.Rect, len(sprite.CollisionBoxes))
 
 }
 

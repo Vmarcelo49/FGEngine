@@ -6,9 +6,9 @@ import (
 )
 
 type Sprite struct {
-	ImagePath string                                `yaml:"imgPath"`
-	Rect      types.Rect                            `yaml:"rect"` // Position and Size
-	Boxes     map[collision.BoxType][]collision.Box `yaml:"-"`
+	ImagePath string                             `yaml:"imgPath"`
+	Rect      types.Rect                         `yaml:"rect"` // Position and Size
+	Boxes     map[collision.BoxType][]types.Rect `yaml:"-"`
 }
 
 func (s *Sprite) Pos() types.Vector2 {

@@ -1,9 +1,5 @@
 package collision
 
-import (
-	"fgengine/types"
-)
-
 type BoxType uint8
 
 const (
@@ -11,11 +7,6 @@ const (
 	Hit
 	Hurt
 )
-
-type Box struct {
-	Rect    types.Rect
-	BoxType BoxType
-}
 
 func (b BoxType) String() string {
 	switch b {

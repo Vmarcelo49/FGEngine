@@ -3,6 +3,7 @@ package editor
 import (
 	"fgengine/animation"
 	"fgengine/character"
+	"fgengine/collision"
 	"fgengine/types"
 	"fmt"
 	"os"
@@ -165,20 +166,16 @@ func deepCopyAnimation(a *animation.Animation) *animation.Animation {
 }
 
 func deepCopySprite(source *animation.Sprite) *animation.Sprite {
-	other := &animation.Sprite{}
-	other.ImagePath = source.ImagePath
-	other.Duration = source.Duration
-	other.SourceSize = source.SourceSize
-	other.Anchor = source.Anchor
+	destination := &animation.Sprite{}
+	destination.ImagePath = source.ImagePath
+	destination.Rect = source.Rect
 
-	other.CollisionBoxes = make([]types.Rect, len(source.CollisionBoxes))
-	copy(other.CollisionBoxes, source.CollisionBoxes)
+	destination.Boxes = make(map[collision.BoxType][]types.Rect)
 
-	other.HurtBoxes = make([]types.Rect, len(source.HurtBoxes))
-	copy(other.HurtBoxes, source.HurtBoxes)
-
-	other.HitBoxes = make([]types.Rect, len(source.HitBoxes))
-	copy(other.HitBoxes, source.HitBoxes)
-
-	return other
+	for key, boxes := range source.Boxes {
+		boxesCopy := make([]types.Rect, len(boxes))
+		copy(boxesCopy, boxes)
+		destination.Boxes[key] = boxesCopy
+	}
+	return destination
 }
