@@ -22,6 +22,7 @@ func (g *Game) createCharacter() {
 		Animations: make(map[string]*animation.Animation),
 		Name:       "character",
 	}
+	g.writeLog("New character created")
 }
 
 func (g *Game) loadCharacter() {
@@ -32,6 +33,18 @@ func (g *Game) loadCharacter() {
 		return
 	}
 	g.activeCharacter = character
+
+	// Set initial sprite if there's an animation available
+	if len(g.activeCharacter.Animations) > 0 {
+		for _, anim := range g.activeCharacter.Animations {
+			if len(anim.Sprites) > 0 {
+				g.activeCharacter.ActiveSprite = anim.Sprites[0]
+				break
+			}
+		}
+	}
+
+	g.writeLog("Character loaded successfully")
 }
 
 func (g *Game) saveCharacter() {

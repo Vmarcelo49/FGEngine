@@ -28,6 +28,14 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		frameIndex := int(g.editorManager.frameIndex)
 		ctx.Slider(&frameIndex, 0, frameCount-1, 1).On(func() {
 			g.editorManager.frameIndex = frameIndex
+			// Update character's active sprite to match the current frame
+			if g.activeCharacter != nil && g.editorManager.activeAnimation != nil {
+				currentSprite := g.editorManager.getCurrentSprite()
+				if currentSprite != nil {
+					g.activeCharacter.ActiveSprite = currentSprite
+				}
+			}
+			g.refreshBoxEditor() // Refresh box editor when frame changes
 		})
 		ctx.Text(fmt.Sprintf("%d / %d", g.editorManager.frameIndex+1, frameCount))
 

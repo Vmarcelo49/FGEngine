@@ -38,4 +38,6 @@ func (e *EditorManager) SetActiveAnimation(anim *animation.Animation) {
 	e.activeAnimation = anim
 	e.frameIndex = 0
 	e.playingAnim = false
+	// Clear box editor when switching animations
+	e.boxEditor = nil
 }

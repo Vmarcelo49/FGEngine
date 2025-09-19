@@ -7,15 +7,14 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// Renderable represents any game entity that can be rendered and animated
+// Renderable represents any game entity that can be rendered
 type Renderable interface {
-	GetID() int // maybe useful for debugging?
 	GetPosition() types.Vector2
 	GetSprite() *animation.Sprite
 }
 
-// DrawRenderable draws any renderable entity (player, projectile, etc.)
-func DrawRenderable(renderable Renderable, screen *ebiten.Image) {
+// DrawStatic draws a renderable at its exact world position (no camera transformation)
+func DrawStatic(renderable Renderable, screen *ebiten.Image) {
 	entityImage := loadImage(renderable)
 	if entityImage == nil {
 		return
@@ -27,7 +26,29 @@ func DrawRenderable(renderable Renderable, screen *ebiten.Image) {
 	screen.DrawImage(entityImage, options)
 }
 
-func DrawRenderableWithScale(renderable Renderable, screen *ebiten.Image, scaleX, scaleY float64) {
+// DrawWithCamera draws a renderable with camera transformation applied
+func DrawWithCamera(renderable Renderable, screen *ebiten.Image, camera *Camera) {
+	if !camera.IsVisible(renderable) {
+		return // Skip rendering if outside camera view
+	}
+
+	entityImage := loadImage(renderable)
+	if entityImage == nil {
+		return
+	}
+
+	options := &ebiten.DrawImageOptions{}
+	worldPos := renderable.GetPosition()
+	screenPos := camera.WorldToScreen(worldPos)
+	if camera.Scaling != 0 && camera.Scaling != 1 {
+		options.GeoM.Scale(camera.Scaling, camera.Scaling)
+	}
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
+	screen.DrawImage(entityImage, options)
+}
+
+// DrawStaticWithScale draws a renderable at exact position with scaling (no camera)
+func DrawStaticWithScale(renderable Renderable, screen *ebiten.Image, scaleX, scaleY float64) {
 	entityImage := loadImage(renderable)
 	if entityImage == nil {
 		return

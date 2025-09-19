@@ -51,6 +51,16 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 		ctx.Dropdown(&g.editorManager.animationSelectionIndex, animNames).On(func() {
 			g.editorManager.activeAnimation = g.activeCharacter.Animations[animNames[g.editorManager.animationSelectionIndex]]
 			g.editorManager.previousAnimationName = g.editorManager.activeAnimation.Name
+			g.editorManager.frameIndex = 0 // Reset to first frame
+			// Update character's active sprite
+			if g.activeCharacter != nil {
+				currentSprite := g.editorManager.getCurrentSprite()
+				if currentSprite != nil {
+					g.activeCharacter.ActiveSprite = currentSprite
+				}
+			}
+			g.editorManager.boxEditor = nil // Clear box editor when switching animations
+			g.refreshBoxEditor()            // Refresh for new animation
 		})
 		ctx.Text("Animation Name:")
 		if g.editorManager.previousAnimationName == "" && g.editorManager.activeAnimation != nil {
