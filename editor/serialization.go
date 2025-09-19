@@ -172,10 +172,14 @@ func deepCopySprite(source *animation.Sprite) *animation.Sprite {
 
 	destination.Boxes = make(map[collision.BoxType][]types.Rect)
 
-	for key, boxes := range source.Boxes {
+	copyBoxes(source.Boxes, destination.Boxes)
+	return destination
+}
+
+func copyBoxes(sourceBoxes map[collision.BoxType][]types.Rect, destBoxes map[collision.BoxType][]types.Rect) {
+	for key, boxes := range sourceBoxes {
 		boxesCopy := make([]types.Rect, len(boxes))
 		copy(boxesCopy, boxes)
-		destination.Boxes[key] = boxesCopy
+		destBoxes[key] = boxesCopy
 	}
-	return destination
 }

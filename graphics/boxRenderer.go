@@ -48,9 +48,9 @@ func DrawBoxesOf(renderable Renderable, screen *ebiten.Image) {
 		return
 	}
 
-	for _, boxes := range currentSprite.Boxes {
+	for boxType, boxes := range currentSprite.Boxes {
 		for _, box := range boxes {
-			options := createBoxImageOptions(renderable, box)
+			options := createBoxImageOptions(renderable, box, boxType)
 			screen.DrawImage(whitePixel, options)
 			// Return the options to the pool after use
 			drawOptionsPool.Put(options)
@@ -67,7 +67,7 @@ func DrawBoxesByType(renderable Renderable, screen *ebiten.Image, boxtype collis
 
 	if boxes, ok := currentSprite.Boxes[boxtype]; ok {
 		for _, box := range boxes {
-			options := createBoxImageOptions(renderable, box)
+			options := createBoxImageOptions(renderable, box, boxtype)
 			screen.DrawImage(whitePixel, options)
 			// Return the options to the pool after use
 			drawOptionsPool.Put(options)
@@ -75,7 +75,7 @@ func DrawBoxesByType(renderable Renderable, screen *ebiten.Image, boxtype collis
 	}
 }
 
-func createBoxImageOptions(renderable Renderable, box collision.Box) *ebiten.DrawImageOptions {
+func createBoxImageOptions(renderable Renderable, box types.Rect, boxType collision.BoxType) *ebiten.DrawImageOptions {
 	boxImgOptions := drawOptionsPool.Get().(*ebiten.DrawImageOptions)
 
 	// Reset options to clean state
@@ -86,19 +86,19 @@ func createBoxImageOptions(renderable Renderable, box collision.Box) *ebiten.Dra
 	boxImgOptions.GeoM.Translate(position.X, position.Y)
 
 	// Set the color based on box type using ColorScale
-	if color, exists := boxColors[box.BoxType]; exists {
+	if color, exists := boxColors[boxType]; exists {
 		boxImgOptions.ColorScale.ScaleWithColor(color)
 	}
 
 	return boxImgOptions
 }
 
-func calculateBoxScreenPosition(renderable Renderable, box collision.Box) types.Vector2 {
+func calculateBoxScreenPosition(renderable Renderable, box types.Rect) types.Vector2 {
 	sprite := renderable.GetSprite()
 	spriteScreenOriginX := screenCenterX - (sprite.Rect.W / 2)
 	spriteScreenOriginY := screenCenterY - (sprite.Rect.H / 2)
 	return types.Vector2{
-		X: spriteScreenOriginX + box.Rect.X,
-		Y: spriteScreenOriginY + box.Rect.Y,
+		X: spriteScreenOriginX + box.X,
+		Y: spriteScreenOriginY + box.Y,
 	}
 }

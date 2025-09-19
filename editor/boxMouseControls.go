@@ -24,18 +24,18 @@ func (g *Game) handleMouseInput() {
 				g.editorManager.boxEditor.dragged = true
 				g.editorManager.boxEditor.dragStartMousePos.X = worldMouseX
 				g.editorManager.boxEditor.dragStartMousePos.Y = worldMouseY
-				g.editorManager.boxEditor.dragStartBoxPos.X = selectedBox.Rect.X
-				g.editorManager.boxEditor.dragStartBoxPos.Y = selectedBox.Rect.Y
+				g.editorManager.boxEditor.dragStartBoxPos.X = selectedBox.X
+				g.editorManager.boxEditor.dragStartBoxPos.Y = selectedBox.Y
 
-				g.editorManager.boxEditor.boxTypeSelectionDropdown = selectedBox.BoxType
+				//g.editorManager.boxEditor.activeBoxType = selectedBox.type
 			}
 		} else {
 			deltaX := worldMouseX - g.editorManager.boxEditor.dragStartMousePos.X
 			deltaY := worldMouseY - g.editorManager.boxEditor.dragStartMousePos.Y
 
 			if g.editorManager.boxEditor.activeBox != nil {
-				g.editorManager.boxEditor.activeBox.Rect.X = g.editorManager.boxEditor.dragStartBoxPos.X + deltaX
-				g.editorManager.boxEditor.activeBox.Rect.Y = g.editorManager.boxEditor.dragStartBoxPos.Y + deltaY
+				g.editorManager.boxEditor.activeBox.X = g.editorManager.boxEditor.dragStartBoxPos.X + deltaX
+				g.editorManager.boxEditor.activeBox.Y = g.editorManager.boxEditor.dragStartBoxPos.Y + deltaY
 
 				sprite := g.editorManager.getCurrentSprite()
 				if sprite != nil {
@@ -55,12 +55,11 @@ func (g *Game) screenToWorldPos(screenX, screenY float64) (float64, float64) {
 
 	sprite := g.editorManager.getCurrentSprite()
 	if sprite == nil {
-		// Return un-transformed coordinates as fallback when no sprite is available
 		return screenX / Zoom, screenY / Zoom
 	}
 
-	spriteW := sprite.SourceSize.W
-	spriteH := sprite.SourceSize.H
+	spriteW := sprite.Rect.W
+	spriteH := sprite.Rect.H
 
 	spriteScreenAnchorX := float64(config.WindowWidth)/2 - spriteW/2*Zoom
 	spriteScreenAnchorY := float64(config.WindowHeight)/2 - spriteH/2*Zoom
@@ -75,24 +74,24 @@ func (g *Game) screenToWorldPos(screenX, screenY float64) (float64, float64) {
 }
 
 // getBoxUnderMouse returns the box under the mouse cursor, if any
-func (g *Game) getBoxUnderMouse(worldX, worldY float64) *collision.Box {
+func (g *Game) getBoxUnderMouse(worldX, worldY float64) *types.Rect {
 	point := types.Vector2{X: worldX, Y: worldY}
 
-	for i, box := range g.editorManager.boxEditor.collisionBoxes {
-		if box.Rect.Contains(point.X, point.Y) {
-			return &g.editorManager.boxEditor.collisionBoxes[i]
+	for i, box := range g.editorManager.boxEditor.boxes[collision.Collision] {
+		if box.Contains(point.X, point.Y) {
+			return &g.editorManager.boxEditor.boxes[collision.Collision][i]
 		}
 	}
 
-	for i, box := range g.editorManager.boxEditor.hitBoxes {
-		if box.Rect.Contains(point.X, point.Y) {
-			return &g.editorManager.boxEditor.hitBoxes[i]
+	for i, box := range g.editorManager.boxEditor.boxes[collision.Hit] {
+		if box.Contains(point.X, point.Y) {
+			return &g.editorManager.boxEditor.boxes[collision.Hit][i]
 		}
 	}
 
-	for i, box := range g.editorManager.boxEditor.hurtBoxes {
-		if box.Rect.Contains(point.X, point.Y) {
-			return &g.editorManager.boxEditor.hurtBoxes[i]
+	for i, box := range g.editorManager.boxEditor.boxes[collision.Hurt] {
+		if box.Contains(point.X, point.Y) {
+			return &g.editorManager.boxEditor.boxes[collision.Hurt][i]
 		}
 	}
 

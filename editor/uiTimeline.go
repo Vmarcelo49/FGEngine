@@ -15,8 +15,10 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 	rightX := config.WindowWidth - panelWidth - 1
 
 	ctx.Window("Timeline", image.Rect(panelWidth, topY, rightX, config.WindowHeight), func(layout debugui.ContainerLayout) {
-		currentFrame := g.editorManager.getCurrentSprite()
-		if currentFrame == nil {
+		sprite := g.editorManager.getCurrentSprite()
+		spriteIndex := g.getActiveSpriteIndex()
+
+		if sprite == nil {
 			ctx.Text("No frame selected")
 			return
 		}
@@ -32,12 +34,12 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{-1, 0, -1, -1, -1, -1}, nil)
 
 		ctx.Text("Frame Duration:")
-		duration := int(currentFrame.Duration)
+		duration := int(g.editorManager.activeAnimation.Prop[spriteIndex].Duration)
 		ctx.NumberField(&duration, 1)
 		if duration < 1 {
 			duration = 1
 		}
-		currentFrame.Duration = uint(duration)
+		g.editorManager.activeAnimation.Prop[spriteIndex].Duration = uint(duration)
 
 		ctx.Button("Add Image").On(func() {
 			g.AddImageToFrame()
@@ -61,6 +63,19 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		})
 
 	})
+}
+
+func (g *Game) getActiveSpriteIndex() int {
+	if g.editorManager.activeAnimation == nil || g.editorManager.frameIndex < 0 || g.editorManager.frameIndex >= len(g.editorManager.activeAnimation.Sprites) {
+		return -1
+	}
+	animation := g.editorManager.activeAnimation
+	for i, sprite := range animation.Sprites {
+		if sprite == g.editorManager.getCurrentSprite() {
+			return i
+		}
+	}
+	return -1
 }
 
 func (g *Game) AddImageToFrame() {
