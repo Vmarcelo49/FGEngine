@@ -19,14 +19,19 @@ func (g *Game) handleBoxMouseEdit() {
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if !g.editorManager.boxEditor.dragged {
-			selectedBox := g.getBoxUnderMouse(worldMousePos.X, worldMousePos.Y)
-			if selectedBox != nil {
-				g.editorManager.boxEditor.activeBox = selectedBox
+			selectedBoxIndex, selectedBoxType := g.getBoxIndexUnderMouse(worldMousePos.X, worldMousePos.Y)
+			if selectedBoxIndex >= 0 {
+				g.editorManager.boxEditor.activeBoxIndex = selectedBoxIndex
+				g.editorManager.boxEditor.activeBoxType = selectedBoxType
+				g.editorManager.boxActionIndex = int(selectedBoxType) // Update UI dropdown
 				g.editorManager.boxEditor.dragged = true
 				g.editorManager.boxEditor.dragStartMousePos.X = worldMousePos.X
 				g.editorManager.boxEditor.dragStartMousePos.Y = worldMousePos.Y
-				g.editorManager.boxEditor.dragStartBoxPos.X = selectedBox.X
-				g.editorManager.boxEditor.dragStartBoxPos.Y = selectedBox.Y
+
+				if activeBox := g.getActiveBox(); activeBox != nil {
+					g.editorManager.boxEditor.dragStartBoxPos.X = activeBox.X
+					g.editorManager.boxEditor.dragStartBoxPos.Y = activeBox.Y
+				}
 			}
 		} else {
 			delta := types.Vector2{
@@ -34,25 +39,25 @@ func (g *Game) handleBoxMouseEdit() {
 				Y: worldMousePos.Y - g.editorManager.boxEditor.dragStartMousePos.Y,
 			}
 
-			if g.editorManager.boxEditor.activeBox != nil {
-				g.editorManager.boxEditor.activeBox.X = g.editorManager.boxEditor.dragStartBoxPos.X + delta.X
-				g.editorManager.boxEditor.activeBox.Y = g.editorManager.boxEditor.dragStartBoxPos.Y + delta.Y
+			if activeBox := g.getActiveBox(); activeBox != nil {
+				activeBox.X = g.editorManager.boxEditor.dragStartBoxPos.X + delta.X
+				activeBox.Y = g.editorManager.boxEditor.dragStartBoxPos.Y + delta.Y
 
-				g.syncCurrentSpriteToCharacter()
+				g.syncCharacterActiveSprite()
 			}
 		}
 	} else {
 		// End dragging when left mouse button is released
 		if g.editorManager.boxEditor.dragged {
 			g.editorManager.boxEditor.dragged = false
-			g.syncCurrentSpriteToCharacter()
+			g.syncCharacterActiveSprite()
 		}
 	}
 }
 
-func (g *Game) getBoxUnderMouse(worldX, worldY float64) *types.Rect {
+func (g *Game) getBoxIndexUnderMouse(worldX, worldY float64) (int, collision.BoxType) {
 	if g.activeCharacter == nil || g.editorManager.boxEditor == nil {
-		return nil
+		return -1, collision.Collision
 	}
 
 	// Get character's world position to offset the boxes
@@ -71,16 +76,14 @@ func (g *Game) getBoxUnderMouse(worldX, worldY float64) *types.Rect {
 
 				if worldBoxX <= point.X && point.X <= worldBoxX+box.W &&
 					worldBoxY <= point.Y && point.Y <= worldBoxY+box.H {
-					// Set the active box type when a box is found
-					g.editorManager.boxEditor.activeBoxType = boxType
-					g.editorManager.boxActionIndex = int(boxType) // Update UI dropdown
-					return &g.editorManager.boxEditor.boxes[boxType][i]
+					// Return the index and box type when a box is found
+					return i, boxType
 				}
 			}
 		}
 	}
 
-	return nil
+	return -1, collision.Collision
 }
 
 func (g *Game) drawMouseCrosshair(screen *ebiten.Image) {
@@ -92,7 +95,6 @@ func (g *Game) drawMouseCrosshair(screen *ebiten.Image) {
 	worldMouseX, worldMouseY := worldMousePos.X, worldMousePos.Y
 
 	screenPos := g.camera.WorldToScreen(types.Vector2{X: worldMouseX, Y: worldMouseY})
-
 	centerX := float32(screenPos.X)
 	centerY := float32(screenPos.Y)
 

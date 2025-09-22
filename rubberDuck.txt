@@ -1,7 +1,7 @@
 What is needed to be done next:
 (in order of importance)
 
-- Finish the editor port, it currently only renders the character on 0,0 and the box rendering seems wrong.
+- TEST THE EDITOR AND MAKE A CHARACTER
 
 - The actual game duh...
 

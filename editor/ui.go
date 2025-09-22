@@ -54,7 +54,6 @@ func (g *Game) resetCharacterState() {
 	g.writeLog("There's a character loaded, clearing current state")
 	g.activeCharacter = nil
 	g.editorManager.activeAnimation = nil
-	// g.editorManager.boxRenderer = nil // TODO, we have to check how the current box renderer interacts with the editor
 	g.editorManager.previousAnimationName = ""
 	g.writeLog("Cleared current state")
 }

@@ -34,7 +34,7 @@ func (e *EditorManager) getCurrentSprite() *animation.Sprite {
 	return e.activeAnimation.Sprites[e.frameIndex]
 }
 
-func (e *EditorManager) SetActiveAnimation(anim *animation.Animation) {
+func (e *EditorManager) setActiveAnimation(anim *animation.Animation) {
 	e.activeAnimation = anim
 	e.frameIndex = 0
 	e.playingAnim = false

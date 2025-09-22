@@ -30,7 +30,7 @@ func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
 	if err != nil {
 		return nil, err
 	}
-	sprite, err := newSpriteFromImage(path) // TODO, make paths be relative in here
+	sprite, err := newSpriteFromImage(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sprite from image: %w", err)
 	}
