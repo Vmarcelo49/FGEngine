@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
-
-	"github.com/sqweek/dialog"
 )
 
 func (g *Game) createCharacter() {
@@ -21,7 +19,7 @@ func (g *Game) createCharacter() {
 
 func (g *Game) loadCharacter() {
 	g.checkIfResetNeeded()
-	character, err := loadCharacterFromYAML()
+	character, err := loadCharacterFromYAMLDialog()
 	if err != nil {
 		g.writeLog("Failed to load character: " + err.Error())
 		return
@@ -59,25 +57,11 @@ func (g *Game) saveCharacter() {
 		g.writeLog(fmt.Sprintf("Including current animation '%s' in character", g.editorManager.activeAnimation.Name))
 	}
 
-	var path string
-	var err error
-	if g.activeCharacter.FilePath != "" {
-		path = g.activeCharacter.FilePath
-	} else {
-		path, err = dialog.File().Filter(".yaml", "yaml").Save()
-		if err != nil {
-			g.writeLog("Failed to save character: " + err.Error())
-			return
-		}
-		path = ensureExtension(path, "yaml")
-		g.activeCharacter.FilePath = path
-	}
-
-	err = exportCharacterToYAML(g.activeCharacter, path)
+	err := exportCharacterToYAML(g.activeCharacter)
 	if err != nil {
 		g.writeLog("Failed to export character: " + err.Error())
 	} else {
-		g.writeLog("Character saved successfully!")
+		g.writeLog("Character saved successfully to assets/characters/!")
 	}
 }
 

@@ -21,24 +21,24 @@ type Character struct {
 	Name       string                          `yaml:"name"`
 	Friction   int                             `yaml:"friction"`
 	JumpHeight int                             `yaml:"jumpHeight"`
-	FilePath   string                          // TODO, check if this is needed, probably only used in the editor?
+	FilePath   string                          `yaml:"filepath,omitempty"`
 	Animations map[string]*animation.Animation `yaml:"animations"`
 
 	// Ingame Related
-	HP                  int
-	Position            types.Vector2 // Sprite also has it own position in Rect
-	Velocity            types.Vector2
-	IgnoreGravityFrames int
-	StateMachine        *state.StateMachine
+	HP                  int                 `yaml:"hp,omitempty"`
+	Position            types.Vector2       `yaml:"position,omitempty"`
+	Velocity            types.Vector2       `yaml:"-"`
+	IgnoreGravityFrames int                 `yaml:"-"`
+	StateMachine        *state.StateMachine `yaml:"-"`
 
 	// animation related
-	ActiveAnimation *animation.Animation
-	ActiveSprite    *animation.Sprite
-	FrameIndex      int
-	SpriteIndex     int
-	ShouldLoop      bool
-	AnimationQueue  []string
-	AnimationIndex  int
+	ActiveAnimation *animation.Animation `yaml:"-"`
+	ActiveSprite    *animation.Sprite    `yaml:"-"`
+	FrameIndex      int                  `yaml:"-"`
+	SpriteIndex     int                  `yaml:"-"`
+	ShouldLoop      bool                 `yaml:"-"`
+	AnimationQueue  []string             `yaml:"-"`
+	AnimationIndex  int                  `yaml:"-"`
 }
 
 type CharacterID int

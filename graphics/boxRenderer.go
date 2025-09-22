@@ -2,6 +2,7 @@ package graphics
 
 import (
 	"image/color"
+	"slices"
 	"sync"
 
 	"fgengine/collision"
@@ -48,7 +49,15 @@ func DrawBoxes(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 		return
 	}
 
-	for boxType, boxes := range currentSprite.Boxes {
+	// Create a slice of box types and sort them to ensure consistent rendering order
+	boxTypes := make([]collision.BoxType, 0, len(currentSprite.Boxes))
+	for boxType := range currentSprite.Boxes {
+		boxTypes = append(boxTypes, boxType)
+	}
+	slices.Sort(boxTypes)
+
+	for _, boxType := range boxTypes {
+		boxes := currentSprite.Boxes[boxType]
 		for _, box := range boxes {
 			options := createBoxImageOptionsWithCamera(renderable, box, boxType, camera)
 			screen.DrawImage(whitePixel, options)
@@ -56,6 +65,7 @@ func DrawBoxes(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 			drawOptionsPool.Put(options)
 		}
 	}
+
 }
 
 // DrawBoxesByType draws all collision boxes by type at exact world position (no camera)

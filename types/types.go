@@ -8,8 +8,8 @@ type Rect struct {
 }
 
 type Vector2 struct {
-	X float64
-	Y float64
+	X float64 `yaml:"x"`
+	Y float64 `yaml:"y"`
 }
 
 func (r Rect) Right() float64 {

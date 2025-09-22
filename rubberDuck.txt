@@ -3,6 +3,8 @@ What is needed to be done next:
 
 - TEST THE EDITOR AND MAKE A CHARACTER
 
+- Currently the editor is not exporting hitboxes
+
 - The actual game duh...
 
 
