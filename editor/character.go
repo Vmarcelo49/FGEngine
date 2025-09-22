@@ -10,12 +10,6 @@ import (
 	"github.com/sqweek/dialog"
 )
 
-func (g *Game) checkIfResetNeeded() {
-	if g.activeCharacter != nil && g.editorManager.activeAnimation != nil {
-		g.resetCharacterState()
-	}
-}
-
 func (g *Game) createCharacter() {
 	g.checkIfResetNeeded()
 	g.activeCharacter = &character.Character{
@@ -45,6 +39,13 @@ func (g *Game) loadCharacter() {
 	}
 
 	g.writeLog("Character loaded successfully")
+}
+
+// when creating or loading a new character, check if we need to reset the current state
+func (g *Game) checkIfResetNeeded() {
+	if g.activeCharacter != nil && g.editorManager.activeAnimation != nil {
+		g.resetCharacterState()
+	}
 }
 
 func (g *Game) saveCharacter() {

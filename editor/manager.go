@@ -7,7 +7,7 @@ import (
 )
 
 type EditorManager struct {
-	activeAnimation         *animation.Animation
+	activeAnimation         *animation.Animation // should point to an animation in the active character
 	frameCount              int
 	frameIndex              int
 	animationSelectionIndex int

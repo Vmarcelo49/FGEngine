@@ -60,7 +60,7 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 				}
 			}
 			g.editorManager.boxEditor = nil // Clear box editor when switching animations
-			g.refreshBoxEditor()            // Refresh for new animation
+			g.refreshBoxEditor()
 		})
 		ctx.Text("Animation Name:")
 		if g.editorManager.previousAnimationName == "" && g.editorManager.activeAnimation != nil {

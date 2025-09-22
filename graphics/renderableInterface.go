@@ -26,8 +26,8 @@ func DrawStatic(renderable Renderable, screen *ebiten.Image) {
 	screen.DrawImage(entityImage, options)
 }
 
-// DrawWithCamera draws a renderable with camera transformation applied
-func DrawWithCamera(renderable Renderable, screen *ebiten.Image, camera *Camera) {
+// Draw draws a renderable with camera transformation applied
+func Draw(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 	if !camera.IsVisible(renderable) {
 		return // Skip rendering if outside camera view
 	}

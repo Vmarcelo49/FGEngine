@@ -3,67 +3,53 @@ package editor
 import (
 	"fgengine/collision"
 	"fgengine/types"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// handleMouseInput processes mouse input for box selection and dragging
-// Uses left mouse button only to avoid conflicts with camera controls (middle/right mouse)
-func (g *Game) handleMouseInput() {
+func (g *Game) handleBoxMouseEdit() {
 	if g.editorManager.boxEditor == nil || g.editorManager.activeAnimation == nil {
 		return
 	}
 
 	mouseX, mouseY := ebiten.CursorPosition()
-	worldMouseX, worldMouseY := g.screenToWorldPos(float64(mouseX), float64(mouseY))
+	worldMousePos := g.camera.ScreenToWorld(types.Vector2{X: float64(mouseX), Y: float64(mouseY)})
 
-	// Only handle left mouse button for box editing to avoid conflict with camera controls
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if !g.editorManager.boxEditor.dragged {
-			// Start dragging: find box under mouse and set up drag state
-			selectedBox := g.getBoxUnderMouse(worldMouseX, worldMouseY)
+			selectedBox := g.getBoxUnderMouse(worldMousePos.X, worldMousePos.Y)
 			if selectedBox != nil {
 				g.editorManager.boxEditor.activeBox = selectedBox
 				g.editorManager.boxEditor.dragged = true
-				g.editorManager.boxEditor.dragStartMousePos.X = worldMouseX
-				g.editorManager.boxEditor.dragStartMousePos.Y = worldMouseY
+				g.editorManager.boxEditor.dragStartMousePos.X = worldMousePos.X
+				g.editorManager.boxEditor.dragStartMousePos.Y = worldMousePos.Y
 				g.editorManager.boxEditor.dragStartBoxPos.X = selectedBox.X
 				g.editorManager.boxEditor.dragStartBoxPos.Y = selectedBox.Y
 			}
 		} else {
-			// Continue dragging: update box position based on mouse delta
-			deltaX := worldMouseX - g.editorManager.boxEditor.dragStartMousePos.X
-			deltaY := worldMouseY - g.editorManager.boxEditor.dragStartMousePos.Y
+			delta := types.Vector2{
+				X: worldMousePos.X - g.editorManager.boxEditor.dragStartMousePos.X,
+				Y: worldMousePos.Y - g.editorManager.boxEditor.dragStartMousePos.Y,
+			}
 
 			if g.editorManager.boxEditor.activeBox != nil {
-				g.editorManager.boxEditor.activeBox.X = g.editorManager.boxEditor.dragStartBoxPos.X + deltaX
-				g.editorManager.boxEditor.activeBox.Y = g.editorManager.boxEditor.dragStartBoxPos.Y + deltaY
+				g.editorManager.boxEditor.activeBox.X = g.editorManager.boxEditor.dragStartBoxPos.X + delta.X
+				g.editorManager.boxEditor.activeBox.Y = g.editorManager.boxEditor.dragStartBoxPos.Y + delta.Y
 
-				// Update the frame boxes in the sprite data
-				sprite := g.editorManager.getCurrentSprite()
-				if sprite != nil {
-					g.updateFrameBoxes(sprite)
-				}
+				g.syncCurrentSpriteToCharacter()
 			}
 		}
 	} else {
 		// End dragging when left mouse button is released
 		if g.editorManager.boxEditor.dragged {
 			g.editorManager.boxEditor.dragged = false
+			g.syncCurrentSpriteToCharacter()
 		}
 	}
 }
 
-// screenToWorldPos converts screen coordinates to world coordinates using the camera system
-func (g *Game) screenToWorldPos(screenX, screenY float64) (float64, float64) {
-	screenPos := types.Vector2{X: screenX, Y: screenY}
-	worldPos := g.camera.ScreenToWorld(screenPos)
-	return worldPos.X, worldPos.Y
-}
-
-// getBoxUnderMouse returns the box under the mouse cursor, if any
-// Accounts for character world position when checking box collision
-// Sets the active box type when a box is found
 func (g *Game) getBoxUnderMouse(worldX, worldY float64) *types.Rect {
 	if g.activeCharacter == nil || g.editorManager.boxEditor == nil {
 		return nil
@@ -73,8 +59,7 @@ func (g *Game) getBoxUnderMouse(worldX, worldY float64) *types.Rect {
 	characterPos := g.activeCharacter.GetPosition()
 	point := types.Vector2{X: worldX, Y: worldY}
 
-	// Priority order for box selection: Hit > Hurt > Collision
-	// This way smaller hit boxes are selected before larger hurt boxes
+	// box priority order: Hit > Hurt > Collision
 	boxTypes := []collision.BoxType{collision.Hit, collision.Hurt, collision.Collision}
 
 	for _, boxType := range boxTypes {
@@ -96,4 +81,32 @@ func (g *Game) getBoxUnderMouse(worldX, worldY float64) *types.Rect {
 	}
 
 	return nil
+}
+
+func (g *Game) drawMouseCrosshair(screen *ebiten.Image) {
+	crosshairSize := float32(10.0)
+	crosshairThickness := float32(1)
+
+	mouseX, mouseY := ebiten.CursorPosition()
+	worldMousePos := g.camera.ScreenToWorld(types.Vector2{X: float64(mouseX), Y: float64(mouseY)})
+	worldMouseX, worldMouseY := worldMousePos.X, worldMousePos.Y
+
+	screenPos := g.camera.WorldToScreen(types.Vector2{X: worldMouseX, Y: worldMouseY})
+
+	centerX := float32(screenPos.X)
+	centerY := float32(screenPos.Y)
+
+	crosshairColor := color.RGBA{R: 0, G: 255, B: 255, A: 255} // Cyan
+
+	// horizontal line
+	vector.FillRect(screen,
+		centerX-crosshairSize, centerY-crosshairThickness/2,
+		crosshairSize*2, crosshairThickness,
+		crosshairColor, false)
+
+	// vertical line
+	vector.FillRect(screen,
+		centerX-crosshairThickness/2, centerY-crosshairSize,
+		crosshairThickness, crosshairSize*2,
+		crosshairColor, false)
 }

@@ -29,7 +29,7 @@ type Game struct {
 
 func (g *Game) Update() error {
 	g.handleCameraInput()
-	g.handleMouseInput() // Handle box editing mouse input
+	g.handleBoxMouseEdit()
 	if err := g.updateDebugUI(); err != nil {
 		return err
 	}
@@ -38,9 +38,12 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	if g.editorManager.activeAnimation != nil && g.activeCharacter != nil {
-		graphics.DrawWithCamera(g.activeCharacter, screen, g.camera)
-		graphics.DrawBoxesWithCamera(g.activeCharacter, screen, g.camera)
+		graphics.Draw(g.activeCharacter, screen, g.camera)
+		graphics.DrawBoxes(g.activeCharacter, screen, g.camera)
 	}
+
+	g.drawMouseCrosshair(screen)
+
 	g.debugui.Draw(screen)
 }
 
@@ -53,8 +56,8 @@ func Run() {
 	zoom := 2.5
 	camera := &graphics.Camera{
 		Viewport: types.Rect{
-			X: -float64(config.WindowWidth) / 2,
-			Y: -float64(config.WindowHeight) / 2,
+			X: -float64(config.WindowWidth) / (2 * zoom),
+			Y: -float64(config.WindowHeight) / (2 * zoom),
 			W: float64(config.WindowWidth),
 			H: float64(config.WindowHeight),
 		},

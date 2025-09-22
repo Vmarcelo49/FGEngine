@@ -43,16 +43,34 @@ func (c *Camera) lockToWorldBounds() {
 }
 
 func (c *Camera) WorldToScreen(worldPos types.Vector2) types.Vector2 {
+	screenX := worldPos.X - c.Viewport.X
+	screenY := worldPos.Y - c.Viewport.Y
+
+	// Apply scaling transformation
+	if c.Scaling != 0 && c.Scaling != 1 {
+		screenX *= c.Scaling
+		screenY *= c.Scaling
+	}
+
 	return types.Vector2{
-		X: worldPos.X - c.Viewport.X,
-		Y: worldPos.Y - c.Viewport.Y,
+		X: screenX,
+		Y: screenY,
 	}
 }
 
 func (c *Camera) ScreenToWorld(screenPos types.Vector2) types.Vector2 {
+	worldX := screenPos.X
+	worldY := screenPos.Y
+
+	// Reverse scaling transformation
+	if c.Scaling != 0 && c.Scaling != 1 {
+		worldX /= c.Scaling
+		worldY /= c.Scaling
+	}
+
 	return types.Vector2{
-		X: screenPos.X + c.Viewport.X,
-		Y: screenPos.Y + c.Viewport.Y,
+		X: worldX + c.Viewport.X,
+		Y: worldY + c.Viewport.Y,
 	}
 }
 

@@ -104,7 +104,6 @@ func (g *Game) AddImageToFrame() {
 
 	g.editorManager.frameCount = len(g.editorManager.activeAnimation.Sprites)
 	g.editorManager.frameIndex = g.editorManager.frameCount - 1
-	//g.loadBoxRenderer(g.getCurrentFrame())
 	g.editorManager.activeAnimation.Prop = append(g.editorManager.activeAnimation.Prop, animation.FrameProperties{})
 }
 

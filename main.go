@@ -23,7 +23,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	for _, p := range g.players {
-		graphics.DrawWithCamera(p.Character, screen, g.camera)
+		graphics.Draw(p.Character, screen, g.camera)
 	}
 }
 

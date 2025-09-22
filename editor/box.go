@@ -94,23 +94,38 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 			ctx.Text("Box Properties:")
 			ctx.SetGridLayout([]int{-1, -1}, nil)
 			ctx.Text("X:")
-			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.X, 1.0, 1)
+			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.X, 1.0, 1).On(func() {
+				g.syncCurrentSpriteToCharacter()
+			})
 			ctx.Text("Y:")
-			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.Y, 1.0, 1)
+			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.Y, 1.0, 1).On(func() {
+				g.syncCurrentSpriteToCharacter()
+			})
 			ctx.Text("Width:")
-			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.W, 1.0, 1)
+			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.W, 1.0, 1).On(func() {
+				g.syncCurrentSpriteToCharacter()
+			})
 			ctx.Text("Height:")
-			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.H, 1.0, 1)
+			ctx.NumberFieldF(&g.editorManager.boxEditor.activeBox.H, 1.0, 1).On(func() {
+				g.syncCurrentSpriteToCharacter()
+			})
 		}
 	})
 }
 
 func (g *Game) loadBoxEditor(sprite *animation.Sprite) {
+	// Ensure sprite.Boxes is initialized
+	if sprite.Boxes == nil {
+		sprite.Boxes = make(map[collision.BoxType][]types.Rect)
+	}
+
 	g.editorManager.boxEditor = &BoxEditor{
-		boxes:         make(map[collision.BoxType][]types.Rect),
+		boxes:         sprite.Boxes,                                      // Work directly with sprite's boxes
 		activeBoxType: collision.BoxType(g.editorManager.boxActionIndex), // Initialize with current dropdown selection
 	}
-	copyBoxes(sprite.Boxes, g.editorManager.boxEditor.boxes)
+
+	// Ensure character's ActiveSprite is synchronized when loading box editor
+	g.syncCharacterActiveSprite()
 }
 
 func (g *Game) clearBoxSelection() {
@@ -132,9 +147,17 @@ func (g *Game) refreshBoxEditor() {
 		return
 	}
 
-	// Update the boxes with current sprite data and clear selection
-	copyBoxes(sprite.Boxes, g.editorManager.boxEditor.boxes)
+	// Ensure sprite.Boxes is initialized
+	if sprite.Boxes == nil {
+		sprite.Boxes = make(map[collision.BoxType][]types.Rect)
+	}
+
+	// Point box editor directly to the current sprite's boxes and clear selection
+	g.editorManager.boxEditor.boxes = sprite.Boxes
 	g.clearBoxSelection()
+
+	// Ensure character's ActiveSprite is synchronized
+	g.syncCharacterActiveSprite()
 }
 
 func (g *Game) deleteSelectedBox() {
@@ -150,26 +173,22 @@ func (g *Game) deleteSelectedBox() {
 	activeBox := g.editorManager.boxEditor.activeBox
 	boxType := g.editorManager.boxEditor.activeBoxType
 
-	// Find and remove the box from both the editor's boxes and the sprite's boxes
-	for i, box := range g.editorManager.boxEditor.boxes[boxType] {
+	// Since g.editorManager.boxEditor.boxes points to sprite.Boxes,
+	// we only need to remove from one place
+	for i, box := range sprite.Boxes[boxType] {
 		if box.X == activeBox.X && box.Y == activeBox.Y &&
 			box.W == activeBox.W && box.H == activeBox.H {
-			// Remove from editor boxes
-			g.editorManager.boxEditor.boxes[boxType] = append(
-				g.editorManager.boxEditor.boxes[boxType][:i],
-				g.editorManager.boxEditor.boxes[boxType][i+1:]...)
-
-			// Remove from sprite boxes
-			if i < len(sprite.Boxes[boxType]) {
-				sprite.Boxes[boxType] = append(
-					sprite.Boxes[boxType][:i],
-					sprite.Boxes[boxType][i+1:]...)
-			}
+			// Remove from sprite boxes (which is the same as editor boxes)
+			sprite.Boxes[boxType] = append(
+				sprite.Boxes[boxType][:i],
+				sprite.Boxes[boxType][i+1:]...)
 			break
 		}
 	}
 
 	g.clearBoxSelection()
+	// Ensure character's ActiveSprite is synchronized after box deletion
+	g.syncCharacterActiveSprite()
 }
 
 func (g *Game) addBox() {
@@ -190,7 +209,7 @@ func (g *Game) addBox() {
 
 	// Save any pending edits before adding a new box
 	if g.editorManager.boxEditor.activeBox != nil {
-		g.updateFrameBoxes(sprite)
+		g.syncCharacterActiveSprite()
 	}
 
 	// Set the box type from the dropdown selection
@@ -199,26 +218,29 @@ func (g *Game) addBox() {
 	selectedBox := g.addBoxOfType(sprite, g.editorManager.boxEditor.activeBoxType)
 	g.editorManager.boxEditor.activeBox = selectedBox
 
+	// Ensure character's ActiveSprite is synchronized after box addition
+	g.syncCharacterActiveSprite()
+
 	g.writeLog(fmt.Sprintf("Added %s box", g.editorManager.boxEditor.activeBoxType.String()))
 }
 
-func (g *Game) updateFrameBoxes(sprite *animation.Sprite) {
-	if g.editorManager.boxEditor.activeBox != nil {
-		g.updateBoxSlice(g.editorManager.boxEditor.activeBoxType, sprite, g.getActiveBoxindex(), *g.editorManager.boxEditor.activeBox)
+// syncCharacterActiveSprite ensures the character's ActiveSprite points to the currently edited sprite
+// This is necessary for the box renderer to display the updated boxes correctly
+func (g *Game) syncCharacterActiveSprite() {
+	if g.activeCharacter != nil {
+		currentSprite := g.editorManager.getCurrentSprite()
+		if currentSprite != nil {
+			g.activeCharacter.ActiveSprite = currentSprite
+		}
 	}
 }
 
-func (g *Game) updateBoxSlice(boxType collision.BoxType, sprite *animation.Sprite, index int, rect types.Rect) {
-	if g.editorManager.boxEditor.boxes == nil {
-		g.editorManager.boxEditor.boxes = make(map[collision.BoxType][]types.Rect)
-	}
-
-	if index >= 0 && index < len(g.editorManager.boxEditor.boxes[boxType]) {
-		g.editorManager.boxEditor.boxes[boxType][index] = rect
-
-		if index < len(sprite.Boxes[boxType]) {
-			sprite.Boxes[boxType][index] = rect
-		}
+// syncCurrentSpriteToCharacter is a helper method that combines the common pattern:
+// getCurrentSprite() -> nil check -> syncCharacterActiveSprite()
+func (g *Game) syncCurrentSpriteToCharacter() {
+	sprite := g.editorManager.getCurrentSprite()
+	if sprite != nil {
+		g.syncCharacterActiveSprite()
 	}
 }
 
@@ -228,14 +250,12 @@ func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.
 	if currentFrame.Boxes[typeOfBox] == nil {
 		currentFrame.Boxes[typeOfBox] = []types.Rect{}
 	}
-	if g.editorManager.boxEditor.boxes[typeOfBox] == nil {
-		g.editorManager.boxEditor.boxes[typeOfBox] = []types.Rect{}
-	}
 
+	// Since g.editorManager.boxEditor.boxes points to currentFrame.Boxes,
+	// we only need to append to the sprite boxes
 	currentFrame.Boxes[typeOfBox] = append(currentFrame.Boxes[typeOfBox], newRect)
-	g.editorManager.boxEditor.boxes[typeOfBox] = append(g.editorManager.boxEditor.boxes[typeOfBox], newRect)
 
-	// pointer to the box in the editor slice (the one being edited)
-	editorSlice := g.editorManager.boxEditor.boxes[typeOfBox]
-	return &editorSlice[len(editorSlice)-1]
+	// Return pointer to the box in the sprite's slice (the one being edited)
+	spriteSlice := currentFrame.Boxes[typeOfBox]
+	return &spriteSlice[len(spriteSlice)-1]
 }

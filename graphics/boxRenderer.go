@@ -40,26 +40,8 @@ func initWhitePixel() {
 	})
 }
 
-// DrawBoxesStatic draws all collision boxes at exact world position (no camera)
-func DrawBoxesStatic(renderable Renderable, screen *ebiten.Image) {
-	initWhitePixel()
-	currentSprite := renderable.GetSprite()
-	if currentSprite == nil {
-		return
-	}
-
-	for boxType, boxes := range currentSprite.Boxes {
-		for _, box := range boxes {
-			options := createBoxImageOptions(renderable, box, boxType)
-			screen.DrawImage(whitePixel, options)
-			// Return the options to the pool after use
-			drawOptionsPool.Put(options)
-		}
-	}
-}
-
-// DrawBoxesWithCamera draws all collision boxes with camera transformation applied
-func DrawBoxesWithCamera(renderable Renderable, screen *ebiten.Image, camera *Camera) {
+// DrawBoxes draws all collision boxes with camera transformation applied
+func DrawBoxes(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 	initWhitePixel()
 	currentSprite := renderable.GetSprite()
 	if currentSprite == nil {
