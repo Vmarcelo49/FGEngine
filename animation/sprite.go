@@ -8,7 +8,7 @@ import (
 type Sprite struct {
 	ImagePath string                             `yaml:"imgPath"`
 	Rect      types.Rect                         `yaml:"rect"` // Position and Size
-	Boxes     map[collision.BoxType][]types.Rect `yaml:"-"`
+	Boxes     map[collision.BoxType][]types.Rect `yaml:"boxes"`
 }
 
 func (s *Sprite) Pos() types.Vector2 {

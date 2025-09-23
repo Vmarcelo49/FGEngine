@@ -35,7 +35,11 @@ func (g *Game) loadCharacter() {
 			}
 		}
 	}
-
+	idleAnim, ok := character.Animations["idle"]
+	if !ok {
+		panic("Character must have an 'idle' animation")
+	}
+	g.editorManager.activeAnimation = idleAnim
 	g.writeLog("Character loaded successfully")
 }
 

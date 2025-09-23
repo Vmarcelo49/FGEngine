@@ -3,8 +3,8 @@ name: helmet
 friction: 0
 jumpHeight: 0
 animations:
-  "":
-    name: ""
+  idle:
+    name: idle
     sprites:
     - imgPath: ..\sprites\beta-helmet.png
       rect:
@@ -12,6 +12,17 @@ animations:
         "y": 0
         w: 64
         h: 64
+      boxes:
+        0:
+        - x: 0
+          "y": 0
+          w: 32
+          h: 32
+        2:
+        - x: 0
+          "y": 0
+          w: 64
+          h: 64
     properties:
     - duration: 1
       state: 0

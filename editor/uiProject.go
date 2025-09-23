@@ -102,6 +102,9 @@ func (g *Game) menuBarNewAnim() {
 		g.writeLog(fmt.Sprintf("Error creating new animation: %v", err))
 		return
 	}
+	if newAnim.Name == "" {
+		newAnim.Name = "idle"
+	}
 	if g.activeCharacter != nil {
 		g.activeCharacter.Animations[newAnim.Name] = newAnim
 	}
