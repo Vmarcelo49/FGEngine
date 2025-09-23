@@ -1,15 +1,1 @@
-What is needed to be done next:
-(in order of importance)
-
-- TEST THE EDITOR AND MAKE A CHARACTER
-
-- Currently the editor is not exporting hitboxes
-
-- The actual game duh...
-
-
-Things for the future:
-
-- Scene Manager
-- netplay package
-- Proper configuration of the window and audio related stuff
+my camera is ass

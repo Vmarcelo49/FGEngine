@@ -15,13 +15,11 @@ import (
 )
 
 func exportCharacterToYAML(c *character.Character) error {
-	// Create assets/characters directory if it doesn't exist
 	assetsDir := "assets/characters"
 	if err := os.MkdirAll(assetsDir, 0755); err != nil {
 		return fmt.Errorf("failed to create assets/characters directory: %w", err)
 	}
 
-	// Generate filename based on character name
 	filename := fmt.Sprintf("%s.yaml", c.Name)
 	path := filepath.Join(assetsDir, filename)
 
@@ -57,7 +55,6 @@ func exportCharacterToYAML(c *character.Character) error {
 	return nil
 }
 
-// makeRelativePath converts an absolute path to a relative path based on a reference path
 func makeRelativePath(absolutePath, referencePath string) string {
 	referenceDir := filepath.Dir(referencePath)
 
@@ -79,7 +76,6 @@ func makeRelativePath(absolutePath, referencePath string) string {
 	return relativePath
 }
 
-// resolveRelativePath converts a relative path to an absolute path based on a reference path
 func resolveRelativePath(relativePath, referencePath string) string {
 	if filepath.IsAbs(relativePath) {
 		return relativePath
@@ -117,7 +113,6 @@ func loadCharacterFromYAML(characterName string) (*character.Character, error) {
 	return character, nil
 }
 
-// loadCharacterFromYAMLDialog provides the old behavior with file dialog for backward compatibility
 func loadCharacterFromYAMLDialog() (*character.Character, error) {
 	path, err := dialog.File().Filter(".yaml", "yaml").Load()
 	if err != nil {
@@ -146,26 +141,6 @@ func loadCharacterFromYAMLDialog() (*character.Character, error) {
 
 	character.FilePath = path
 	return character, nil
-}
-
-// listAvailableCharacters returns a list of character names available in assets/characters
-func listAvailableCharacters() ([]string, error) {
-	assetsDir := "assets/characters"
-
-	entries, err := os.ReadDir(assetsDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read assets/characters directory: %w", err)
-	}
-
-	var characters []string
-	for _, entry := range entries {
-		if !entry.IsDir() && filepath.Ext(entry.Name()) == ".yaml" {
-			name := strings.TrimSuffix(entry.Name(), ".yaml")
-			characters = append(characters, name)
-		}
-	}
-
-	return characters, nil
 }
 
 func deepCopyAnimation(a *animation.Animation) *animation.Animation {
@@ -241,4 +216,23 @@ func loadAnimationFromYAML() (animation.Animation, error) {
 		return animation.Animation{}, err
 	}
 	return anim, nil
+}
+
+func listAvailableCharacters() ([]string, error) {
+	assetsDir := "assets/characters"
+
+	entries, err := os.ReadDir(assetsDir)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read assets/characters directory: %w", err)
+	}
+
+	var characters []string
+	for _, entry := range entries { // TODO, add proper validation of the yaml files
+		if !entry.IsDir() && filepath.Ext(entry.Name()) == ".yaml" {
+			name := strings.TrimSuffix(entry.Name(), ".yaml")
+			characters = append(characters, name)
+		}
+	}
+
+	return characters, nil
 }

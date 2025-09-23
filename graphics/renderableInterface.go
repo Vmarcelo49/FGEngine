@@ -7,13 +7,33 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-// Renderable represents any game entity that can be rendered
 type Renderable interface {
 	GetPosition() types.Vector2
 	GetSprite() *animation.Sprite
 }
 
-// DrawStatic draws a renderable at its exact world position (no camera transformation)
+func applyScalingTransform(options *ebiten.DrawImageOptions, screenPos types.Vector2, camera *Camera, scaleX, scaleY float64) {
+	screenCenterX := camera.Viewport.W / 2
+	screenCenterY := camera.Viewport.H / 2
+
+	relativeX := screenPos.X - screenCenterX
+	relativeY := screenPos.Y - screenCenterY
+
+	scaledRelativeX := relativeX * camera.Scaling
+	scaledRelativeY := relativeY * camera.Scaling
+
+	finalX := scaledRelativeX + screenCenterX
+	finalY := scaledRelativeY + screenCenterY
+
+	options.GeoM.Scale(scaleX*camera.Scaling, scaleY*camera.Scaling)
+	options.GeoM.Translate(finalX, finalY)
+}
+
+func applyBasicTransform(options *ebiten.DrawImageOptions, screenPos types.Vector2, scaleX, scaleY float64) {
+	options.GeoM.Scale(scaleX, scaleY)
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
+}
+
 func DrawStatic(renderable Renderable, screen *ebiten.Image) {
 	entityImage := loadImage(renderable)
 	if entityImage == nil {
@@ -22,14 +42,13 @@ func DrawStatic(renderable Renderable, screen *ebiten.Image) {
 
 	options := &ebiten.DrawImageOptions{}
 	pos := renderable.GetPosition()
-	options.GeoM.Translate(pos.X, pos.Y)
+	applyBasicTransform(options, pos, 1.0, 1.0)
 	screen.DrawImage(entityImage, options)
 }
 
-// Draw draws a renderable with camera transformation applied
 func Draw(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 	if !camera.IsVisible(renderable) {
-		return // Skip rendering if outside camera view
+		return
 	}
 
 	entityImage := loadImage(renderable)
@@ -40,14 +59,16 @@ func Draw(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 	options := &ebiten.DrawImageOptions{}
 	worldPos := renderable.GetPosition()
 	screenPos := camera.WorldToScreen(worldPos)
+
 	if camera.Scaling != 0 && camera.Scaling != 1 {
-		options.GeoM.Scale(camera.Scaling, camera.Scaling)
+		applyScalingTransform(options, screenPos, camera, 1.0, 1.0)
+	} else {
+		applyBasicTransform(options, screenPos, 1.0, 1.0)
 	}
-	options.GeoM.Translate(screenPos.X, screenPos.Y)
+
 	screen.DrawImage(entityImage, options)
 }
 
-// DrawStaticWithScale draws a renderable at exact position with scaling (no camera)
 func DrawStaticWithScale(renderable Renderable, screen *ebiten.Image, scaleX, scaleY float64) {
 	entityImage := loadImage(renderable)
 	if entityImage == nil {
@@ -61,10 +82,6 @@ func DrawStaticWithScale(renderable Renderable, screen *ebiten.Image, scaleX, sc
 	if scaleY == 0 {
 		scaleY = 1
 	}
-	options.GeoM.Scale(scaleX, scaleY)
-	options.GeoM.Translate(pos.X, pos.Y)
+	applyBasicTransform(options, pos, scaleX, scaleY)
 	screen.DrawImage(entityImage, options)
 }
-
-// TODO, add sprite priority to control the z-index
-// TODO, child sprites for projectiles and other entities

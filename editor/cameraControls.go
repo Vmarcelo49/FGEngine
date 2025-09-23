@@ -24,6 +24,12 @@ func (g *Game) handleCameraInput() {
 			deltaX := float64(g.lastMouseX - x)
 			deltaY := float64(g.lastMouseY - y)
 
+			// Adjust delta for camera scaling
+			if g.camera.Scaling != 0 && g.camera.Scaling != 1 {
+				deltaX /= g.camera.Scaling
+				deltaY /= g.camera.Scaling
+			}
+
 			// mouse movement to camera (inverted because we want to "grab" the world)
 			g.camera.SetPosition(types.Vector2{
 				X: g.camera.Viewport.X + deltaX,
@@ -55,6 +61,12 @@ func (g *Game) handleCameraInput() {
 	}
 
 	if cameraMove.X != 0 || cameraMove.Y != 0 {
+		// Adjust camera movement speed based on scaling
+		if g.camera.Scaling != 0 && g.camera.Scaling != 1 {
+			cameraMove.X /= g.camera.Scaling
+			cameraMove.Y /= g.camera.Scaling
+		}
+
 		g.camera.SetPosition(types.Vector2{
 			X: g.camera.Viewport.X + cameraMove.X,
 			Y: g.camera.Viewport.Y + cameraMove.Y,

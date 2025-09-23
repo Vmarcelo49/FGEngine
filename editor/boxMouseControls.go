@@ -15,7 +15,9 @@ func (g *Game) handleBoxMouseEdit() {
 	}
 
 	mouseX, mouseY := ebiten.CursorPosition()
-	worldMousePos := g.camera.ScreenToWorld(types.Vector2{X: float64(mouseX), Y: float64(mouseY)})
+
+	// Convert mouse screen coordinates to world coordinates accounting for scaling
+	worldMousePos := g.getWorldMousePosition(float64(mouseX), float64(mouseY))
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if !g.editorManager.boxEditor.dragged {
@@ -86,17 +88,42 @@ func (g *Game) getBoxIndexUnderMouse(worldX, worldY float64) (int, collision.Box
 	return -1, collision.Collision
 }
 
+// getWorldMousePosition converts screen mouse coordinates to world coordinates accounting for camera scaling
+func (g *Game) getWorldMousePosition(screenX, screenY float64) types.Vector2 {
+	if g.camera.Scaling != 0 && g.camera.Scaling != 1 {
+		centerX := g.camera.Viewport.W / 2
+		centerY := g.camera.Viewport.H / 2
+
+		relativeX := screenX - centerX
+		relativeY := screenY - centerY
+
+		unscaledRelativeX := relativeX / g.camera.Scaling
+		unscaledRelativeY := relativeY / g.camera.Scaling
+
+		adjustedScreenX := unscaledRelativeX + centerX
+		adjustedScreenY := unscaledRelativeY + centerY
+
+		return types.Vector2{
+			X: adjustedScreenX + g.camera.Viewport.X,
+			Y: adjustedScreenY + g.camera.Viewport.Y,
+		}
+	} else {
+		return types.Vector2{
+			X: screenX + g.camera.Viewport.X,
+			Y: screenY + g.camera.Viewport.Y,
+		}
+	}
+}
+
 func (g *Game) drawMouseCrosshair(screen *ebiten.Image) {
 	crosshairSize := float32(10.0)
 	crosshairThickness := float32(1)
 
 	mouseX, mouseY := ebiten.CursorPosition()
-	worldMousePos := g.camera.ScreenToWorld(types.Vector2{X: float64(mouseX), Y: float64(mouseY)})
-	worldMouseX, worldMouseY := worldMousePos.X, worldMousePos.Y
 
-	screenPos := g.camera.WorldToScreen(types.Vector2{X: worldMouseX, Y: worldMouseY})
-	centerX := float32(screenPos.X)
-	centerY := float32(screenPos.Y)
+	// Draw crosshair directly at mouse screen position (no coordinate conversion needed)
+	centerX := float32(mouseX)
+	centerY := float32(mouseY)
 
 	crosshairColor := color.RGBA{R: 0, G: 255, B: 255, A: 255} // Cyan
 

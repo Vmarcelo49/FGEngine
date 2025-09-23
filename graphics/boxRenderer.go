@@ -20,17 +20,6 @@ var (
 		collision.Hit:       {R: 100, G: 40, B: 40, A: 32},
 		collision.Hurt:      {R: 40, G: 100, B: 40, A: 32},
 	}
-
-	// Object pool for DrawImageOptions to reduce allocations
-	drawOptionsPool = sync.Pool{
-		New: func() any {
-			return &ebiten.DrawImageOptions{}
-		},
-	}
-
-	// Cached screen center calculations
-	screenCenterX = float64(config.WindowWidth) / 2 // TODO, check if this should be replaced with world coordinates
-	screenCenterY = float64(config.WindowHeight) / 2
 )
 
 // whitePixel should never be unloaded and only is created once
@@ -49,7 +38,7 @@ func DrawBoxes(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 		return
 	}
 
-	// Create a slice of box types and sort them to ensure consistent rendering order
+	// consistent rendering order
 	boxTypes := make([]collision.BoxType, 0, len(currentSprite.Boxes))
 	for boxType := range currentSprite.Boxes {
 		boxTypes = append(boxTypes, boxType)
@@ -61,8 +50,6 @@ func DrawBoxes(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 		for _, box := range boxes {
 			options := createBoxImageOptionsWithCamera(renderable, box, boxType, camera)
 			screen.DrawImage(whitePixel, options)
-			// Return the options to the pool after use
-			drawOptionsPool.Put(options)
 		}
 	}
 
@@ -80,20 +67,15 @@ func DrawBoxesByType(renderable Renderable, screen *ebiten.Image, boxtype collis
 		for _, box := range boxes {
 			options := createBoxImageOptions(renderable, box, boxtype)
 			screen.DrawImage(whitePixel, options)
-			// Return the options to the pool after use
-			drawOptionsPool.Put(options)
 		}
 	}
 }
 
 func createBoxImageOptions(renderable Renderable, box types.Rect, boxType collision.BoxType) *ebiten.DrawImageOptions {
-	boxImgOptions := drawOptionsPool.Get().(*ebiten.DrawImageOptions)
-
-	// Reset options to clean state
-	boxImgOptions.GeoM.Reset()
-	boxImgOptions.ColorScale.Reset()
+	boxImgOptions := &ebiten.DrawImageOptions{}
 
 	position := calculateBoxScreenPosition(renderable, box)
+	boxImgOptions.GeoM.Scale(box.W, box.H)
 	boxImgOptions.GeoM.Translate(position.X, position.Y)
 
 	// Set the color based on box type using ColorScale
@@ -105,11 +87,7 @@ func createBoxImageOptions(renderable Renderable, box types.Rect, boxType collis
 }
 
 func createBoxImageOptionsWithCamera(renderable Renderable, box types.Rect, boxType collision.BoxType, camera *Camera) *ebiten.DrawImageOptions {
-	boxImgOptions := drawOptionsPool.Get().(*ebiten.DrawImageOptions)
-
-	// Reset options to clean state
-	boxImgOptions.GeoM.Reset()
-	boxImgOptions.ColorScale.Reset()
+	boxImgOptions := &ebiten.DrawImageOptions{}
 
 	// Calculate world position of the box
 	worldPos := renderable.GetPosition()
@@ -120,9 +98,12 @@ func createBoxImageOptionsWithCamera(renderable Renderable, box types.Rect, boxT
 
 	// Transform to screen coordinates using camera
 	screenPos := camera.WorldToScreen(boxWorldPos)
-	boxImgOptions.GeoM.Scale(box.W, box.H)
-	boxImgOptions.GeoM.Scale(camera.Scaling, camera.Scaling)
-	boxImgOptions.GeoM.Translate(screenPos.X, screenPos.Y)
+
+	if camera.Scaling != 0 && camera.Scaling != 1 {
+		applyScalingTransform(boxImgOptions, screenPos, camera, box.W, box.H)
+	} else {
+		applyBasicTransform(boxImgOptions, screenPos, box.W, box.H)
+	}
 
 	// Set the color based on box type using ColorScale
 	if color, exists := boxColors[boxType]; exists {
@@ -134,8 +115,8 @@ func createBoxImageOptionsWithCamera(renderable Renderable, box types.Rect, boxT
 
 func calculateBoxScreenPosition(renderable Renderable, box types.Rect) types.Vector2 {
 	sprite := renderable.GetSprite()
-	spriteScreenOriginX := screenCenterX - (sprite.Rect.W / 2)
-	spriteScreenOriginY := screenCenterY - (sprite.Rect.H / 2)
+	spriteScreenOriginX := float64(config.WindowWidth)/2 - (sprite.Rect.W / 2)
+	spriteScreenOriginY := float64(config.WindowHeight)/2 - (sprite.Rect.H / 2)
 	return types.Vector2{
 		X: spriteScreenOriginX + box.X,
 		Y: spriteScreenOriginY + box.Y,

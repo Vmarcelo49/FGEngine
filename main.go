@@ -1,27 +1,32 @@
 package main
 
 import (
+	"fgengine/animation"
 	"fgengine/config"
+	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/input"
+	"fgengine/logic"
 	"fgengine/player"
 	"fgengine/types"
+	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Game struct {
-	players      []*player.Player
-	inputManager *input.InputManager
-	camera       *graphics.Camera
+	players []*player.Player
+	camera  *graphics.Camera
 }
 
 func (g *Game) Update() error {
+	logic.UpdateByInputs([]input.GameInput{g.players[0].InputManager.GetLocalInputs()}, g.players)
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
+	animation.DrawGridStage(10, color.RGBA{R: 255, G: 0, B: 0, A: 255}, constants.StageColor, screen)
 	for _, p := range g.players {
 		graphics.Draw(p.Character, screen, g.camera)
 	}
@@ -36,21 +41,20 @@ func main() {
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 	ebiten.SetWindowTitle("Fighting Game")
 
-	inputManager := input.NewInputManager()
-
 	player1 := player.CreateDebugPlayer()
+	player1.Character.Position = types.Vector2{X: constants.WorldWidth / 2, Y: constants.WorldHeight - 100}
 
 	game := &Game{
-		players:      []*player.Player{player1},
-		inputManager: inputManager,
+		players: []*player.Player{player1},
 		camera: &graphics.Camera{
 			Viewport: types.Rect{
-				X: 0,
-				Y: 0,
+				X: 0, //constants.WorldWidth/2 + float64(config.WindowWidth)/2,
+				Y: 0, //constants.WorldHeight/2 + float64(config.WindowHeight)/2,
 				W: float64(config.WindowWidth),
 				H: float64(config.WindowHeight),
 			},
 			LockWorldBounds: true,
+			//Scaling:         2.5,
 		},
 	}
 

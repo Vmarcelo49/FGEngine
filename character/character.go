@@ -6,6 +6,7 @@ import (
 	"fgengine/types"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
@@ -13,8 +14,6 @@ import (
 const (
 	defaultCharacterPath = "./assets/characters/"
 )
-
-// well lets try hard to not cause a circular dependency with animation and player
 
 type Character struct {
 	ID         int                             `yaml:"id"`
@@ -25,8 +24,8 @@ type Character struct {
 	Animations map[string]*animation.Animation `yaml:"animations"`
 
 	// Ingame Related
-	HP                  int                 `yaml:"hp,omitempty"`
-	Position            types.Vector2       `yaml:"position,omitempty"`
+	HP                  int                 `yaml:"-"`
+	Position            types.Vector2       `yaml:"-"`
 	Velocity            types.Vector2       `yaml:"-"`
 	IgnoreGravityFrames int                 `yaml:"-"`
 	StateMachine        *state.StateMachine `yaml:"-"`
@@ -94,12 +93,25 @@ func loadCharacterByFile(filePath string) (*Character, error) {
 		return nil, err
 	}
 
+	// Convert relative paths to absolute paths based on YAML file location
+	for _, anim := range character.Animations {
+		for _, sprite := range anim.Sprites {
+			if sprite.ImagePath != "" {
+				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, filePath)
+			}
+		}
+	}
+
 	return &character, nil
 }
 
-// Funcs for the Renderable interface:
-func (c *Character) GetID() int {
-	return c.ID
+// resolveRelativePath converts a relative path to an absolute path based on a reference path
+func resolveRelativePath(relativePath, referencePath string) string {
+	if filepath.IsAbs(relativePath) {
+		return relativePath
+	}
+	referenceDir := filepath.Dir(referencePath)
+	return filepath.Clean(filepath.Join(referenceDir, relativePath))
 }
 
 func (c *Character) GetPosition() types.Vector2 {

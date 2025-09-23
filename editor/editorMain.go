@@ -56,8 +56,8 @@ func Run() {
 	zoom := 2.5
 	camera := &graphics.Camera{
 		Viewport: types.Rect{
-			X: -float64(config.WindowWidth) / (2 * zoom),
-			Y: -float64(config.WindowHeight) / (2 * zoom),
+			X: -float64(config.WindowWidth) / 2,  // Center the viewport on character at (0,0)
+			Y: -float64(config.WindowHeight) / 2, // Center the viewport on character at (0,0)
 			W: float64(config.WindowWidth),
 			H: float64(config.WindowHeight),
 		},
