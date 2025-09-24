@@ -9,7 +9,6 @@ import (
 	"fgengine/config"
 	"fgengine/graphics"
 	"fgengine/input"
-	"fgengine/types"
 
 	"github.com/ebitengine/debugui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -48,22 +47,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return config.WindowWidth, config.WindowHeight
+	return config.WindowWidth, config.WindowHeight // in main its return int(g.camera.Viewport.W), int(g.camera.Viewport.H)
 }
 
 func Run() {
 	config.InitDefaultConfig()
-	zoom := 2.5
-	camera := &graphics.Camera{
-		Viewport: types.Rect{
-			X: -float64(config.WindowWidth) / 2,  // Center the viewport on character at (0,0)
-			Y: -float64(config.WindowHeight) / 2, // Center the viewport on character at (0,0)
-			W: float64(config.WindowWidth),
-			H: float64(config.WindowHeight),
-		},
-		LockWorldBounds: false,
-		Scaling:         zoom,
-	}
+	camera := graphics.NewDefaultCamera() // with this, the character should not be visible at start, since it's at 0,0 and camera is at center of screen
 	ebiten.SetWindowTitle("Animation Editor")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
@@ -74,7 +63,6 @@ func Run() {
 		},
 		inputManager: input.NewInputManager(),
 		camera:       camera,
-		zoom:         zoom,
 	}
 
 	if err := ebiten.RunGame(game); err != nil {

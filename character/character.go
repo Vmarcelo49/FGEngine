@@ -2,6 +2,7 @@ package character
 
 import (
 	"fgengine/animation"
+	"fgengine/graphics"
 	"fgengine/state"
 	"fgengine/types"
 	"fmt"
@@ -120,4 +121,11 @@ func (c *Character) GetPosition() types.Vector2 {
 
 func (c *Character) GetSprite() *animation.Sprite {
 	return c.ActiveSprite
+}
+
+func (c *Character) GetRenderProperties() graphics.RenderProperties {
+	// For now, return default properties. In the future, you could add
+	// character-specific properties like scale for different sized characters,
+	// layer for draw order, or color modulation for effects
+	return graphics.DefaultRenderProperties()
 }

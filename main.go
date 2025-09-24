@@ -42,20 +42,11 @@ func main() {
 	ebiten.SetWindowTitle("Fighting Game")
 
 	player1 := player.CreateDebugPlayer()
-	player1.Character.Position = types.Vector2{X: constants.WorldWidth / 2, Y: constants.WorldHeight - 100}
+	player1.Character.Position = types.Vector2{X: constants.WorldWidth / 2, Y: constants.WorldHeight - 200}
 
 	game := &Game{
 		players: []*player.Player{player1},
-		camera: &graphics.Camera{
-			Viewport: types.Rect{
-				X: 0, //constants.WorldWidth/2 + float64(config.WindowWidth)/2,
-				Y: 0, //constants.WorldHeight/2 + float64(config.WindowHeight)/2,
-				W: float64(config.WindowWidth),
-				H: float64(config.WindowHeight),
-			},
-			LockWorldBounds: true,
-			//Scaling:         2.5,
-		},
+		camera:  graphics.NewDefaultCamera(),
 	}
 
 	if err := ebiten.RunGame(game); err != nil {

@@ -3,30 +3,39 @@ package graphics
 import (
 	"fgengine/animation"
 	"fgengine/types"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Renderable interface - all renderable objects must implement these
 type Renderable interface {
 	GetPosition() types.Vector2
 	GetSprite() *animation.Sprite
+	GetRenderProperties() RenderProperties
+}
+
+// RenderProperties provides rendering properties for all renderable objects
+type RenderProperties struct {
+	Scale    types.Vector2 // 1.0 = normal size
+	Rotation float64       // in radians
+	Layer    int           // Higher numbers render on top (0 = default)
+	ColorMod color.RGBA    // Color modulation (white = no change)
+}
+
+// DefaultRenderProperties returns default rendering properties
+func DefaultRenderProperties() RenderProperties {
+	return RenderProperties{
+		Scale:    types.Vector2{X: 1.0, Y: 1.0},
+		Rotation: 0.0,
+		Layer:    0,
+		ColorMod: color.RGBA{R: 255, G: 255, B: 255, A: 255}, // White = no change
+	}
 }
 
 func applyScalingTransform(options *ebiten.DrawImageOptions, screenPos types.Vector2, camera *Camera, scaleX, scaleY float64) {
-	screenCenterX := camera.Viewport.W / 2
-	screenCenterY := camera.Viewport.H / 2
-
-	relativeX := screenPos.X - screenCenterX
-	relativeY := screenPos.Y - screenCenterY
-
-	scaledRelativeX := relativeX * camera.Scaling
-	scaledRelativeY := relativeY * camera.Scaling
-
-	finalX := scaledRelativeX + screenCenterX
-	finalY := scaledRelativeY + screenCenterY
-
 	options.GeoM.Scale(scaleX*camera.Scaling, scaleY*camera.Scaling)
-	options.GeoM.Translate(finalX, finalY)
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
 }
 
 func applyBasicTransform(options *ebiten.DrawImageOptions, screenPos types.Vector2, scaleX, scaleY float64) {

@@ -35,3 +35,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Folder focused on study and experiments
+
+study/

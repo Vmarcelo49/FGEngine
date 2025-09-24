@@ -11,6 +11,18 @@ type Camera struct {
 	Scaling         float64
 }
 
+func NewDefaultCamera() *Camera {
+	return &Camera{
+		Viewport: types.Rect{
+			X: (constants.WorldWidth - constants.CameraWidth) / 2,
+			Y: (constants.WorldHeight - constants.CameraHeight) / 2,
+			W: float64(constants.CameraWidth),
+			H: float64(constants.CameraHeight),
+		},
+		LockWorldBounds: false,
+	}
+}
+
 func (c *Camera) UpdatePosition(targetPos types.Vector2) {
 	c.Viewport.X = targetPos.X - c.Viewport.W/2
 	c.Viewport.Y = targetPos.Y - c.Viewport.H/2
