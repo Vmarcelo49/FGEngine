@@ -12,7 +12,7 @@ type Player struct {
 }
 
 // Makes a player with helmet for debugging
-func CreateDebugPlayer() *Player {
+func NewDebugPlayer() *Player {
 	character, err := character.LoadCharacter(character.Helmet)
 	if err != nil {
 		log.Fatal(err)

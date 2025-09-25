@@ -47,7 +47,6 @@ func loadImage(renderable Renderable) *ebiten.Image {
 	return image
 }
 
-// ClearImageCache clears the image cache.
 func ClearImageCache() {
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()

@@ -5,6 +5,7 @@ import (
 	"slices"
 	"sync"
 
+	"fgengine/animation"
 	"fgengine/collision"
 	"fgengine/config"
 	"fgengine/types"
@@ -89,28 +90,46 @@ func createBoxImageOptions(renderable Renderable, box types.Rect, boxType collis
 func createBoxImageOptionsWithCamera(renderable Renderable, box types.Rect, boxType collision.BoxType, camera *Camera) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
-	// Calculate world position of the box
+	boxImgOptions.GeoM.Scale(box.W, box.H)
+
 	worldPos := renderable.GetPosition()
 	boxWorldPos := types.Vector2{
 		X: worldPos.X + box.X,
 		Y: worldPos.Y + box.Y,
 	}
 
-	// Transform to screen coordinates using camera
 	screenPos := camera.WorldToScreen(boxWorldPos)
 
-	if camera.Scaling != 0 && camera.Scaling != 1 {
-		applyScalingTransform(boxImgOptions, screenPos, camera, box.W, box.H)
-	} else {
-		applyBasicTransform(boxImgOptions, screenPos, box.W, box.H)
+	boxRenderable := &boxRenderableWrapper{
+		position:         boxWorldPos,
+		renderProperties: DefaultRenderProperties(),
 	}
 
-	// Set the color based on box type using ColorScale
+	applyCameraTransform(boxImgOptions, camera, boxRenderable, screenPos)
+
 	if color, exists := boxColors[boxType]; exists {
 		boxImgOptions.ColorScale.ScaleWithColor(color)
 	}
 
 	return boxImgOptions
+}
+
+// boxRenderableWrapper is a helper struct for box rendering with zoomAroundCenterOption
+type boxRenderableWrapper struct {
+	position         types.Vector2
+	renderProperties RenderProperties
+}
+
+func (b *boxRenderableWrapper) GetPosition() types.Vector2 {
+	return b.position
+}
+
+func (b *boxRenderableWrapper) GetSprite() *animation.Sprite {
+	return nil // Boxes don't need sprites
+}
+
+func (b *boxRenderableWrapper) GetRenderProperties() RenderProperties {
+	return b.renderProperties
 }
 
 func calculateBoxScreenPosition(renderable Renderable, box types.Rect) types.Vector2 {

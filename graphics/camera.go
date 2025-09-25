@@ -1,8 +1,11 @@
 package graphics
 
 import (
+	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/types"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Camera struct {
@@ -11,7 +14,8 @@ type Camera struct {
 	Scaling         float64
 }
 
-func NewDefaultCamera() *Camera {
+// Makes a camera centered in the world
+func NewCamera() *Camera {
 	return &Camera{
 		Viewport: types.Rect{
 			X: (constants.WorldWidth - constants.CameraWidth) / 2,
@@ -89,4 +93,25 @@ func (c *Camera) IsVisible(renderable Renderable) bool {
 		H: sprite.Rect.H,
 	}
 	return c.Viewport.IsOverlapping(renderableRect)
+}
+
+func layoutMatchesCamSize(camera *Camera) bool {
+	return (float64(config.LayoutSizeW) == camera.Viewport.W && float64(config.LayoutSizeH) == camera.Viewport.H)
+}
+
+func zoomAroundCenterOption(options *ebiten.DrawImageOptions, camera *Camera, renderable Renderable, screenPos types.Vector2) {
+	centerViewportX := camera.Viewport.W / 2
+	centerViewportY := camera.Viewport.H / 2
+
+	relativeX := screenPos.X - centerViewportX
+	relativeY := screenPos.Y - centerViewportY
+
+	scaledRelativeX := relativeX * camera.Scaling
+	scaledRelativeY := relativeY * camera.Scaling
+
+	finalX := scaledRelativeX + centerViewportX
+	finalY := scaledRelativeY + centerViewportY
+
+	options.GeoM.Scale(renderable.GetRenderProperties().Scale.X*camera.Scaling, renderable.GetRenderProperties().Scale.Y*camera.Scaling)
+	options.GeoM.Translate(finalX, finalY)
 }

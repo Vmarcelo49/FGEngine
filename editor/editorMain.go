@@ -7,8 +7,10 @@ package editor
 import (
 	"fgengine/character"
 	"fgengine/config"
+	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/input"
+	"fgengine/types"
 
 	"github.com/ebitengine/debugui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -23,7 +25,6 @@ type Game struct {
 	lastMouseY      int
 	isDragging      bool
 	camera          *graphics.Camera
-	zoom            float64
 }
 
 func (g *Game) Update() error {
@@ -42,19 +43,16 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	g.drawMouseCrosshair(screen)
-
 	g.debugui.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return config.WindowWidth, config.WindowHeight // in main its return int(g.camera.Viewport.W), int(g.camera.Viewport.H)
+	return config.LayoutSizeW, config.LayoutSizeH
 }
 
 func Run() {
-	config.InitDefaultConfig()
-	camera := graphics.NewDefaultCamera() // with this, the character should not be visible at start, since it's at 0,0 and camera is at center of screen
+	config.SetEditorConfig()
 	ebiten.SetWindowTitle("Animation Editor")
-	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeDisabled)
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 
 	game := &Game{
@@ -62,8 +60,10 @@ func Run() {
 			logBuf: "Move Camera with Right click drag\n",
 		},
 		inputManager: input.NewInputManager(),
-		camera:       camera,
+		camera:       graphics.NewCamera(),
 	}
+	game.camera.Scaling = float64(config.LayoutSizeW) / float64(constants.CameraWidth)
+	game.camera.SetPosition(types.Vector2{X: -game.camera.Viewport.W / 2, Y: -game.camera.Viewport.H / 2})
 
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)

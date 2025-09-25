@@ -33,20 +33,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return int(g.camera.Viewport.W), int(g.camera.Viewport.H)
+	return config.LayoutSizeW, config.LayoutSizeH
 }
 
 func main() {
-	initializeSystems()
-	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
+	config.InitDefaultConfig()
 	ebiten.SetWindowTitle("Fighting Game")
+	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 
-	player1 := player.CreateDebugPlayer()
+	player1 := player.NewDebugPlayer()
 	player1.Character.Position = types.Vector2{X: constants.WorldWidth / 2, Y: constants.WorldHeight - 200}
 
 	game := &Game{
 		players: []*player.Player{player1},
-		camera:  graphics.NewDefaultCamera(),
+		camera:  graphics.NewCamera(),
 	}
 
 	if err := ebiten.RunGame(game); err != nil {
