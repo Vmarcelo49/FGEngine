@@ -1,1 +1,2 @@
-my camera is ass
+Maybe move state package to logic
+since logic will be made mainly on the statemachine it makes perfect sense for it to be there

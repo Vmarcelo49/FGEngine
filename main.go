@@ -22,11 +22,12 @@ type Game struct {
 
 func (g *Game) Update() error {
 	logic.UpdateByInputs([]input.GameInput{g.players[0].InputManager.GetLocalInputs()}, g.players)
+	g.camera.UpdatePosition(types.Vector2{X: g.players[0].Character.Position.X, Y: g.players[0].Character.Position.Y})
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	animation.DrawGridStage(10, color.RGBA{R: 255, G: 0, B: 0, A: 255}, constants.StageColor, screen)
+	animation.DrawGridStage(20, color.RGBA{R: 255, G: 0, B: 0, A: 255}, constants.StageColor, screen)
 	for _, p := range g.players {
 		graphics.Draw(p.Character, screen, g.camera)
 	}
@@ -48,6 +49,7 @@ func main() {
 		players: []*player.Player{player1},
 		camera:  graphics.NewCamera(),
 	}
+	game.camera.LockWorldBounds = true
 
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)

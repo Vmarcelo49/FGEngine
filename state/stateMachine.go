@@ -1,39 +1,39 @@
 package state
 
 type StateMachine struct {
-	State         State
+	ActiveState   State
 	PreviousState State
 }
 
 func (sm *StateMachine) AddState(stateToAdd State) {
-	sm.PreviousState = sm.State
-	sm.State |= stateToAdd
+	sm.PreviousState = sm.ActiveState
+	sm.ActiveState |= stateToAdd
 }
 
 func (sm *StateMachine) SetState(newState State) {
-	sm.PreviousState = sm.State
-	sm.State = newState
+	sm.PreviousState = sm.ActiveState
+	sm.ActiveState = newState
 }
 
 // HasState checks if the state machine has ALL the specified state flags
 func (sm *StateMachine) HasState(stateToCheck State) bool {
-	return (sm.State & stateToCheck) == stateToCheck
+	return (sm.ActiveState & stateToCheck) == stateToCheck
 }
 
 // HasAnyState checks if the state machine has ANY of the specified state flags
 func (sm *StateMachine) HasAnyState(stateToCheck State) bool {
-	return (sm.State & stateToCheck) != 0
+	return (sm.ActiveState & stateToCheck) != 0
 }
 
 func (sm *StateMachine) RemoveState(stateToRemove State) {
-	sm.State &= ^stateToRemove
+	sm.ActiveState &= ^stateToRemove
 	// guardrails to prevent charaters flying or being stuck
 	if stateToRemove == StateAirborne {
-		sm.State |= StateGrounded
+		sm.ActiveState |= StateGrounded
 		return
 	}
 	if stateToRemove == StateGrounded {
-		sm.State |= StateAirborne
+		sm.ActiveState |= StateAirborne
 		return
 	}
 }

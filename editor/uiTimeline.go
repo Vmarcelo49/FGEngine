@@ -47,7 +47,7 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		if duration < 1 {
 			duration = 1
 		}
-		g.editorManager.activeAnimation.Prop[spriteIndex].Duration = uint(duration)
+		g.editorManager.activeAnimation.Prop[spriteIndex].Duration = duration
 
 		ctx.Button("Add Image").On(func() {
 			g.AddImageToFrame()

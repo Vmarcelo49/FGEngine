@@ -6,7 +6,7 @@ import (
 
 // FrameProperties represents static frame-specific data that varies per animation frame
 type FrameProperties struct {
-	Duration uint `yaml:"duration"` // in milliseconds
+	Duration int `yaml:"duration"` // in milliseconds
 	// State represents the character state during this frame
 	State state.State `yaml:"state"`
 

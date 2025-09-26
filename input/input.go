@@ -9,6 +9,10 @@ import (
 type GameInput uint8
 
 const (
+	NoInput GameInput = 0
+)
+
+const (
 	Up GameInput = 1 << iota
 	Down
 	Left
