@@ -2,6 +2,7 @@ package character
 
 import (
 	"fgengine/animation"
+	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/state"
 	"fgengine/types"
@@ -25,11 +26,7 @@ type Character struct {
 	Animations map[string]*animation.Animation `yaml:"animations"`
 
 	// Ingame Related
-	HP                  int                 `yaml:"-"`
-	Position            types.Vector2       `yaml:"-"`
-	Velocity            types.Vector2       `yaml:"-"`
-	IgnoreGravityFrames int                 `yaml:"-"`
-	StateMachine        *state.StateMachine `yaml:"-"`
+	StateMachine *state.StateMachine `yaml:"-"`
 
 	// animation related
 	ActiveAnimation *animation.Animation `yaml:"-"`
@@ -116,7 +113,7 @@ func resolveRelativePath(relativePath, referencePath string) string {
 }
 
 func (c *Character) GetPosition() types.Vector2 {
-	return c.Position
+	return c.StateMachine.Position
 }
 
 func (c *Character) GetSprite() *animation.Sprite {
@@ -128,4 +125,49 @@ func (c *Character) GetRenderProperties() graphics.RenderProperties {
 	// character-specific properties like scale for different sized characters,
 	// layer for draw order, or color modulation for effects
 	return graphics.DefaultRenderProperties()
+}
+
+func (c *Character) Update() {
+	switch c.StateMachine.ActiveState {
+	case state.StateIdle:
+		c.setAnimation("idle")
+	case state.StateWalk | state.StateForward:
+		c.setAnimation("walk")
+		c.StateMachine.Velocity.X = 2 // in the future, this should be based on something we can get from the editor
+	case state.StateDash | state.StateForward:
+		c.setAnimation("dash")
+		c.StateMachine.Velocity.X = 5
+	default:
+		c.setAnimation("idle")
+	}
+	// Update position based on velocity
+	c.StateMachine.Position.X += c.StateMachine.Velocity.X
+	c.StateMachine.Position.Y += c.StateMachine.Velocity.Y
+
+	// Apply friction
+	if c.StateMachine.Velocity.X > 0 {
+		c.StateMachine.Velocity.X -= float64(c.Friction)
+		if c.StateMachine.Velocity.X < 0 {
+			c.StateMachine.Velocity.X = 0
+		}
+	} else if c.StateMachine.Velocity.X < 0 {
+		c.StateMachine.Velocity.X += float64(c.Friction)
+		if c.StateMachine.Velocity.X > 0 {
+			c.StateMachine.Velocity.X = 0
+		}
+	}
+
+	// Apply gravity only if airborne and not ignoring gravity frames
+	if c.StateMachine.HasState(state.StateAirborne) && c.StateMachine.IgnoreGravityFrames <= 0 {
+		c.StateMachine.Velocity.Y += constants.Gravity // example gravity value
+	} else {
+		c.StateMachine.IgnoreGravityFrames--
+	}
+
+	if c.StateMachine.Position.Y >= constants.WorldHeight-100 { // ground level
+		c.StateMachine.Position.Y = constants.WorldHeight - 100
+		c.StateMachine.Velocity.Y = 0
+		c.StateMachine.AddState(state.StateGrounded)
+		c.StateMachine.RemoveState(state.StateAirborne)
+	}
 }

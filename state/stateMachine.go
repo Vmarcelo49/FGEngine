@@ -1,8 +1,26 @@
 package state
 
+import (
+	"fgengine/input"
+	"fgengine/types"
+)
+
+type FacingDirection bool
+
+const (
+	Right FacingDirection = false
+	Left  FacingDirection = true
+)
+
 type StateMachine struct {
-	ActiveState   State
-	PreviousState State
+	ActiveState          State
+	PreviousState        State
+	HP                   int
+	Position             types.Vector2
+	Velocity             types.Vector2
+	IgnoreGravityFrames  int
+	InputHistory         []input.GameInput
+	CharacterOrientation FacingDirection
 }
 
 func (sm *StateMachine) AddState(stateToAdd State) {

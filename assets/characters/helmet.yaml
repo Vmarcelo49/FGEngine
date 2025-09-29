@@ -1,6 +1,6 @@
 id: 0
 name: helmet
-friction: 0
+friction: 2
 jumpHeight: 0
 animations:
   idle:

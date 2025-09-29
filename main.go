@@ -22,7 +22,7 @@ type Game struct {
 
 func (g *Game) Update() error {
 	logic.UpdateByInputs([]input.GameInput{g.players[0].InputManager.GetLocalInputs()}, g.players)
-	g.camera.UpdatePosition(types.Vector2{X: g.players[0].Character.Position.X, Y: g.players[0].Character.Position.Y})
+	g.camera.UpdatePosition(types.Vector2{X: g.players[0].Character.GetPosition().X, Y: g.players[0].Character.GetPosition().Y})
 	return nil
 }
 
@@ -43,7 +43,7 @@ func main() {
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 
 	player1 := player.NewDebugPlayer()
-	player1.Character.Position = types.Vector2{X: constants.WorldWidth / 2, Y: constants.WorldHeight - 200}
+	player1.Character.StateMachine.Position = types.Vector2{X: constants.WorldWidth / 2, Y: constants.WorldHeight - 200}
 
 	game := &Game{
 		players: []*player.Player{player1},
