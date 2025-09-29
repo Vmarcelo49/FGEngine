@@ -27,7 +27,7 @@ type InputSequence struct {
 }
 
 var InputSequences = map[string]InputSequence{ // This being a map kinda sucks for writing some loops and maybe performance?
-	"66": InputSequence{
+	"66": {
 		baseInput: []input.GameInput{
 			input.Right, input.Right,
 		},
@@ -36,7 +36,7 @@ var InputSequences = map[string]InputSequence{ // This being a map kinda sucks f
 			input.Left, input.Down, input.Up, // maybe i will remove down
 		},
 	},
-	"236A": InputSequence{
+	"236A": {
 		baseInput: []input.GameInput{
 			input.Down, input.Down & input.Right, input.Right, input.A,
 		},
