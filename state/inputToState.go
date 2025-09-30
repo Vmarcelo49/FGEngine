@@ -15,11 +15,6 @@ var movementInputs = map[input.GameInput]State{
 	input.Up:    StateJump | StateNeutral,
 }
 
-// states are becoming any game action
-func inputSequenceToState(inputSeq []input.GameInput) State {
-	return StateDash | StateForward
-}
-
 type InputSequence struct {
 	baseInput    []input.GameInput // the main input sequence
 	buffer       int               // tolerance for buffering inputs

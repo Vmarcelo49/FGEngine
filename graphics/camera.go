@@ -19,9 +19,9 @@ func NewCamera() *Camera {
 	return &Camera{
 		Viewport: types.Rect{
 			X: (constants.WorldWidth - constants.CameraWidth) / 2,
-			Y: (constants.WorldHeight - constants.CameraHeight) / 2,
-			W: float64(constants.CameraWidth),
-			H: float64(constants.CameraHeight),
+			Y: constants.WorldHeight - constants.CameraHeight,
+			W: constants.CameraWidth,
+			H: constants.CameraHeight,
 		},
 		LockWorldBounds: false,
 	}

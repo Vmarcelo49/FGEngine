@@ -2,25 +2,28 @@ package animation
 
 import (
 	"fgengine/constants"
+	"fgengine/types"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// TODO, move this to a proper structure to handle stages
-
 var StageImage *ebiten.Image
 
-func DrawStaticColorStage(color color.RGBA, screen *ebiten.Image) {
+func DrawStaticColorStage(color color.RGBA, screen *ebiten.Image, screenPos types.Vector2) {
 	if StageImage == nil {
 		StageImage = ebiten.NewImage(int(constants.WorldWidth), int(constants.WorldHeight))
 	}
 	StageImage.Fill(color)
-	screen.DrawImage(StageImage, nil)
+
+	options := &ebiten.DrawImageOptions{}
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
+
+	screen.DrawImage(StageImage, options)
 }
 
-func DrawGridStage(gridPixels int, lineColor, bgColor color.RGBA, screen *ebiten.Image) {
+func DrawGridStage(gridPixels int, lineColor, bgColor color.RGBA, screen *ebiten.Image, screenPos types.Vector2) {
 	if StageImage == nil {
 		StageImage = ebiten.NewImage(int(constants.WorldWidth), int(constants.WorldHeight))
 		StageImage.Fill(bgColor)
@@ -31,5 +34,22 @@ func DrawGridStage(gridPixels int, lineColor, bgColor color.RGBA, screen *ebiten
 			vector.StrokeLine(StageImage, 0, float32(y), float32(constants.WorldWidth), float32(y), 1, lineColor, false)
 		}
 	}
-	screen.DrawImage(StageImage, nil)
+
+	options := &ebiten.DrawImageOptions{}
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
+
+	screen.DrawImage(StageImage, options)
+}
+
+func DrawStaticImageStage(img *ebiten.Image, screen *ebiten.Image, screenPos types.Vector2) {
+	if img == nil {
+		return
+	}
+
+	options := &ebiten.DrawImageOptions{}
+
+	// screenPos is already calculated using WorldToScreen() from camera
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
+
+	screen.DrawImage(img, options)
 }

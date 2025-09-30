@@ -164,10 +164,17 @@ func (c *Character) Update() {
 		c.StateMachine.IgnoreGravityFrames--
 	}
 
-	if c.StateMachine.Position.Y >= constants.WorldHeight-100 { // ground level
-		c.StateMachine.Position.Y = constants.WorldHeight - 100
+	if c.StateMachine.Position.Y >= constants.GroundLevelY {
+		c.StateMachine.Position.Y = constants.GroundLevelY
 		c.StateMachine.Velocity.Y = 0
 		c.StateMachine.AddState(state.StateGrounded)
 		c.StateMachine.RemoveState(state.StateAirborne)
+	}
+
+	if c.StateMachine.Position.X < 0 {
+		c.StateMachine.Position.X = 0
+	}
+	if c.StateMachine.Position.X+float64(c.ActiveSprite.Rect.W) > constants.WorldWidth {
+		c.StateMachine.Position.X = constants.WorldWidth - float64(c.ActiveSprite.Rect.W)
 	}
 }
