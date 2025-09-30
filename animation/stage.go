@@ -13,7 +13,7 @@ var StageImage *ebiten.Image
 
 func DrawStaticColorStage(color color.RGBA, screen *ebiten.Image, screenPos types.Vector2) {
 	if StageImage == nil {
-		StageImage = ebiten.NewImage(int(constants.WorldWidth), int(constants.WorldHeight))
+		StageImage = ebiten.NewImage(int(constants.World.W), int(constants.World.H))
 	}
 	StageImage.Fill(color)
 
@@ -25,13 +25,13 @@ func DrawStaticColorStage(color color.RGBA, screen *ebiten.Image, screenPos type
 
 func DrawGridStage(gridPixels int, lineColor, bgColor color.RGBA, screen *ebiten.Image, screenPos types.Vector2) {
 	if StageImage == nil {
-		StageImage = ebiten.NewImage(int(constants.WorldWidth), int(constants.WorldHeight))
+		StageImage = ebiten.NewImage(int(constants.World.W), int(constants.World.H))
 		StageImage.Fill(bgColor)
 	}
-	for x := 0; x < int(constants.WorldWidth); x += gridPixels {
-		for y := 0; y < int(constants.WorldHeight); y += gridPixels {
-			vector.StrokeLine(StageImage, float32(x), 0, float32(x), float32(constants.WorldHeight), 1, lineColor, false)
-			vector.StrokeLine(StageImage, 0, float32(y), float32(constants.WorldWidth), float32(y), 1, lineColor, false)
+	for x := 0; x < int(constants.World.W); x += gridPixels {
+		for y := 0; y < int(constants.World.H); y += gridPixels {
+			vector.StrokeLine(StageImage, float32(x), 0, float32(x), float32(constants.World.H), 1, lineColor, false)
+			vector.StrokeLine(StageImage, 0, float32(y), float32(constants.World.W), float32(y), 1, lineColor, false)
 		}
 	}
 

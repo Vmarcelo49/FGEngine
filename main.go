@@ -65,7 +65,10 @@ func main() {
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 
 	player1 := player.NewDebugPlayer()
-	player1.Character.StateMachine.Position = types.Vector2{X: (constants.WorldWidth - player1.Character.ActiveSprite.Rect.W) / 2, Y: constants.GroundLevelY - float64(player1.Character.ActiveSprite.Rect.H)} // start in the middle of the world
+	// Center player horizontally in the world, position vertically on ground
+	playerRect := player1.Character.ActiveSprite.Rect
+	playerRect.AlignCenter(constants.World)
+	player1.Character.StateMachine.Position = types.Vector2{X: playerRect.X, Y: constants.GroundLevelY - float64(player1.Character.ActiveSprite.Rect.H)}
 
 	game := &Game{
 		players: []*player.Player{player1},

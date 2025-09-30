@@ -134,10 +134,14 @@ func (b *boxRenderableWrapper) GetRenderProperties() RenderProperties {
 
 func calculateBoxScreenPosition(renderable Renderable, box types.Rect) types.Vector2 {
 	sprite := renderable.GetSprite()
-	spriteScreenOriginX := float64(config.WindowWidth)/2 - (sprite.Rect.W / 2)
-	spriteScreenOriginY := float64(config.WindowHeight)/2 - (sprite.Rect.H / 2)
+
+	// Create screen rectangle and center the sprite within it
+	screenRect := config.GetWindowRect()
+	spriteRect := sprite.Rect
+	spriteRect.AlignCenter(screenRect)
+
 	return types.Vector2{
-		X: spriteScreenOriginX + box.X,
-		Y: spriteScreenOriginY + box.Y,
+		X: spriteRect.X + box.X,
+		Y: spriteRect.Y + box.Y,
 	}
 }

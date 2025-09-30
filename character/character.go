@@ -171,10 +171,10 @@ func (c *Character) Update() {
 		c.StateMachine.RemoveState(state.StateAirborne)
 	}
 
-	if c.StateMachine.Position.X < 0 {
-		c.StateMachine.Position.X = 0
+	if c.StateMachine.Position.X < constants.World.X {
+		c.StateMachine.Position.X = constants.World.X
 	}
-	if c.StateMachine.Position.X+float64(c.ActiveSprite.Rect.W) > constants.WorldWidth {
-		c.StateMachine.Position.X = constants.WorldWidth - float64(c.ActiveSprite.Rect.W)
+	if c.StateMachine.Position.X+float64(c.ActiveSprite.Rect.W) > constants.World.Right() {
+		c.StateMachine.Position.X = constants.World.Right() - float64(c.ActiveSprite.Rect.W)
 	}
 }

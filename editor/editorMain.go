@@ -62,8 +62,8 @@ func Run() {
 		inputManager: input.NewInputManager(),
 		camera:       graphics.NewCamera(),
 	}
-	game.camera.Scaling = float64(config.LayoutSizeW) / float64(constants.CameraWidth)
-	game.camera.SetPosition(types.Vector2{X: (-constants.WorldWidth / 2), Y: (-constants.WorldHeight / 2)})
+	game.camera.Scaling = float64(config.LayoutSizeW) / constants.Camera.W
+	game.camera.SetPosition(types.Vector2{X: (-constants.World.W / 2), Y: (-constants.World.H / 2)})
 
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)

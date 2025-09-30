@@ -1,6 +1,9 @@
 package constants
 
-import "image/color"
+import (
+	"fgengine/types"
+	"image/color"
+)
 
 const (
 	WorldWidth  float64 = 768 // 640 = camera width  * 1.2
@@ -16,3 +19,6 @@ const (
 )
 
 var StageColor = color.RGBA{R: 100, G: 149, B: 237, A: 255} // Cornflower Blue
+
+var World = types.Rect{X: 0, Y: 0, W: WorldWidth, H: WorldHeight} // camera * 1.2
+var Camera = types.Rect{X: 0, Y: 0, W: CameraWidth, H: CameraHeight}

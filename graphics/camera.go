@@ -16,18 +16,19 @@ type Camera struct {
 
 // Makes a camera centered in the world
 func NewCamera() *Camera {
+	viewport := constants.Camera // Start with camera dimensions
+	viewport.AlignCenter(constants.World)
+	// Position camera at bottom of world instead of center vertically
+	viewport.Y = constants.World.Bottom() - constants.Camera.H
+
 	return &Camera{
-		Viewport: types.Rect{
-			X: (constants.WorldWidth - constants.CameraWidth) / 2,
-			Y: constants.WorldHeight - constants.CameraHeight,
-			W: constants.CameraWidth,
-			H: constants.CameraHeight,
-		},
+		Viewport:        viewport,
 		LockWorldBounds: false,
 	}
 }
 
 func (c *Camera) UpdatePosition(targetPos types.Vector2) {
+	// Center viewport around target position
 	c.Viewport.X = targetPos.X - c.Viewport.W/2
 	c.Viewport.Y = targetPos.Y - c.Viewport.H/2
 	if c.LockWorldBounds {
@@ -44,17 +45,17 @@ func (c *Camera) SetPosition(pos types.Vector2) {
 }
 
 func (c *Camera) lockToWorldBounds() {
-	if c.Viewport.X < 0 {
-		c.Viewport.X = 0
+	if c.Viewport.X < constants.World.X {
+		c.Viewport.X = constants.World.X
 	}
-	if c.Viewport.X > constants.WorldWidth-c.Viewport.W {
-		c.Viewport.X = constants.WorldWidth - c.Viewport.W
+	if c.Viewport.X > constants.World.Right()-c.Viewport.W {
+		c.Viewport.X = constants.World.Right() - c.Viewport.W
 	}
-	if c.Viewport.Y < 0 {
-		c.Viewport.Y = 0
+	if c.Viewport.Y < constants.World.Y {
+		c.Viewport.Y = constants.World.Y
 	}
-	if c.Viewport.Y > constants.WorldHeight-c.Viewport.H {
-		c.Viewport.Y = constants.WorldHeight - c.Viewport.H
+	if c.Viewport.Y > constants.World.Bottom()-c.Viewport.H {
+		c.Viewport.Y = constants.World.Bottom() - c.Viewport.H
 	}
 }
 
