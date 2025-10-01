@@ -24,50 +24,40 @@ const (
 	D
 )
 
+func (gi GameInput) String() string {
+	if gi == NoInput {
+		return "NoInput"
+	}
+	str := ""
+	if gi&Up != 0 {
+		str += "Up "
+	}
+	if gi&Down != 0 {
+		str += "Down "
+	}
+	if gi&Left != 0 {
+		str += "Left "
+	}
+	if gi&Right != 0 {
+		str += "Right "
+	}
+	if gi&A != 0 {
+		str += "A "
+	}
+	if gi&B != 0 {
+		str += "B "
+	}
+	if gi&C != 0 {
+		str += "C "
+	}
+	if gi&D != 0 {
+		str += "D "
+	}
+	return str
+}
+
 func (gi GameInput) IsPressed(input GameInput) bool {
 	return gi&input != 0
-}
-
-type InputMap struct {
-	KeyboardBindings map[GameInput][]ebiten.Key
-	GamepadButtons   map[GameInput][]ebiten.StandardGamepadButton
-}
-
-func MakeDefaultInputMap() *InputMap {
-	return &InputMap{
-		KeyboardBindings: map[GameInput][]ebiten.Key{
-			Up:    {ebiten.KeyW, ebiten.KeySpace, ebiten.KeyUp},
-			Down:  {ebiten.KeyS, ebiten.KeyDown},
-			Left:  {ebiten.KeyA, ebiten.KeyLeft},
-			Right: {ebiten.KeyD, ebiten.KeyRight},
-			A:     {ebiten.KeyU},
-			B:     {ebiten.KeyI},
-			C:     {ebiten.KeyO},
-			D:     {ebiten.KeyK},
-		},
-		GamepadButtons: map[GameInput][]ebiten.StandardGamepadButton{
-			Up:    {ebiten.StandardGamepadButtonLeftTop},
-			Down:  {ebiten.StandardGamepadButtonLeftBottom},
-			Left:  {ebiten.StandardGamepadButtonLeftLeft},
-			Right: {ebiten.StandardGamepadButtonLeftRight},
-			A:     {ebiten.StandardGamepadButtonRightLeft},
-			B:     {ebiten.StandardGamepadButtonRightTop},
-			C:     {ebiten.StandardGamepadButtonRightRight},
-			D:     {ebiten.StandardGamepadButtonRightBottom},
-		},
-	}
-}
-
-type InputManager struct {
-	InputMap   *InputMap
-	GamepadIDs []ebiten.GamepadID
-}
-
-func NewInputManager() *InputManager {
-	return &InputManager{
-		InputMap:   MakeDefaultInputMap(),
-		GamepadIDs: []ebiten.GamepadID{},
-	}
 }
 
 func (im *InputManager) UpdateGamepadList() {

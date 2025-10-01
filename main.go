@@ -31,13 +31,13 @@ func (g *Game) Update() error {
 	if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 		ctx.Window("Game Debug Info", image.Rect(0, 0, 256, 144), func(layout debugui.ContainerLayout) {
 			ctx.Text("Camera Info:")
-			ctx.Text(fmt.Sprintf(" Position: (%.2f, %.2f)", g.camera.Viewport.X, g.camera.Viewport.Y))
-			ctx.Text(fmt.Sprintf(" Size: (%.2f, %.2f)", g.camera.Viewport.W, g.camera.Viewport.H))
+			ctx.Text(fmt.Sprintf("Position: (%.2f, %.2f)", g.camera.Viewport.X, g.camera.Viewport.Y))
+			ctx.Text(fmt.Sprintf("Size: (%.2f, %.2f)", g.camera.Viewport.W, g.camera.Viewport.H))
 			ctx.Text("Character Info:")
 			for i, p := range g.players {
-				ctx.Text(fmt.Sprintf(" Player %d:", i+1))
-				ctx.Text(fmt.Sprintf("  Position: (%.2f, %.2f)", p.Character.GetPosition().X, p.Character.GetPosition().Y))
-				ctx.Text(fmt.Sprintf("  State: %s", p.Character.StateMachine.ActiveState.String()))
+				ctx.Text(fmt.Sprintf("Player %d:", i+1))
+				ctx.Text(fmt.Sprintf("Position: (%.2f, %.2f)", p.Character.GetPosition().X, p.Character.GetPosition().Y))
+				ctx.Text(fmt.Sprintf("State: %s", p.Character.StateMachine.ActiveState.String()))
 			}
 		})
 		return nil

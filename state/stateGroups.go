@@ -37,7 +37,7 @@ func (sm *StateMachine) HandleInput(playerInput input.GameInput) {
 
 	// then check for single inputs
 	if playerInput == input.Right {
-		sm.SetState(StateWalk | StateForward)
+		sm.AddState(StateWalk | StateForward)
 	}
 
 	if playerInput == input.NoInput {

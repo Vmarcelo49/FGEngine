@@ -78,7 +78,7 @@ func (c *Character) setAnimation(name string) {
 		// Try to fall back to a default animation if not found
 		if idleAnim, exists := c.Animations["idle"]; exists {
 			anim = idleAnim
-			fmt.Printf("Animation '%s' not found for character '%s', using 'idle' animation\n", name, c.Name)
+			//fmt.Printf("Animation '%s' not found for character '%s', using 'idle' animation\n", name, c.Name)
 		} else {
 			fmt.Printf("Animation '%s' not found for character '%s' and no fallback available\n", name, c.Name)
 			return
