@@ -7,7 +7,6 @@ import (
 
 	"fgengine/animation"
 	"fgengine/collision"
-	"fgengine/config"
 	"fgengine/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -56,37 +55,6 @@ func DrawBoxes(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 
 }
 
-// DrawBoxesByType draws all collision boxes by type at exact world position (no camera)
-func DrawBoxesByType(renderable Renderable, screen *ebiten.Image, boxtype collision.BoxType) {
-	initWhitePixel()
-	currentSprite := renderable.GetSprite()
-	if currentSprite == nil {
-		return
-	}
-
-	if boxes, ok := currentSprite.Boxes[boxtype]; ok {
-		for _, box := range boxes {
-			options := createBoxImageOptions(renderable, box, boxtype)
-			screen.DrawImage(whitePixel, options)
-		}
-	}
-}
-
-func createBoxImageOptions(renderable Renderable, box types.Rect, boxType collision.BoxType) *ebiten.DrawImageOptions {
-	boxImgOptions := &ebiten.DrawImageOptions{}
-
-	position := calculateBoxScreenPosition(renderable, box)
-	boxImgOptions.GeoM.Scale(box.W, box.H)
-	boxImgOptions.GeoM.Translate(position.X, position.Y)
-
-	// Set the color based on box type using ColorScale
-	if color, exists := boxColors[boxType]; exists {
-		boxImgOptions.ColorScale.ScaleWithColor(color)
-	}
-
-	return boxImgOptions
-}
-
 func createBoxImageOptionsWithCamera(renderable Renderable, box types.Rect, boxType collision.BoxType, camera *Camera) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
@@ -130,18 +98,4 @@ func (b *boxRenderableWrapper) GetSprite() *animation.Sprite {
 
 func (b *boxRenderableWrapper) GetRenderProperties() RenderProperties {
 	return b.renderProperties
-}
-
-func calculateBoxScreenPosition(renderable Renderable, box types.Rect) types.Vector2 {
-	sprite := renderable.GetSprite()
-
-	// Create screen rectangle and center the sprite within it
-	screenRect := config.GetWindowRect()
-	spriteRect := sprite.Rect
-	spriteRect.AlignCenter(screenRect)
-
-	return types.Vector2{
-		X: spriteRect.X + box.X,
-		Y: spriteRect.Y + box.Y,
-	}
 }

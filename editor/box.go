@@ -57,7 +57,6 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 
 		ctx.SetGridLayout([]int{-1}, nil)
 		ctx.Text(fmt.Sprintf("Boxes - Collision: %d, Hurt: %d, Hit: %d", len(sprite.Boxes[collision.Collision]), len(sprite.Boxes[collision.Hurt]), len(sprite.Boxes[collision.Hit])))
-		ctx.Checkbox(&g.editorManager.choiceShowAllBoxes, "Show All Boxes")
 
 		// Show current box type selection
 		currentBoxType := collision.BoxType(g.editorManager.boxActionIndex)

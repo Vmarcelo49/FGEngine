@@ -2,6 +2,7 @@ package input
 
 import (
 	"fgengine/config"
+	"slices"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -27,32 +28,32 @@ func (gi GameInput) IsPressed(input GameInput) bool {
 	return gi&input != 0
 }
 
-type InputMap struct { // TODO, check if we want to make a slice of buttons for each input type, then we can have more flexibility
-	KeyboardBindings map[GameInput]ebiten.Key
-	GamepadButtons   map[GameInput]ebiten.StandardGamepadButton
+type InputMap struct {
+	KeyboardBindings map[GameInput][]ebiten.Key
+	GamepadButtons   map[GameInput][]ebiten.StandardGamepadButton
 }
 
 func MakeDefaultInputMap() *InputMap {
 	return &InputMap{
-		KeyboardBindings: map[GameInput]ebiten.Key{
-			Up:    ebiten.KeyW, // ebiten.KeySpace,
-			Down:  ebiten.KeyS,
-			Left:  ebiten.KeyA,
-			Right: ebiten.KeyD,
-			A:     ebiten.KeyU,
-			B:     ebiten.KeyI,
-			C:     ebiten.KeyO,
-			D:     ebiten.KeyK,
+		KeyboardBindings: map[GameInput][]ebiten.Key{
+			Up:    {ebiten.KeyW, ebiten.KeySpace, ebiten.KeyUp},
+			Down:  {ebiten.KeyS, ebiten.KeyDown},
+			Left:  {ebiten.KeyA, ebiten.KeyLeft},
+			Right: {ebiten.KeyD, ebiten.KeyRight},
+			A:     {ebiten.KeyU},
+			B:     {ebiten.KeyI},
+			C:     {ebiten.KeyO},
+			D:     {ebiten.KeyK},
 		},
-		GamepadButtons: map[GameInput]ebiten.StandardGamepadButton{
-			Up:    ebiten.StandardGamepadButtonLeftTop,
-			Down:  ebiten.StandardGamepadButtonLeftBottom,
-			Left:  ebiten.StandardGamepadButtonLeftLeft,
-			Right: ebiten.StandardGamepadButtonLeftRight,
-			A:     ebiten.StandardGamepadButtonRightLeft,
-			B:     ebiten.StandardGamepadButtonRightTop,
-			C:     ebiten.StandardGamepadButtonRightRight,
-			D:     ebiten.StandardGamepadButtonRightBottom,
+		GamepadButtons: map[GameInput][]ebiten.StandardGamepadButton{
+			Up:    {ebiten.StandardGamepadButtonLeftTop},
+			Down:  {ebiten.StandardGamepadButtonLeftBottom},
+			Left:  {ebiten.StandardGamepadButtonLeftLeft},
+			Right: {ebiten.StandardGamepadButtonLeftRight},
+			A:     {ebiten.StandardGamepadButtonRightLeft},
+			B:     {ebiten.StandardGamepadButtonRightTop},
+			C:     {ebiten.StandardGamepadButtonRightRight},
+			D:     {ebiten.StandardGamepadButtonRightBottom},
 		},
 	}
 }
@@ -77,16 +78,19 @@ func (im *InputManager) UpdateGamepadList() {
 func (im *InputManager) GetLocalInputs() GameInput { // TODO, refactor to only check inputs of assigned gamepads and keyboard
 	var localInputs GameInput
 
-	for gameInput, key := range im.InputMap.KeyboardBindings {
-		if ebiten.IsKeyPressed(key) {
-			localInputs |= gameInput
+	for gameInput, keys := range im.InputMap.KeyboardBindings {
+		if slices.ContainsFunc(keys, ebiten.IsKeyPressed) {
+			localInputs |= gameInput // Once we find one pressed button for this input, we don't need to check the others
 		}
 	}
 
 	for _, gamepadID := range im.GamepadIDs {
-		for gameInput, button := range im.InputMap.GamepadButtons {
-			if ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
-				localInputs |= gameInput
+		for gameInput, buttons := range im.InputMap.GamepadButtons {
+			for _, button := range buttons {
+				if ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
+					localInputs |= gameInput
+					break
+				}
 			}
 		}
 		axisCount := ebiten.GamepadAxisCount(gamepadID)

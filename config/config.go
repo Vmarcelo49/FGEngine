@@ -7,7 +7,7 @@ import (
 
 // Only user-configurable settings should be here
 var (
-	WindowHeight, WindowWidth, LayoutSizeW, LayoutSizeH int
+	WindowHeight, WindowWidth, LayoutSizeW, LayoutSizeH int // TODO, remove Layout variables, either move them to constants or remove them entirely and use only Window variables
 	ControllerDeadzone                                  float64
 )
 
@@ -29,7 +29,7 @@ func SetEditorConfig() {
 	ControllerDeadzone = 0.3
 }
 
-func InitDefaultConfig() {
+func InitGameConfig() {
 	WindowWidth = 1600
 	WindowHeight = 900
 	LayoutSizeW = int(constants.Camera.W)

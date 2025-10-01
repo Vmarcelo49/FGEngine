@@ -27,7 +27,7 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	logic.UpdateByInputs([]input.GameInput{g.players[0].InputManager.GetLocalInputs()}, g.players)
+	logic.UpdateByInputs([]input.GameInput{g.players[0].Input.GetLocalInputs()}, g.players)
 	if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 		ctx.Window("Game Debug Info", image.Rect(0, 0, 256, 144), func(layout debugui.ContainerLayout) {
 			ctx.Text("Camera Info:")
@@ -60,7 +60,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 }
 
 func main() {
-	config.InitDefaultConfig()
+	config.InitGameConfig()
 	ebiten.SetWindowTitle("Fighting Game")
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 

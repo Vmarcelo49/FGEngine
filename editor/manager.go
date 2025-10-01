@@ -17,11 +17,10 @@ type EditorManager struct {
 	boxEditor *BoxEditor
 
 	// UI related
-	logBuf             string
-	logUpdated         bool
-	logSubmitBuf       string
-	choiceShowAllBoxes bool
-	boxActionIndex     int
+	logBuf         string
+	logUpdated     bool
+	logSubmitBuf   string
+	boxActionIndex int
 }
 
 func (e *EditorManager) getCurrentSprite() *animation.Sprite {

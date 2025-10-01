@@ -9,6 +9,8 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
+// TODO, remove the global var and place stage logic in graphics to use the image cache and the camera instead of just the screen position
+
 var StageImage *ebiten.Image
 
 func DrawStaticColorStage(color color.RGBA, screen *ebiten.Image, screenPos types.Vector2) {
@@ -45,10 +47,7 @@ func DrawStaticImageStage(img *ebiten.Image, screen *ebiten.Image, screenPos typ
 	if img == nil {
 		return
 	}
-
 	options := &ebiten.DrawImageOptions{}
-
-	// screenPos is already calculated using WorldToScreen() from camera
 	options.GeoM.Translate(screenPos.X, screenPos.Y)
 
 	screen.DrawImage(img, options)

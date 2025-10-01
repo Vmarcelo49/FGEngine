@@ -2,7 +2,6 @@ package character
 
 import (
 	"fgengine/animation"
-	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/state"
 	"fgengine/types"
@@ -18,17 +17,17 @@ const (
 )
 
 type Character struct {
-	ID         int                             `yaml:"id"`
+	ID         int                             `yaml:"id,omitempty"`
 	Name       string                          `yaml:"name"`
-	Friction   int                             `yaml:"friction"`
-	JumpHeight int                             `yaml:"jumpHeight"`
+	Friction   int                             `yaml:"friction,omitempty"`
+	JumpHeight int                             `yaml:"jumpHeight,omitempty"`
 	FilePath   string                          `yaml:"filepath,omitempty"`
 	Animations map[string]*animation.Animation `yaml:"animations"`
 
 	// Ingame Related
 	StateMachine *state.StateMachine `yaml:"-"`
 
-	// animation related
+	// animation related, TODO, move to a separate struct? maybe AnimationPlayer
 	ActiveAnimation *animation.Animation `yaml:"-"`
 	ActiveSprite    *animation.Sprite    `yaml:"-"`
 	FrameIndex      int                  `yaml:"-"`
@@ -36,6 +35,9 @@ type Character struct {
 	ShouldLoop      bool                 `yaml:"-"`
 	AnimationQueue  []string             `yaml:"-"`
 	AnimationIndex  int                  `yaml:"-"`
+
+	// frame counter
+	FrameCounter int `yaml:"-"`
 }
 
 type CharacterID int
@@ -45,7 +47,6 @@ const (
 )
 
 // LoadCharacter loads a character by its ID.
-// in the future, this and update should be the only two exported functions
 func LoadCharacter(id CharacterID) (*Character, error) {
 	chara := &Character{}
 	var err error
@@ -74,10 +75,95 @@ func (c *Character) initialize() {
 func (c *Character) setAnimation(name string) {
 	anim, ok := c.Animations[name]
 	if !ok {
+		// Try to fall back to a default animation if not found
+		if idleAnim, exists := c.Animations["idle"]; exists {
+			anim = idleAnim
+			fmt.Printf("Animation '%s' not found for character '%s', using 'idle' animation\n", name, c.Name)
+		} else {
+			fmt.Printf("Animation '%s' not found for character '%s' and no fallback available\n", name, c.Name)
+			return
+		}
+
+	}
+
+	// Only reset frame if switching to a different animation
+	if c.ActiveAnimation != anim {
+		c.ActiveAnimation = anim
+		c.FrameIndex = 0
+		c.SpriteIndex = 0
+		c.FrameCounter = 0
+
+		// Update sprite to match the new frame
+		if len(anim.Sprites) > 0 {
+			c.ActiveSprite = anim.Sprites[0]
+		}
+	}
+
+	c.ShouldLoop = true
+}
+
+// updateAnimation advances the animation frame based on a simple frame counter
+func (c *Character) updateAnimation() {
+	if c.ActiveAnimation == nil || len(c.ActiveAnimation.Prop) == 0 {
 		return
 	}
-	c.ActiveAnimation = anim
-	c.ShouldLoop = true
+
+	c.FrameCounter++
+
+	// Check if current frame duration has elapsed (using frame counter instead of time)
+	currentFrameProps := &c.ActiveAnimation.Prop[c.FrameIndex]
+	if c.FrameCounter >= currentFrameProps.Duration {
+		c.FrameCounter = 0
+
+		// Check if current frame has an animation switch
+		if currentFrameProps.AnimationSwitch != "" {
+			// Switch to the specified animation
+			if newAnimation, exists := c.Animations[currentFrameProps.AnimationSwitch]; exists {
+				c.ActiveAnimation = newAnimation
+				c.FrameIndex = 0
+				c.SpriteIndex = 0
+				if len(c.ActiveAnimation.Sprites) > 0 {
+					c.ActiveSprite = c.ActiveAnimation.Sprites[0]
+				}
+				return // Early return to avoid normal frame advancement
+			} else {
+				// Animation switch target not found, try fallback
+				fmt.Printf("AnimationSwitch target '%s' not found for character '%s'\n", currentFrameProps.AnimationSwitch, c.Name)
+				if fallbackAnim, exists := c.Animations["notFound"]; exists {
+					c.ActiveAnimation = fallbackAnim
+					c.FrameIndex = 0
+					c.SpriteIndex = 0
+					if len(c.ActiveAnimation.Sprites) > 0 {
+						c.ActiveSprite = c.ActiveAnimation.Sprites[0]
+					}
+					return
+				} else if idleAnim, exists := c.Animations["idle"]; exists {
+					c.ActiveAnimation = idleAnim
+					c.FrameIndex = 0
+					c.SpriteIndex = 0
+					if len(c.ActiveAnimation.Sprites) > 0 {
+						c.ActiveSprite = c.ActiveAnimation.Sprites[0]
+					}
+					return
+				}
+			}
+		}
+
+		c.FrameIndex++
+
+		// Handle end of animation
+		if c.FrameIndex >= len(c.ActiveAnimation.Prop) {
+			if c.ShouldLoop {
+				c.FrameIndex = 0
+			} else {
+				c.FrameIndex = len(c.ActiveAnimation.Prop) - 1 // Stay on last frame
+			}
+		}
+		if c.FrameIndex < len(c.ActiveAnimation.Sprites) {
+			c.SpriteIndex = c.FrameIndex
+			c.ActiveSprite = c.ActiveAnimation.Sprites[c.SpriteIndex]
+		}
+	}
 }
 
 func loadCharacterByFile(filePath string) (*Character, error) {
@@ -127,54 +213,10 @@ func (c *Character) GetRenderProperties() graphics.RenderProperties {
 	return graphics.DefaultRenderProperties()
 }
 
-func (c *Character) Update() {
-	switch c.StateMachine.ActiveState {
-	case state.StateIdle:
-		c.setAnimation("idle")
-	case state.StateWalk | state.StateForward:
-		c.setAnimation("walk")
-		c.StateMachine.Velocity.X = 2 // in the future, this should be based on something we can get from the editor
-	case state.StateDash | state.StateForward:
-		c.setAnimation("dash")
-		c.StateMachine.Velocity.X = 5
-	default:
-		c.setAnimation("idle")
+// GetCurrentFrameProperties returns the frame properties for the current frame of the active animation
+func (c *Character) GetCurrentFrameProperties() *animation.FrameProperties {
+	if c.ActiveAnimation == nil || c.FrameIndex >= len(c.ActiveAnimation.Prop) {
+		return nil
 	}
-	// Update position based on velocity
-	c.StateMachine.Position.X += c.StateMachine.Velocity.X
-	c.StateMachine.Position.Y += c.StateMachine.Velocity.Y
-
-	// Apply friction
-	if c.StateMachine.Velocity.X > 0 {
-		c.StateMachine.Velocity.X -= float64(c.Friction)
-		if c.StateMachine.Velocity.X < 0 {
-			c.StateMachine.Velocity.X = 0
-		}
-	} else if c.StateMachine.Velocity.X < 0 {
-		c.StateMachine.Velocity.X += float64(c.Friction)
-		if c.StateMachine.Velocity.X > 0 {
-			c.StateMachine.Velocity.X = 0
-		}
-	}
-
-	// Apply gravity only if airborne and not ignoring gravity frames
-	if c.StateMachine.HasState(state.StateAirborne) && c.StateMachine.IgnoreGravityFrames <= 0 {
-		c.StateMachine.Velocity.Y += constants.Gravity // example gravity value
-	} else {
-		c.StateMachine.IgnoreGravityFrames--
-	}
-
-	if c.StateMachine.Position.Y >= constants.GroundLevelY {
-		c.StateMachine.Position.Y = constants.GroundLevelY
-		c.StateMachine.Velocity.Y = 0
-		c.StateMachine.AddState(state.StateGrounded)
-		c.StateMachine.RemoveState(state.StateAirborne)
-	}
-
-	if c.StateMachine.Position.X < constants.World.X {
-		c.StateMachine.Position.X = constants.World.X
-	}
-	if c.StateMachine.Position.X+float64(c.ActiveSprite.Rect.W) > constants.World.Right() {
-		c.StateMachine.Position.X = constants.World.Right() - float64(c.ActiveSprite.Rect.W)
-	}
+	return &c.ActiveAnimation.Prop[c.FrameIndex]
 }

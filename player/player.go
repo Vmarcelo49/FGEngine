@@ -7,8 +7,8 @@ import (
 )
 
 type Player struct {
-	Character    *character.Character
-	InputManager *input.InputManager
+	Character *character.Character
+	Input     *input.InputManager
 }
 
 // Makes a player with helmet for debugging
@@ -21,7 +21,7 @@ func NewDebugPlayer() *Player {
 	p1InputManager.AssignGamepadID(0) // TODO, this should check for available gamepads and return an error if none found
 
 	return &Player{
-		Character:    character,
-		InputManager: p1InputManager,
+		Character: character,
+		Input:     p1InputManager,
 	}
 }

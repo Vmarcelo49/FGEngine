@@ -38,11 +38,28 @@ func loadImage(renderable Renderable) *ebiten.Image {
 	if img, exists := imageCache[imagePath]; exists {
 		return img
 	}
+
 	image, _, err := ebitenutil.NewImageFromFile(imagePath)
 	if err != nil {
-		log.Panic(err)
-		return nil
+		log.Printf("Failed to load image %s: %v, using default image", imagePath, err)
+
+		// Try to load the default image
+		defaultPath := "assets/common/notFound.png"
+		if defaultImg, exists := imageCache[defaultPath]; exists {
+			return defaultImg
+		}
+
+		// Load default image if not in cache
+		defaultImage, _, defaultErr := ebitenutil.NewImageFromFile(defaultPath)
+		if defaultErr != nil {
+			log.Printf("Failed to load default image %s: %v", defaultPath, defaultErr)
+			return nil
+		}
+
+		imageCache[defaultPath] = defaultImage
+		return defaultImage
 	}
+
 	imageCache[imagePath] = image
 	return image
 }

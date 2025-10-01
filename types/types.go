@@ -3,15 +3,15 @@ package types
 import "math"
 
 type Rect struct {
-	X float64 `yaml:"x"`
-	Y float64 `yaml:"y"`
+	X float64 `yaml:"x,omitempty"`
+	Y float64 `yaml:"y,omitempty"`
 	W float64 `yaml:"w"`
 	H float64 `yaml:"h"`
 }
 
 type Vector2 struct {
-	X float64 `yaml:"x"`
-	Y float64 `yaml:"y"`
+	X float64 `yaml:"x,omitempty"`
+	Y float64 `yaml:"y,omitempty"`
 }
 
 func Normalize(v Vector2) Vector2 {
@@ -48,4 +48,12 @@ func (r Rect) IsOverlapping(other Rect) bool {
 func (r *Rect) AlignCenter(parentRect Rect) {
 	r.X = parentRect.X + (parentRect.W-r.W)/2
 	r.Y = parentRect.Y + (parentRect.H-r.H)/2
+}
+
+func (r *Rect) Pos() Vector2 {
+	return Vector2{X: r.X, Y: r.Y}
+}
+
+func (r *Rect) Size() Vector2 {
+	return Vector2{X: r.W, Y: r.H}
 }

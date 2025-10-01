@@ -49,6 +49,12 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		}
 		g.editorManager.activeAnimation.Prop[spriteIndex].Duration = duration
 
+		ctx.Text("Animation Switch:")
+		animationSwitch := g.editorManager.activeAnimation.Prop[spriteIndex].AnimationSwitch
+		ctx.TextField(&animationSwitch).On(func() {
+			g.editorManager.activeAnimation.Prop[spriteIndex].AnimationSwitch = animationSwitch
+		})
+
 		ctx.Button("Add Image").On(func() {
 			g.AddImageToFrame()
 		})

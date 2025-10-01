@@ -1,48 +1,24 @@
-id: 0
 name: helmet
 friction: 2
-jumpHeight: 0
+jumpHeight: 3
 animations:
   idle:
     name: idle
     sprites:
     - imgPath: ..\sprites\beta-helmet.png
       rect:
-        x: 0
-        "y": 0
         w: 64
         h: 64
       boxes:
         0:
-        - x: 0
-          "y": 0
+        - x: 12
+          "y": 33
           w: 32
           h: 32
         2:
-        - x: 0
-          "y": 0
-          w: 64
+        - x: 14
+          w: 39
           h: 64
     properties:
     - duration: 1
-      state: 0
-      cancelType: 0
-      priority: 0
-      damage: 0
-      hitstun: 0
-      blockstun: 0
-      pushback: 0
-      knockback: 0
-      knockup: 0
-      changeXSpeed: 0
-      changeYSpeed: 0
-      canHardKnockdown: false
-      canWallBounce: false
-      canGroundBounce: false
-      canOTG: false
-      soundID: 0
-      moveType: 0
-      hitType: 0
-      animPhase: 0
-      isInvincible: false
-      hasArmor: false
+      state: 1025

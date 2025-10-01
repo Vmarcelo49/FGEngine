@@ -3,6 +3,7 @@ package editor
 import (
 	"fgengine/animation"
 	"fgengine/character"
+	"fgengine/state"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -11,8 +12,9 @@ import (
 func (g *Game) createCharacter() {
 	g.checkIfResetNeeded()
 	g.activeCharacter = &character.Character{
-		Animations: make(map[string]*animation.Animation),
-		Name:       "character",
+		Animations:   make(map[string]*animation.Animation),
+		Name:         "character",
+		StateMachine: &state.StateMachine{}, //needed for the rect
 	}
 	g.writeLog("New character created")
 }
@@ -25,6 +27,7 @@ func (g *Game) loadCharacter() {
 		return
 	}
 	g.activeCharacter = character
+	g.activeCharacter.StateMachine = &state.StateMachine{}
 
 	// Set initial sprite if there's an animation available
 	if len(g.activeCharacter.Animations) > 0 {
