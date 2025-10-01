@@ -17,8 +17,8 @@ type FrameProperties struct {
 	Pushback         int              `yaml:"pushback,omitempty"`
 	Knockback        int              `yaml:"knockback,omitempty"`
 	Knockup          int              `yaml:"knockup,omitempty"`
-	ChangeXSpeed     int              `yaml:"changeXSpeed,omitempty"`
-	ChangeYSpeed     int              `yaml:"changeYSpeed,omitempty"`
+	ChangeXSpeed     float64          `yaml:"changeXSpeed,omitempty"`
+	ChangeYSpeed     float64          `yaml:"changeYSpeed,omitempty"`
 	CanHardKnockdown bool             `yaml:"canHardKnockdown,omitempty"`
 	CanWallBounce    bool             `yaml:"canWallBounce,omitempty"`
 	CanGroundBounce  bool             `yaml:"canGroundBounce,omitempty"`

@@ -19,8 +19,8 @@ const (
 type Character struct {
 	ID         int                             `yaml:"id,omitempty"`
 	Name       string                          `yaml:"name"`
-	Friction   int                             `yaml:"friction,omitempty"`
-	JumpHeight int                             `yaml:"jumpHeight,omitempty"`
+	Friction   float64                         `yaml:"friction,omitempty"`
+	JumpHeight float64                         `yaml:"jumpHeight,omitempty"`
 	FilePath   string                          `yaml:"filepath,omitempty"`
 	Animations map[string]*animation.Animation `yaml:"animations"`
 

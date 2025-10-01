@@ -29,10 +29,10 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 			ctx.NumberField(&g.activeCharacter.ID, 1)
 
 			ctx.Text("Friction:")
-			ctx.NumberField(&g.activeCharacter.Friction, 1)
+			ctx.NumberFieldF(&g.activeCharacter.Friction, 1, 2)
 
 			ctx.Text("Jump Height:")
-			ctx.NumberField(&g.activeCharacter.JumpHeight, 1)
+			ctx.NumberFieldF(&g.activeCharacter.JumpHeight, 1, 2)
 		})
 		ctx.SetGridLayout([]int{-1}, nil)
 		if g.activeCharacter != nil {
