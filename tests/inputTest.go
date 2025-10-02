@@ -5,7 +5,6 @@ import (
 	"fgengine/graphics"
 	"fgengine/input"
 	"fgengine/player"
-	"fgengine/state"
 	"fgengine/types"
 	"fmt"
 	"image"
@@ -19,7 +18,9 @@ type Game struct {
 	players []*player.Player
 	camera  *graphics.Camera
 
-	debugui debugui.DebugUI
+	tickCount int
+	lastInput input.GameInput
+	debugui   debugui.DebugUI
 }
 
 func (g *Game) Update() error {
@@ -35,12 +36,10 @@ func (g *Game) Update() error {
 	}
 	detectedInputSTR := ""
 	// check for input sequences first
-	for key, seq := range state.InputSequences { // cooldown here probably would be good
-		if state.DetectInputSequence(seq, sm.InputHistory) {
-			if reflect.DeepEqual(seq, state.InputSequences[key]) {
+	for key, seq := range input.InputSequences { // cooldown here probably would be good
+		if input.DetectInputSequence(seq, sm.InputHistory) {
+			if reflect.DeepEqual(seq, input.InputSequences[key]) {
 				detectedInputSTR = key
-				sm.InputHistory = []input.GameInput{} // should be removed, all actions must have and internal unactable state at the start
-
 			}
 		}
 	}
@@ -61,7 +60,13 @@ func (g *Game) Update() error {
 			if historyLength > 0 {
 				ctx.Loop(historyLength, func(index int) {
 					historyInput := g.players[0].Character.StateMachine.InputHistory[index]
-					ctx.Text(historyInput.String())
+					if historyInput == g.lastInput {
+						g.tickCount++
+					} else {
+						g.lastInput = historyInput
+						g.tickCount = 1
+					}
+					ctx.Text(historyInput.String() + fmt.Sprintf(" (%d)", g.tickCount))
 				})
 			} else {
 				ctx.Text("No input history yet")

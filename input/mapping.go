@@ -17,7 +17,7 @@ func MakeDefaultInputMap() *InputMap {
 			A:     {ebiten.KeyU},
 			B:     {ebiten.KeyI},
 			C:     {ebiten.KeyO},
-			D:     {ebiten.KeyK},
+			D:     {ebiten.KeyJ},
 		},
 		GamepadButtons: map[GameInput][]ebiten.StandardGamepadButton{
 			Up:    {ebiten.StandardGamepadButtonLeftTop},

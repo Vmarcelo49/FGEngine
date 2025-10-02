@@ -60,3 +60,13 @@ func (sm *StateMachine) RemoveState(stateToRemove State) {
 func (sm *StateMachine) IsAttacking() bool {
 	return sm.HasAnyState(StateAttack | StateSpecialAttack | StateSuperAttack)
 }
+
+func (sm *StateMachine) IsInactable() bool {
+	return sm.HasAnyState(StateOnHitsun | StateGrabbed | StateWinAnimation | StateTimeoutLoseAnimation | StateRoundStartAnimation | StateDowned | StateRecovery | StateGrabbing | StateGrabTech | StateAttack | StateSpecialAttack | StateSuperAttack)
+}
+
+var MovementStates = StateWalk | StateDash | StateJump | StateFalling
+
+func (sm *StateMachine) IsMoving() bool {
+	return sm.HasAnyState(MovementStates)
+}
