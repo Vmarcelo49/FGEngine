@@ -145,11 +145,11 @@ func loadCharacterFromYAMLDialog() (*character.Character, error) {
 
 func deepCopyAnimation(a *animation.Animation) *animation.Animation {
 	animCopy := &animation.Animation{
-		Name: a.Name,
-		Prop: make([]animation.FrameProperties, len(a.Prop)),
+		Name:      a.Name,
+		FrameData: make([]animation.FrameData, len(a.FrameData)),
 	}
 
-	copy(animCopy.Prop, a.Prop)
+	copy(animCopy.FrameData, a.FrameData)
 
 	animCopy.Sprites = make([]*animation.Sprite, len(a.Sprites))
 	for i, sprite := range a.Sprites {

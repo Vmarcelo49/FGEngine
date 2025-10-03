@@ -90,11 +90,17 @@ func (c *Character) setAnimation(name string) {
 	if c.ActiveAnimation != anim {
 		c.ActiveAnimation = anim
 		c.FrameIndex = 0
-		c.SpriteIndex = 0
 		c.FrameCounter = 0
 
-		// Update sprite to match the new frame
-		if len(anim.Sprites) > 0 {
+		// Update sprite to match the first frame's SpriteIndex
+		if len(anim.FrameData) > 0 {
+			c.SpriteIndex = anim.FrameData[0].SpriteIndex
+			if c.SpriteIndex >= 0 && c.SpriteIndex < len(anim.Sprites) {
+				c.ActiveSprite = anim.Sprites[c.SpriteIndex]
+			}
+		} else if len(anim.Sprites) > 0 {
+			// Fallback if no FrameData exists
+			c.SpriteIndex = 0
 			c.ActiveSprite = anim.Sprites[0]
 		}
 	}
@@ -104,14 +110,14 @@ func (c *Character) setAnimation(name string) {
 
 // updateAnimation advances the animation frame based on a simple frame counter
 func (c *Character) updateAnimation() {
-	if c.ActiveAnimation == nil || len(c.ActiveAnimation.Prop) == 0 {
+	if c.ActiveAnimation == nil || len(c.ActiveAnimation.FrameData) == 0 {
 		return
 	}
 
 	c.FrameCounter++
 
 	// Check if current frame duration has elapsed (using frame counter instead of time)
-	currentFrameProps := &c.ActiveAnimation.Prop[c.FrameIndex]
+	currentFrameProps := &c.ActiveAnimation.FrameData[c.FrameIndex]
 	if c.FrameCounter >= currentFrameProps.Duration {
 		c.FrameCounter = 0
 
@@ -121,9 +127,16 @@ func (c *Character) updateAnimation() {
 			if newAnimation, exists := c.Animations[currentFrameProps.AnimationSwitch]; exists {
 				c.ActiveAnimation = newAnimation
 				c.FrameIndex = 0
-				c.SpriteIndex = 0
-				if len(c.ActiveAnimation.Sprites) > 0 {
-					c.ActiveSprite = c.ActiveAnimation.Sprites[0]
+				c.FrameCounter = 0
+				// Update sprite to match the first frame's SpriteIndex
+				if len(newAnimation.FrameData) > 0 {
+					c.SpriteIndex = newAnimation.FrameData[0].SpriteIndex
+					if c.SpriteIndex >= 0 && c.SpriteIndex < len(newAnimation.Sprites) {
+						c.ActiveSprite = newAnimation.Sprites[c.SpriteIndex]
+					}
+				} else if len(newAnimation.Sprites) > 0 {
+					c.SpriteIndex = 0
+					c.ActiveSprite = newAnimation.Sprites[0]
 				}
 				return // Early return to avoid normal frame advancement
 			} else {
@@ -132,17 +145,29 @@ func (c *Character) updateAnimation() {
 				if fallbackAnim, exists := c.Animations["notFound"]; exists {
 					c.ActiveAnimation = fallbackAnim
 					c.FrameIndex = 0
-					c.SpriteIndex = 0
-					if len(c.ActiveAnimation.Sprites) > 0 {
-						c.ActiveSprite = c.ActiveAnimation.Sprites[0]
+					c.FrameCounter = 0
+					if len(fallbackAnim.FrameData) > 0 {
+						c.SpriteIndex = fallbackAnim.FrameData[0].SpriteIndex
+						if c.SpriteIndex >= 0 && c.SpriteIndex < len(fallbackAnim.Sprites) {
+							c.ActiveSprite = fallbackAnim.Sprites[c.SpriteIndex]
+						}
+					} else if len(fallbackAnim.Sprites) > 0 {
+						c.SpriteIndex = 0
+						c.ActiveSprite = fallbackAnim.Sprites[0]
 					}
 					return
 				} else if idleAnim, exists := c.Animations["idle"]; exists {
 					c.ActiveAnimation = idleAnim
 					c.FrameIndex = 0
-					c.SpriteIndex = 0
-					if len(c.ActiveAnimation.Sprites) > 0 {
-						c.ActiveSprite = c.ActiveAnimation.Sprites[0]
+					c.FrameCounter = 0
+					if len(idleAnim.FrameData) > 0 {
+						c.SpriteIndex = idleAnim.FrameData[0].SpriteIndex
+						if c.SpriteIndex >= 0 && c.SpriteIndex < len(idleAnim.Sprites) {
+							c.ActiveSprite = idleAnim.Sprites[c.SpriteIndex]
+						}
+					} else if len(idleAnim.Sprites) > 0 {
+						c.SpriteIndex = 0
+						c.ActiveSprite = idleAnim.Sprites[0]
 					}
 					return
 				}
@@ -152,16 +177,20 @@ func (c *Character) updateAnimation() {
 		c.FrameIndex++
 
 		// Handle end of animation
-		if c.FrameIndex >= len(c.ActiveAnimation.Prop) {
+		if c.FrameIndex >= len(c.ActiveAnimation.FrameData) {
 			if c.ShouldLoop {
 				c.FrameIndex = 0
 			} else {
-				c.FrameIndex = len(c.ActiveAnimation.Prop) - 1 // Stay on last frame
+				c.FrameIndex = len(c.ActiveAnimation.FrameData) - 1 // Stay on last frame
 			}
 		}
-		if c.FrameIndex < len(c.ActiveAnimation.Sprites) {
-			c.SpriteIndex = c.FrameIndex
-			c.ActiveSprite = c.ActiveAnimation.Sprites[c.SpriteIndex]
+
+		// Update sprite based on current frame's SpriteIndex
+		if c.FrameIndex < len(c.ActiveAnimation.FrameData) {
+			c.SpriteIndex = c.ActiveAnimation.FrameData[c.FrameIndex].SpriteIndex
+			if c.SpriteIndex >= 0 && c.SpriteIndex < len(c.ActiveAnimation.Sprites) {
+				c.ActiveSprite = c.ActiveAnimation.Sprites[c.SpriteIndex]
+			}
 		}
 	}
 }
@@ -214,9 +243,9 @@ func (c *Character) GetRenderProperties() graphics.RenderProperties {
 }
 
 // GetCurrentFrameProperties returns the frame properties for the current frame of the active animation
-func (c *Character) GetCurrentFrameProperties() *animation.FrameProperties {
-	if c.ActiveAnimation == nil || c.FrameIndex >= len(c.ActiveAnimation.Prop) {
+func (c *Character) GetCurrentFrameProperties() *animation.FrameData {
+	if c.ActiveAnimation == nil || c.FrameIndex >= len(c.ActiveAnimation.FrameData) {
 		return nil
 	}
-	return &c.ActiveAnimation.Prop[c.FrameIndex]
+	return &c.ActiveAnimation.FrameData[c.FrameIndex]
 }

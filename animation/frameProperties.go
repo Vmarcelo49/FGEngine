@@ -4,9 +4,10 @@ import (
 	"fgengine/state"
 )
 
-// FrameProperties represents static frame-specific data that varies per animation frame
-type FrameProperties struct {
+// FrameData represents static frame-specific data that varies per animation frame
+type FrameData struct {
 	Duration         int              `yaml:"duration"`
+	SpriteIndex      int              `yaml:"spriteIndex,omitempty"`     // index of the sprite to display for this frame
 	AnimationSwitch  string           `yaml:"animationSwitch,omitempty"` // switch to this animation after this frame ends
 	State            state.State      `yaml:"state,omitempty"`
 	CancelType       AttackCancelType `yaml:"cancelType,omitempty"`

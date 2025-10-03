@@ -30,6 +30,7 @@ type Game struct {
 func (g *Game) Update() error {
 	g.handleCameraInput()
 	g.handleBoxMouseEdit()
+	g.updateAnimationPlayback() // Add animation playback logic
 	if err := g.updateDebugUI(); err != nil {
 		return err
 	}
@@ -67,5 +68,38 @@ func Run() {
 
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
+	}
+}
+
+// updateAnimationPlayback handles automatic frame advancement when playingAnim is true
+func (g *Game) updateAnimationPlayback() {
+	if !g.editorManager.playingAnim || g.editorManager.activeAnimation == nil {
+		return
+	}
+
+	g.editorManager.frameCounter++
+
+	// Get current frame duration
+	if g.editorManager.frameIndex < len(g.editorManager.activeAnimation.FrameData) {
+		currentFrameDuration := g.editorManager.activeAnimation.FrameData[g.editorManager.frameIndex].Duration
+
+		// Check if current frame duration has elapsed (Duration is in game frames, not seconds)
+		if g.editorManager.frameCounter >= currentFrameDuration {
+			g.editorManager.frameCounter = 0
+			g.editorManager.frameIndex++
+
+			// Handle end of animation - loop back to start
+			if g.editorManager.frameIndex >= len(g.editorManager.activeAnimation.FrameData) {
+				g.editorManager.frameIndex = 0
+			}
+
+			// Update character's active sprite to match the current frame
+			if g.activeCharacter != nil {
+				currentSprite := g.editorManager.getCurrentSprite()
+				if currentSprite != nil {
+					g.activeCharacter.ActiveSprite = currentSprite
+				}
+			}
+		}
 	}
 }

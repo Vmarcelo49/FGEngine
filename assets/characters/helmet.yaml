@@ -1,6 +1,6 @@
 name: helmet
 friction: 2
-jumpHeight: 3
+jumpHeight: 12
 animations:
   idle:
     name: idle
@@ -11,14 +11,14 @@ animations:
         h: 64
       boxes:
         0:
-        - x: 12
-          "y": 33
+        - x: 14
+          "y": 32
           w: 32
           h: 32
         2:
         - x: 14
-          w: 39
+          w: 40
           h: 64
-    properties:
-    - duration: 1
+    framedata:
+    - duration: 60
       state: 1025

@@ -20,8 +20,12 @@ func (e *EditorManager) addSpriteByFile(path string) error {
 	if err != nil {
 		return fmt.Errorf("error creating sprite from image: %w", err)
 	}
-	e.activeAnimation.Sprites = append(e.activeAnimation.Sprites, sprite) // current animation must be not nil
-	e.activeAnimation.Prop = append(e.activeAnimation.Prop, animation.FrameProperties{})
+	e.activeAnimation.Sprites = append(e.activeAnimation.Sprites, sprite)
+	newFrameData := animation.FrameData{
+		Duration:    1, // Default duration
+		SpriteIndex: len(e.activeAnimation.Sprites) - 1,
+	}
+	e.activeAnimation.FrameData = append(e.activeAnimation.FrameData, newFrameData)
 	return nil
 }
 
@@ -36,7 +40,10 @@ func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
 	}
 	anim := &animation.Animation{
 		Sprites: []*animation.Sprite{sprite},
-		Prop:    []animation.FrameProperties{{}},
+		FrameData: []animation.FrameData{{
+			Duration:    60, // Default duration of 60 frames (1 second at 60fps)
+			SpriteIndex: 0,
+		}},
 	}
 	return anim, nil
 }

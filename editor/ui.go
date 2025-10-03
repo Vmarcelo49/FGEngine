@@ -118,8 +118,27 @@ func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 			}
 			// Get current frame properties
 			frameIndex := g.editorManager.frameIndex
-			if frameIndex >= 0 && frameIndex < len(g.editorManager.activeAnimation.Prop) {
-				properties := &g.editorManager.activeAnimation.Prop[frameIndex]
+			if frameIndex >= 0 && frameIndex < len(g.editorManager.activeAnimation.FrameData) {
+				properties := &g.editorManager.activeAnimation.FrameData[frameIndex]
+
+				// Add SpriteIndex editor
+				ctx.Text("Sprite Index:")
+				spriteIndex := properties.SpriteIndex
+				maxSpriteIndex := len(g.editorManager.activeAnimation.Sprites) - 1
+				if maxSpriteIndex < 0 {
+					maxSpriteIndex = 0
+				}
+				ctx.Slider(&spriteIndex, 0, maxSpriteIndex, 1).On(func() {
+					if spriteIndex >= 0 && spriteIndex < len(g.editorManager.activeAnimation.Sprites) {
+						properties.SpriteIndex = spriteIndex
+						// Update character's active sprite when SpriteIndex changes
+						if g.activeCharacter != nil {
+							g.activeCharacter.ActiveSprite = g.editorManager.activeAnimation.Sprites[spriteIndex]
+						}
+					}
+				})
+				ctx.Text(fmt.Sprintf("Points to sprite: %d / %d", spriteIndex+1, len(g.editorManager.activeAnimation.Sprites)))
+
 				ctx.SetGridLayout([]int{-1, -1, -1}, nil)
 				ctx.Loop(len(state.OrderedStates), func(i int) {
 					stateFlag := state.OrderedStates[i]
@@ -136,10 +155,10 @@ func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 				ctx.Text("Current State: " + properties.State.String())
 
 			} else {
-				if len(g.editorManager.activeAnimation.Prop) != len(g.editorManager.activeAnimation.Sprites) {
-					ctx.Text(fmt.Sprintf("error? currently there are %d props, but the number of frames is %d", len(g.editorManager.activeAnimation.Prop), len(g.editorManager.activeAnimation.Sprites)))
+				if len(g.editorManager.activeAnimation.FrameData) != len(g.editorManager.activeAnimation.Sprites) {
+					ctx.Text(fmt.Sprintf("error? currently there are %d props, but the number of frames is %d", len(g.editorManager.activeAnimation.FrameData), len(g.editorManager.activeAnimation.Sprites)))
 				}
-				if len(g.editorManager.activeAnimation.Prop) == 0 && len(g.editorManager.activeAnimation.Sprites) == 0 {
+				if len(g.editorManager.activeAnimation.FrameData) == 0 && len(g.editorManager.activeAnimation.Sprites) == 0 {
 					ctx.Text("no sprites or properties found")
 				}
 			}

@@ -3,7 +3,9 @@ package editor
 import (
 	"fgengine/animation"
 	"fgengine/character"
+	"fgengine/collision"
 	"fgengine/state"
+	"fgengine/types"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -32,15 +34,29 @@ func (g *Game) loadCharacter() {
 	// Set initial sprite if there's an animation available
 	if len(g.activeCharacter.Animations) > 0 {
 		for _, anim := range g.activeCharacter.Animations {
-			if len(anim.Sprites) > 0 {
-				g.activeCharacter.ActiveSprite = anim.Sprites[0]
+			if len(anim.FrameData) > 0 && len(anim.Sprites) > 0 {
+				spriteIndex := anim.FrameData[0].SpriteIndex
+				if spriteIndex >= 0 && spriteIndex < len(anim.Sprites) {
+					g.activeCharacter.ActiveSprite = anim.Sprites[spriteIndex]
+				} else if len(anim.Sprites) > 0 {
+					g.activeCharacter.ActiveSprite = anim.Sprites[0] // Fallback
+				}
 				break
 			}
 		}
 	}
+
+	// Ensure animations map is initialized
+	if character.Animations == nil {
+		character.Animations = make(map[string]*animation.Animation)
+	}
+
 	idleAnim, ok := character.Animations["idle"]
 	if !ok {
-		panic("Character must have an 'idle' animation")
+		// Create a placeholder idle animation using notFound.png
+		g.writeLog("No 'idle' animation found, creating placeholder...")
+		idleAnim = g.createPlaceholderIdleAnimation()
+		character.Animations["idle"] = idleAnim
 	}
 	g.editorManager.activeAnimation = idleAnim
 	g.writeLog("Character loaded successfully")
@@ -83,4 +99,27 @@ func ensureExtension(path, extension string) string {
 	}
 
 	return path + "." + extension
+}
+
+// createPlaceholderIdleAnimation creates a default idle animation using notFound.png
+func (g *Game) createPlaceholderIdleAnimation() *animation.Animation {
+	placeholderSprite := &animation.Sprite{
+		ImagePath: "..\\common\\notFound.png",
+		Rect: types.Rect{
+			W: 64, // Default width
+			H: 64, // Default height
+		},
+		Boxes: make(map[collision.BoxType][]types.Rect),
+	}
+
+	placeholderFrame := animation.FrameData{
+		Duration:    60, // 1 second at 60 FPS
+		SpriteIndex: 0,  // Reference to the first (and only) sprite
+	}
+
+	return &animation.Animation{
+		Name:      "idle",
+		Sprites:   []*animation.Sprite{placeholderSprite},
+		FrameData: []animation.FrameData{placeholderFrame},
+	}
 }
