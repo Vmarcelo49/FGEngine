@@ -3,12 +3,11 @@ package editor
 import (
 	"fgengine/animation"
 	"fgengine/collision"
+	"fgengine/filepicker"
 	"fgengine/types"
 	"fmt"
 	"image"
 	"os"
-
-	"github.com/sqweek/dialog"
 )
 
 // Opens a PNG file, appends a new sprite to the active animation
@@ -30,7 +29,13 @@ func (e *EditorManager) addSpriteByFile(path string) error {
 }
 
 func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
-	path, err := dialog.File().Filter(".png Image", "png").Load()
+	picker := filepicker.GetFilePicker()
+	filter := filepicker.FileFilter{
+		Description: ".png Image",
+		Extensions:  []string{"png"},
+	}
+
+	path, err := picker.LoadFile(filter)
 	if err != nil {
 		return nil, err
 	}

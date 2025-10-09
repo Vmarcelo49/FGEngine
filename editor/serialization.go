@@ -4,13 +4,13 @@ import (
 	"fgengine/animation"
 	"fgengine/character"
 	"fgengine/collision"
+	"fgengine/filepicker"
 	"fgengine/types"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/sqweek/dialog"
 	"gopkg.in/yaml.v2"
 )
 
@@ -114,7 +114,13 @@ func loadCharacterFromYAML(characterName string) (*character.Character, error) {
 }
 
 func loadCharacterFromYAMLDialog() (*character.Character, error) {
-	path, err := dialog.File().Filter(".yaml", "yaml").Load()
+	picker := filepicker.GetFilePicker()
+	filter := filepicker.FileFilter{
+		Description: ".yaml",
+		Extensions:  []string{"yaml"},
+	}
+
+	path, err := picker.LoadFile(filter)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load character: user cancelled")
 	}
@@ -198,7 +204,13 @@ func exportAnimationToYaml(source *animation.Animation, path string) error {
 }
 
 func loadAnimationFromYAML() (animation.Animation, error) {
-	path, err := dialog.File().Filter(".yaml", "yaml").Load()
+	picker := filepicker.GetFilePicker()
+	filter := filepicker.FileFilter{
+		Description: ".yaml",
+		Extensions:  []string{"yaml"},
+	}
+
+	path, err := picker.LoadFile(filter)
 	if err != nil {
 		return animation.Animation{}, err
 	}

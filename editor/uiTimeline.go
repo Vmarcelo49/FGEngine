@@ -2,11 +2,11 @@ package editor
 
 import (
 	"fgengine/config"
+	"fgengine/filepicker"
 	"fmt"
 	"image"
 
 	"github.com/ebitengine/debugui"
-	"github.com/sqweek/dialog"
 )
 
 func (g *Game) guiTimeline(ctx *debugui.Context) {
@@ -99,7 +99,13 @@ func (g *Game) AddImageToFrame() {
 		return
 	}
 
-	path, err := dialog.File().Filter("Image files", "png").Load()
+	picker := filepicker.GetFilePicker()
+	filter := filepicker.FileFilter{
+		Description: "Image files",
+		Extensions:  []string{"png"},
+	}
+
+	path, err := picker.LoadFile(filter)
 	if err != nil {
 		g.writeLog(fmt.Sprintf("failed to load image: %s", err))
 		return
