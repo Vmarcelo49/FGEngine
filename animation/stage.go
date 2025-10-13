@@ -13,19 +13,42 @@ import (
 
 var StageImage *ebiten.Image
 
-func DrawStaticColorStage(color color.RGBA, screen *ebiten.Image, screenPos types.Vector2) {
+func DrawStaticColorStage(color color.RGBA, screen *ebiten.Image, screenPos types.Vector2, scaling float64) {
 	if StageImage == nil {
 		StageImage = ebiten.NewImage(int(constants.World.W), int(constants.World.H))
 	}
 	StageImage.Fill(color)
 
 	options := &ebiten.DrawImageOptions{}
-	options.GeoM.Translate(screenPos.X, screenPos.Y)
+
+	// Apply scaling around center of viewport instead of (0,0)
+	if scaling != 0 && scaling != 1 {
+		// Calculate center of viewport (in screen space)
+		centerX := constants.CameraWidth / 2
+		centerY := constants.CameraHeight / 2
+
+		// Calculate relative position from center
+		relativeX := screenPos.X - centerX
+		relativeY := screenPos.Y - centerY
+
+		// Scale the relative position
+		scaledRelativeX := relativeX * scaling
+		scaledRelativeY := relativeY * scaling
+
+		// Calculate final position (back from center)
+		finalX := scaledRelativeX + centerX
+		finalY := scaledRelativeY + centerY
+
+		options.GeoM.Scale(scaling, scaling)
+		options.GeoM.Translate(finalX, finalY)
+	} else {
+		options.GeoM.Translate(screenPos.X, screenPos.Y)
+	}
 
 	screen.DrawImage(StageImage, options)
 }
 
-func DrawGridStage(gridPixels int, lineColor, bgColor color.RGBA, screen *ebiten.Image, screenPos types.Vector2) {
+func DrawGridStage(gridPixels int, lineColor, bgColor color.RGBA, screen *ebiten.Image, screenPos types.Vector2, scaling float64) {
 	if StageImage == nil {
 		StageImage = ebiten.NewImage(int(constants.World.W), int(constants.World.H))
 		StageImage.Fill(bgColor)
@@ -38,17 +61,63 @@ func DrawGridStage(gridPixels int, lineColor, bgColor color.RGBA, screen *ebiten
 	}
 
 	options := &ebiten.DrawImageOptions{}
-	options.GeoM.Translate(screenPos.X, screenPos.Y)
+
+	// Apply scaling around center of viewport instead of (0,0)
+	if scaling != 0 && scaling != 1 {
+		// Calculate center of viewport (in screen space)
+		centerX := constants.CameraWidth / 2
+		centerY := constants.CameraHeight / 2
+
+		// Calculate relative position from center
+		relativeX := screenPos.X - centerX
+		relativeY := screenPos.Y - centerY
+
+		// Scale the relative position
+		scaledRelativeX := relativeX * scaling
+		scaledRelativeY := relativeY * scaling
+
+		// Calculate final position (back from center)
+		finalX := scaledRelativeX + centerX
+		finalY := scaledRelativeY + centerY
+
+		options.GeoM.Scale(scaling, scaling)
+		options.GeoM.Translate(finalX, finalY)
+	} else {
+		options.GeoM.Translate(screenPos.X, screenPos.Y)
+	}
 
 	screen.DrawImage(StageImage, options)
 }
 
-func DrawStaticImageStage(img *ebiten.Image, screen *ebiten.Image, screenPos types.Vector2) {
+func DrawStaticImageStage(img *ebiten.Image, screen *ebiten.Image, screenPos types.Vector2, scaling float64) {
 	if img == nil {
 		return
 	}
 	options := &ebiten.DrawImageOptions{}
-	options.GeoM.Translate(screenPos.X, screenPos.Y)
+
+	// Apply scaling around center of viewport instead of (0,0)
+	if scaling != 0 && scaling != 1 {
+		// Calculate center of viewport (in screen space)
+		centerX := constants.CameraWidth / 2
+		centerY := constants.CameraHeight / 2
+
+		// Calculate relative position from center
+		relativeX := screenPos.X - centerX
+		relativeY := screenPos.Y - centerY
+
+		// Scale the relative position
+		scaledRelativeX := relativeX * scaling
+		scaledRelativeY := relativeY * scaling
+
+		// Calculate final position (back from center)
+		finalX := scaledRelativeX + centerX
+		finalY := scaledRelativeY + centerY
+
+		options.GeoM.Scale(scaling, scaling)
+		options.GeoM.Translate(finalX, finalY)
+	} else {
+		options.GeoM.Translate(screenPos.X, screenPos.Y)
+	}
 
 	screen.DrawImage(img, options)
 }

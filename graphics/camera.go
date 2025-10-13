@@ -24,6 +24,7 @@ func NewCamera() *Camera {
 	return &Camera{
 		Viewport:        viewport,
 		LockWorldBounds: false,
+		Scaling:         1,
 	}
 }
 

@@ -44,11 +44,33 @@ func (g *Game) Update() error {
 	}); err != nil {
 		return err
 	}
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		g.camera.Viewport.X -= 5
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) {
+		g.camera.Viewport.X += 5
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		g.camera.Viewport.Y -= 5
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyS) {
+		g.camera.Viewport.Y += 5
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+		g.camera.Scaling *= 1.01
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyE) {
+		g.camera.Scaling *= 0.99
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		g.camera.Viewport.AlignCenter(constants.World)
+		g.camera.Scaling = 1
+	}
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	animation.DrawStaticImageStage(g.stageImg, screen, g.camera.WorldToScreen(types.Vector2{X: 0, Y: 0}))
+	animation.DrawStaticImageStage(g.stageImg, screen, g.camera.WorldToScreen(types.Vector2{X: 0, Y: 0}), g.camera.Scaling)
 	for _, p := range g.players {
 		graphics.Draw(p.Character, screen, g.camera)
 	}

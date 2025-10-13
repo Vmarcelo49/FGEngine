@@ -13,7 +13,7 @@ func (sm *StateMachine) HandleInput(playerInput input.GameInput) {
 		sm.InputHistory = sm.InputHistory[len(sm.InputHistory)-constants.MaxInputHistory:]
 	}
 	if sm.IsInactable() {
-		return
+		return // this is terrible
 	}
 
 	// check for input sequences first
