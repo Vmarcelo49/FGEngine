@@ -1,17 +1,12 @@
 package filepicker
 
-// FileFilter represents a file filter for the file picker
 type FileFilter struct {
 	Description string   // e.g. "Image files"
 	Extensions  []string // e.g. ["png", "jpg", "jpeg"]
 }
 
-// FilePicker defines the interface for file selection
 type FilePicker interface {
-	// LoadFile opens a dialog to load a file
 	LoadFile(filter FileFilter) (string, error)
-
-	// SaveFile opens a dialog to save a file
 	SaveFile(filter FileFilter) (string, error)
 }
 
@@ -19,3 +14,5 @@ type FilePicker interface {
 func GetFilePicker() FilePicker {
 	return newPlatformFilePicker()
 }
+
+// Filepicker needs to be refactored to return files instead of paths for better cross-platform support, browser environments do not have direct file system access.

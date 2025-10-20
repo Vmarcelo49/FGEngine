@@ -86,14 +86,6 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 	})
 }
 
-func (g *Game) getActiveSpriteIndex() int {
-	if g.editorManager.activeAnimation == nil || g.editorManager.frameIndex < 0 ||
-		g.editorManager.frameIndex >= len(g.editorManager.activeAnimation.FrameData) {
-		return -1
-	}
-	return g.editorManager.activeAnimation.FrameData[g.editorManager.frameIndex].SpriteIndex
-}
-
 func (g *Game) AddImageToFrame() {
 	if g.editorManager.activeAnimation == nil {
 		return

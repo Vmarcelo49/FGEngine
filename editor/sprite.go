@@ -11,6 +11,7 @@ import (
 )
 
 // Opens a PNG file, appends a new sprite to the active animation
+// TODO: refactor to accept file data instead of path for better cross-platform support
 func (e *EditorManager) addSpriteByFile(path string) error {
 	if e == nil || e.activeAnimation == nil {
 		return fmt.Errorf("no active animation available")
