@@ -1,2 +1,5 @@
-Maybe move state package to logic
-since logic will be made mainly on the statemachine it makes perfect sense for it to be there
+i am lost, what should i do next?
+
+Lets consult the last commits
+
+creation of the filepicker... i dont want to mess with this rn

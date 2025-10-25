@@ -14,3 +14,9 @@ func (a *Animation) Duration() int {
 	}
 	return duration
 }
+
+// Notes for future reference:
+
+/*
+Screenshake is better if the focus intensity on horizontal movement instead of vertical movement
+*/
