@@ -88,9 +88,9 @@ func main() {
 
 	player1 := player.NewDebugPlayer()
 	// Center player horizontally in the world, position vertically on ground
-	playerRect := player1.Character.ActiveSprite.Rect
+	playerRect := player1.Character.GetSprite().Rect
 	playerRect.AlignCenter(constants.World)
-	player1.Character.StateMachine.Position = types.Vector2{X: playerRect.X, Y: constants.GroundLevelY - float64(player1.Character.ActiveSprite.Rect.H)}
+	player1.Character.StateMachine.Position = types.Vector2{X: playerRect.X, Y: constants.GroundLevelY - float64(player1.Character.GetSprite().Rect.H)}
 
 	game := &Game{
 		players: []*player.Player{player1},

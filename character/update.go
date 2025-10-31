@@ -10,8 +10,8 @@ func (c *Character) Update() {
 	c.updateAnimation()
 
 	// Get current frame properties for dynamic values
-	frameProps := c.GetCurrentFrameProperties()
-	if frameProps == nil {
+	frameData := c.AnimationPlayer.GetActiveFrameData()
+	if frameData == nil {
 		panic("Frame properties should not be nil if animation is set")
 	}
 
@@ -27,8 +27,8 @@ func (c *Character) Update() {
 	}
 
 	// Apply frame-specific velocity changes if available
-	c.StateMachine.Velocity.X = float64(frameProps.ChangeXSpeed)
-	c.StateMachine.Velocity.Y = float64(frameProps.ChangeYSpeed)
+	c.StateMachine.Velocity.X = float64(frameData.ChangeXSpeed)
+	c.StateMachine.Velocity.Y = float64(frameData.ChangeYSpeed)
 
 	// Update position based on velocity
 	c.StateMachine.Position.X += c.StateMachine.Velocity.X
@@ -64,7 +64,7 @@ func (c *Character) Update() {
 	if c.StateMachine.Position.X < constants.World.X {
 		c.StateMachine.Position.X = constants.World.X
 	}
-	if c.StateMachine.Position.X+float64(c.ActiveSprite.Rect.W) > constants.World.Right() {
-		c.StateMachine.Position.X = constants.World.Right() - float64(c.ActiveSprite.Rect.W)
+	if c.StateMachine.Position.X+float64(c.GetSprite().Rect.W) > constants.World.Right() {
+		c.StateMachine.Position.X = constants.World.Right() - float64(c.GetSprite().Rect.W)
 	}
 }

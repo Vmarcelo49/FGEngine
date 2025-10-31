@@ -235,7 +235,7 @@ func (g *Game) syncCharacterActiveSprite() {
 		if g.activeCharacter != nil {
 			currentSprite := g.editorManager.getCurrentSprite()
 			if currentSprite != nil {
-				g.activeCharacter.ActiveSprite = currentSprite
+				g.activeCharacter.AnimationPlayer.SetSprite(currentSprite)
 			}
 		}
 	}

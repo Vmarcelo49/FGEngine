@@ -26,16 +26,13 @@ type Game struct {
 func (g *Game) Update() error {
 	p1Inputs := g.players[0].Input.GetLocalInputs()
 
-	// Implement the HandleInput logic to test DetectInputSequence
 	sm := g.players[0].Character.StateMachine
 
 	sm.InputHistory = append(sm.InputHistory, p1Inputs)
-	// remove old inputs
 	if len(sm.InputHistory) > constants.MaxInputHistory {
 		sm.InputHistory = sm.InputHistory[len(sm.InputHistory)-constants.MaxInputHistory:]
 	}
 	detectedInputSTR := ""
-	// check for input sequences first
 	for key, seq := range input.InputSequences { // cooldown here probably would be good
 		if input.DetectInputSequence(seq, sm.InputHistory) {
 			if reflect.DeepEqual(seq, input.InputSequences[key]) {
