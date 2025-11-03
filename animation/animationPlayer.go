@@ -8,12 +8,21 @@ type AnimationPlayer struct {
 }
 
 func (ap *AnimationPlayer) GetSpriteFromFrameCounter() *Sprite {
+	if ap == nil || ap.ActiveAnimation == nil {
+		return nil
+	}
 	frameData := ap.GetActiveFrameData()
+	if frameData == nil {
+		return nil
+	}
 	return ap.ActiveAnimation.Sprites[frameData.SpriteIndex]
-
 }
 
 func (ap *AnimationPlayer) GetActiveFrameData() *FrameData {
+	if ap == nil || ap.ActiveAnimation == nil || len(ap.ActiveAnimation.FrameData) == 0 { // protections for the editor
+		return nil
+	}
+
 	var elapsed, totalDuration int
 
 	for _, f := range ap.ActiveAnimation.FrameData {

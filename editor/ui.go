@@ -131,10 +131,7 @@ func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 				ctx.Slider(&spriteIndex, 0, maxSpriteIndex, 1).On(func() {
 					if spriteIndex >= 0 && spriteIndex < len(g.editorManager.activeAnimation.Sprites) {
 						properties.SpriteIndex = spriteIndex
-						// Update character's active sprite when SpriteIndex changes
-						if g.activeCharacter != nil {
-							g.activeCharacter.ActiveSprite = g.editorManager.activeAnimation.Sprites[spriteIndex]
-						}
+						// AnimationPlayer automatically handles sprite selection
 					}
 				})
 				ctx.Text(fmt.Sprintf("Points to sprite: %d / %d", spriteIndex+1, len(g.editorManager.activeAnimation.Sprites)))

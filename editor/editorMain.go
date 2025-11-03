@@ -93,13 +93,7 @@ func (g *Game) updateAnimationPlayback() {
 				g.editorManager.frameIndex = 0
 			}
 
-			// Update character's active sprite to match the current frame
-			if g.activeCharacter != nil {
-				currentSprite := g.editorManager.getCurrentSprite()
-				if currentSprite != nil {
-					g.activeCharacter.ActiveSprite = currentSprite
-				}
-			}
+			// AnimationPlayer automatically handles sprite selection
 		}
 	}
 }

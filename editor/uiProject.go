@@ -53,14 +53,7 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 			g.editorManager.previousAnimationName = g.editorManager.activeAnimation.Name
 			g.editorManager.frameIndex = 0   // Reset to first frame
 			g.editorManager.frameCounter = 0 // Reset frame counter when switching animations
-			// Update character's active sprite
-			if g.activeCharacter != nil {
-				currentSprite := g.editorManager.getCurrentSprite()
-				if currentSprite != nil {
-					g.activeCharacter.ActiveSprite = currentSprite
-				}
-			}
-			g.editorManager.boxEditor = nil // Clear box editor when switching animations
+			g.editorManager.boxEditor = nil  // Clear box editor when switching animations
 			g.refreshBoxEditor()
 		})
 		ctx.Text("Animation Name:")
@@ -112,14 +105,4 @@ func (g *Game) menuBarNewAnim() {
 	g.editorManager.activeAnimation = g.activeCharacter.Animations[newAnim.Name]
 	g.editorManager.previousAnimationName = newAnim.Name
 	g.writeLog("New animation created successfully")
-
-	// Set active sprite based on first frame's SpriteIndex
-	if len(newAnim.FrameData) > 0 {
-		spriteIndex := newAnim.FrameData[0].SpriteIndex
-		if spriteIndex >= 0 && spriteIndex < len(newAnim.Sprites) {
-			g.activeCharacter.ActiveSprite = newAnim.Sprites[spriteIndex]
-		}
-	} else if len(newAnim.Sprites) > 0 {
-		g.activeCharacter.ActiveSprite = newAnim.Sprites[0]
-	}
 }

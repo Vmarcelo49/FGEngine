@@ -109,21 +109,13 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 				ctx.Text("Box Properties:")
 				ctx.SetGridLayout([]int{-1, -1}, nil)
 				ctx.Text("X:")
-				ctx.NumberFieldF(&activeBox.X, 1.0, 1).On(func() {
-					g.syncCharacterActiveSprite()
-				})
+				ctx.NumberFieldF(&activeBox.X, 1.0, 1)
 				ctx.Text("Y:")
-				ctx.NumberFieldF(&activeBox.Y, 1.0, 1).On(func() {
-					g.syncCharacterActiveSprite()
-				})
+				ctx.NumberFieldF(&activeBox.Y, 1.0, 1)
 				ctx.Text("Width:")
-				ctx.NumberFieldF(&activeBox.W, 1.0, 1).On(func() {
-					g.syncCharacterActiveSprite()
-				})
+				ctx.NumberFieldF(&activeBox.W, 1.0, 1)
 				ctx.Text("Height:")
-				ctx.NumberFieldF(&activeBox.H, 1.0, 1).On(func() {
-					g.syncCharacterActiveSprite()
-				})
+				ctx.NumberFieldF(&activeBox.H, 1.0, 1)
 			}
 		}
 	})
@@ -139,8 +131,6 @@ func (g *Game) loadBoxEditor(sprite *animation.Sprite) {
 		activeBoxType:  collision.BoxType(g.editorManager.boxActionIndex),
 		activeBoxIndex: -1,
 	}
-
-	g.syncCharacterActiveSprite()
 }
 
 func (g *Game) clearBoxSelection() {
@@ -169,8 +159,6 @@ func (g *Game) refreshBoxEditor() {
 	// Point box editor directly to the current sprite's boxes and clear selection
 	g.editorManager.boxEditor.boxes = sprite.Boxes
 	g.clearBoxSelection()
-
-	g.syncCharacterActiveSprite()
 }
 
 func (g *Game) deleteSelectedBox() {
@@ -193,7 +181,6 @@ func (g *Game) deleteSelectedBox() {
 		sprite.Boxes[boxType][boxIndex+1:]...)
 
 	g.clearBoxSelection()
-	g.syncCharacterActiveSprite()
 }
 
 func (g *Game) addBox() {
@@ -212,33 +199,13 @@ func (g *Game) addBox() {
 		g.loadBoxEditor(sprite)
 	}
 
-	// Save any pending edits before adding a new box
-	activeBox := g.getActiveBox()
-	if activeBox != nil {
-		g.syncCharacterActiveSprite()
-	}
-
 	// Set the box type from the dropdown selection
 	g.editorManager.boxEditor.activeBoxType = collision.BoxType(g.editorManager.boxActionIndex)
 
 	selectedBoxIndex := g.addBoxOfType(sprite, g.editorManager.boxEditor.activeBoxType)
 	g.editorManager.boxEditor.activeBoxIndex = selectedBoxIndex
 
-	g.syncCharacterActiveSprite()
-
 	g.writeLog(fmt.Sprintf("Added %s box", g.editorManager.boxEditor.activeBoxType.String()))
-}
-
-func (g *Game) syncCharacterActiveSprite() {
-	sprite := g.editorManager.getCurrentSprite()
-	if sprite != nil {
-		if g.activeCharacter != nil {
-			currentSprite := g.editorManager.getCurrentSprite()
-			if currentSprite != nil {
-				g.activeCharacter.AnimationPlayer.SetSprite(currentSprite)
-			}
-		}
-	}
 }
 
 func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.BoxType) int {

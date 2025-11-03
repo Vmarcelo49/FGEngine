@@ -14,9 +14,10 @@ import (
 func (g *Game) createCharacter() {
 	g.checkIfResetNeeded()
 	g.activeCharacter = &character.Character{
-		Animations:   make(map[string]*animation.Animation),
-		Name:         "character",
-		StateMachine: &state.StateMachine{}, //needed for the rect
+		Animations:      make(map[string]*animation.Animation),
+		Name:            "character",
+		StateMachine:    &state.StateMachine{},        //needed for the rect
+		AnimationPlayer: &animation.AnimationPlayer{}, // Initialize AnimationPlayer
 	}
 	g.writeLog("New character created")
 }
@@ -30,17 +31,27 @@ func (g *Game) loadCharacter() {
 	}
 	g.activeCharacter = character
 	g.activeCharacter.StateMachine = &state.StateMachine{}
+	g.activeCharacter.AnimationPlayer = &animation.AnimationPlayer{} // Initialize AnimationPlayer
+
+	// Set the initial animation if available
+	if len(g.activeCharacter.Animations) > 0 {
+		// Try to set idle animation, or first available animation
+		if idleAnim, exists := g.activeCharacter.Animations["idle"]; exists {
+			g.activeCharacter.AnimationPlayer.ActiveAnimation = idleAnim
+		} else {
+			// Set first available animation
+			for _, anim := range g.activeCharacter.Animations {
+				g.activeCharacter.AnimationPlayer.ActiveAnimation = anim
+				break
+			}
+		}
+	}
 
 	// Set initial sprite if there's an animation available
 	if len(g.activeCharacter.Animations) > 0 {
 		for _, anim := range g.activeCharacter.Animations {
 			if len(anim.FrameData) > 0 && len(anim.Sprites) > 0 {
-				spriteIndex := anim.FrameData[0].SpriteIndex
-				if spriteIndex >= 0 && spriteIndex < len(anim.Sprites) {
-					g.activeCharacter.ActiveSprite = anim.Sprites[spriteIndex]
-				} else if len(anim.Sprites) > 0 {
-					g.activeCharacter.ActiveSprite = anim.Sprites[0] // Fallback
-				}
+				// AnimationPlayer will handle sprite selection automatically
 				break
 			}
 		}

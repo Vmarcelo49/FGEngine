@@ -128,6 +128,9 @@ func (c *Character) GetPosition() types.Vector2 {
 }
 
 func (c *Character) GetSprite() *animation.Sprite {
+	if c == nil || c.AnimationPlayer == nil {
+		return nil
+	}
 	return c.AnimationPlayer.GetSpriteFromFrameCounter()
 }
 

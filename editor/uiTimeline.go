@@ -28,13 +28,7 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 			ctx.Slider(&frameIndex, 0, frameCount-1, 1).On(func() {
 				g.editorManager.frameIndex = frameIndex
 				g.editorManager.frameCounter = 0 // Reset counter when manually changing frame
-				// Update character's active sprite to match the current frame
-				if g.activeCharacter != nil && g.editorManager.activeAnimation != nil {
-					currentSprite := g.editorManager.getCurrentSprite()
-					if currentSprite != nil {
-						g.activeCharacter.ActiveSprite = currentSprite
-					}
-				}
+				// AnimationPlayer automatically handles sprite selection
 				g.refreshBoxEditor() // Refresh box editor when frame changes
 			})
 		}

@@ -44,15 +44,12 @@ func (g *Game) handleBoxMouseEdit() {
 			if activeBox := g.getActiveBox(); activeBox != nil {
 				activeBox.X = g.editorManager.boxEditor.dragStartBoxPos.X + delta.X
 				activeBox.Y = g.editorManager.boxEditor.dragStartBoxPos.Y + delta.Y
-
-				g.syncCharacterActiveSprite()
 			}
 		}
 	} else {
 		// End dragging when left mouse button is released
 		if g.editorManager.boxEditor.dragged {
 			g.editorManager.boxEditor.dragged = false
-			g.syncCharacterActiveSprite()
 		}
 	}
 }
