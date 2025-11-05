@@ -5,6 +5,7 @@ import (
 	"fgengine/character"
 	"fgengine/collision"
 	"fgengine/filepicker"
+	"fgengine/state"
 	"fgengine/types"
 	"fmt"
 	"os"
@@ -131,7 +132,11 @@ func loadCharacterFromYAMLDialog() (*character.Character, error) {
 	defer file.Close()
 
 	decoder := yaml.NewDecoder(file)
-	character := &character.Character{}
+	character := &character.Character{
+		Animations:      make(map[string]*animation.Animation),
+		StateMachine:    &state.StateMachine{},
+		AnimationPlayer: &animation.AnimationPlayer{},
+	}
 	if err := decoder.Decode(character); err != nil {
 		return nil, fmt.Errorf("failed to decode character")
 	}
@@ -146,6 +151,11 @@ func loadCharacterFromYAMLDialog() (*character.Character, error) {
 	}
 
 	character.FilePath = path
+
+	if character.Animations == nil {
+		character.Animations = make(map[string]*animation.Animation)
+	}
+
 	return character, nil
 }
 

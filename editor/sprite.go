@@ -12,24 +12,24 @@ import (
 
 // Opens a PNG file, appends a new sprite to the active animation
 // TODO: refactor to accept file data instead of path for better cross-platform support
-func (e *EditorManager) addSpriteByFile(path string) error {
-	if e == nil || e.activeAnimation == nil {
+func (g *Game) addSpriteByFile(path string) error {
+	if g.getActiveAnimation() == nil {
 		return fmt.Errorf("no active animation available")
 	}
-	sprite, err := newSpriteFromImage(path)
+	sprite, err := loadSpriteFromImagePath(path)
 	if err != nil {
-		return fmt.Errorf("error creating sprite from image: %w", err)
+		return fmt.Errorf("error creating sprite from file: %w", err)
 	}
-	e.activeAnimation.Sprites = append(e.activeAnimation.Sprites, sprite)
+	g.getActiveAnimation().Sprites = append(g.getActiveAnimation().Sprites, sprite)
 	newFrameData := animation.FrameData{
-		Duration:    1, // Default duration
-		SpriteIndex: len(e.activeAnimation.Sprites) - 1,
+		Duration:    1,
+		SpriteIndex: len(g.getActiveAnimation().Sprites) - 1, // Index of the newly added sprite
 	}
-	e.activeAnimation.FrameData = append(e.activeAnimation.FrameData, newFrameData)
+	g.getActiveAnimation().FrameData = append(g.getActiveAnimation().FrameData, newFrameData)
 	return nil
 }
 
-func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
+func (g *Game) newAnimationFileDialog() (*animation.Animation, error) {
 	picker := filepicker.GetFilePicker()
 	filter := filepicker.FileFilter{
 		Description: ".png Image",
@@ -40,11 +40,12 @@ func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
 	if err != nil {
 		return nil, err
 	}
-	sprite, err := newSpriteFromImage(path)
+	sprite, err := loadSpriteFromImagePath(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create sprite from image: %w", err)
 	}
 	anim := &animation.Animation{
+		Name:    "newAnimation",
 		Sprites: []*animation.Sprite{sprite},
 		FrameData: []animation.FrameData{{
 			Duration:    60, // Default duration of 60 frames (1 second at 60fps)
@@ -54,7 +55,7 @@ func (e *EditorManager) newAnimationFileDialog() (*animation.Animation, error) {
 	return anim, nil
 }
 
-func newSpriteFromImage(path string) (*animation.Sprite, error) {
+func loadSpriteFromImagePath(path string) (*animation.Sprite, error) {
 	imgFile, err := os.Open(path)
 	if err != nil {
 		return nil, err

@@ -17,20 +17,23 @@ import (
 )
 
 type Game struct {
-	debugui         debugui.DebugUI
-	activeCharacter *character.Character
-	editorManager   *EditorManager
-	inputManager    *input.InputManager
-	lastMouseX      int
-	lastMouseY      int
-	isDragging      bool
-	camera          *graphics.Camera
+	character    *character.Character
+	uiVariables  *uiVariables
+	camera       *graphics.Camera
+	inputManager *input.InputManager
+	mouse        *MouseInput
+	debugui      debugui.DebugUI
+}
+
+type MouseInput struct {
+	lastMouseX int
+	lastMouseY int
+	isDragging bool
 }
 
 func (g *Game) Update() error {
-	g.handleCameraInput()
 	g.handleBoxMouseEdit()
-	g.updateAnimationPlayback() // Add animation playback logic
+	g.updateAnimationFrame()
 	if err := g.updateDebugUI(); err != nil {
 		return err
 	}
@@ -38,9 +41,9 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.editorManager.activeAnimation != nil && g.activeCharacter != nil {
-		graphics.Draw(g.activeCharacter, screen, g.camera)
-		graphics.DrawBoxes(g.activeCharacter, screen, g.camera)
+	if g.character != nil && g.character.AnimationPlayer.ActiveAnimation != nil {
+		graphics.Draw(g.character, screen, g.camera)
+		graphics.DrawBoxes(g.character, screen, g.camera)
 	}
 
 	g.drawMouseCrosshair(screen)
@@ -51,13 +54,9 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return config.LayoutSizeW, config.LayoutSizeH
 }
 
-func Run() {
-	config.SetEditorConfig()
-	ebiten.SetWindowTitle("Animation Editor")
-	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
-
+func MakeEditorGame() *Game {
 	game := &Game{
-		editorManager: &EditorManager{
+		uiVariables: &uiVariables{
 			logBuf: "Move Camera with Right click drag\n",
 		},
 		inputManager: input.NewInputManager(),
@@ -65,35 +64,18 @@ func Run() {
 	}
 	game.camera.Scaling = float64(config.LayoutSizeW) / constants.Camera.W
 	game.camera.SetPosition(types.Vector2{X: (-constants.World.W / 2), Y: (-constants.World.H / 2)})
+	game.mouse = &MouseInput{}
 
-	if err := ebiten.RunGame(game); err != nil {
-		panic(err)
-	}
+	return game
 }
 
-// updateAnimationPlayback handles automatic frame advancement when playingAnim is true
-func (g *Game) updateAnimationPlayback() {
-	if !g.editorManager.playingAnim || g.editorManager.activeAnimation == nil {
-		return
-	}
+func Run() {
+	config.SetEditorConfig()
+	ebiten.SetWindowTitle("Animation Editor")
+	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 
-	g.editorManager.frameCounter++
-
-	// Get current frame duration
-	if g.editorManager.frameIndex < len(g.editorManager.activeAnimation.FrameData) {
-		currentFrameDuration := g.editorManager.activeAnimation.FrameData[g.editorManager.frameIndex].Duration
-
-		// Check if current frame duration has elapsed (Duration is in game frames, not seconds)
-		if g.editorManager.frameCounter >= currentFrameDuration {
-			g.editorManager.frameCounter = 0
-			g.editorManager.frameIndex++
-
-			// Handle end of animation - loop back to start
-			if g.editorManager.frameIndex >= len(g.editorManager.activeAnimation.FrameData) {
-				g.editorManager.frameIndex = 0
-			}
-
-			// AnimationPlayer automatically handles sprite selection
-		}
+	game := MakeEditorGame()
+	if err := ebiten.RunGame(game); err != nil {
+		panic(err)
 	}
 }

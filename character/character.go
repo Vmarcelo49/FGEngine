@@ -55,12 +55,12 @@ func LoadCharacter(id CharacterID) (*Character, error) {
 
 func (c *Character) initialize() {
 	c.AnimationPlayer = &animation.AnimationPlayer{}
-	c.setAnimation("idle")
+	c.SetAnimation("idle")
 
 	c.StateMachine = &state.StateMachine{}
 }
 
-func (c *Character) setAnimation(name string) {
+func (c *Character) SetAnimation(name string) {
 	anim, ok := c.Animations[name]
 	if !ok {
 		if idleAnim, exists := c.Animations["idle"]; exists { // Fallback to idle animation
@@ -85,7 +85,7 @@ func (c *Character) updateAnimation() {
 
 	// if anim ended and len(AnimationQueue) > 0, switch to next animation
 	if c.AnimationPlayer.ActiveAnimation.Duration() <= c.AnimationPlayer.FrameCounter && len(c.AnimationPlayer.AnimationQueue) > 0 {
-		c.setAnimation(c.AnimationPlayer.AnimationQueue[0])
+		c.SetAnimation(c.AnimationPlayer.AnimationQueue[0])
 		c.AnimationPlayer.AnimationQueue = c.AnimationPlayer.AnimationQueue[1:] // can this be out of range?
 	}
 

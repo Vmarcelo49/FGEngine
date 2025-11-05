@@ -15,14 +15,14 @@ func (g *Game) handleCameraInput() {
 	x, y := ebiten.CursorPosition()
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonRight) {
-		if !g.isDragging {
+		if !g.mouse.isDragging {
 			// Start dragging
-			g.isDragging = true
-			g.lastMouseX = x
-			g.lastMouseY = y
+			g.mouse.isDragging = true
+			g.mouse.lastMouseX = x
+			g.mouse.lastMouseY = y
 		} else {
-			deltaX := float64(g.lastMouseX - x)
-			deltaY := float64(g.lastMouseY - y)
+			deltaX := float64(g.mouse.lastMouseX - x)
+			deltaY := float64(g.mouse.lastMouseY - y)
 
 			// Adjust delta for camera scaling
 			if g.camera.Scaling != 0 && g.camera.Scaling != 1 {
@@ -36,11 +36,11 @@ func (g *Game) handleCameraInput() {
 				Y: g.camera.Viewport.Y + deltaY,
 			})
 
-			g.lastMouseX = x
-			g.lastMouseY = y
+			g.mouse.lastMouseX = x
+			g.mouse.lastMouseY = y
 		}
 	} else {
-		g.isDragging = false
+		g.mouse.isDragging = false
 	}
 
 	// keyboard input for camera movement

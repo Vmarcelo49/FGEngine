@@ -17,13 +17,13 @@ func (c *Character) Update() {
 
 	switch c.StateMachine.ActiveState {
 	case state.StateIdle:
-		c.setAnimation("idle")
+		c.SetAnimation("idle")
 	case state.StateWalk | state.StateForward:
-		c.setAnimation("walk")
+		c.SetAnimation("walk")
 	case state.StateDash | state.StateForward:
-		c.setAnimation("dash")
+		c.SetAnimation("dash")
 	default:
-		c.setAnimation("idle")
+		c.SetAnimation("idle")
 	}
 
 	// Apply frame-specific velocity changes if available

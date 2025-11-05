@@ -14,7 +14,7 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 	rightX := config.WindowWidth - panelWidth - 1
 
 	ctx.Window("Timeline", image.Rect(panelWidth, topY, rightX, config.WindowHeight), func(layout debugui.ContainerLayout) {
-		sprite := g.editorManager.getCurrentSprite()
+		sprite := g.character.AnimationPlayer.GetSpriteFromFrameCounter()
 
 		if sprite == nil {
 			ctx.Text("No frame selected")
@@ -22,37 +22,22 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		}
 		ctx.SetGridLayout([]int{100, -1, 60}, nil)
 		ctx.Text("Navigate:")
-		frameCount := len(g.editorManager.activeAnimation.FrameData)
-		frameIndex := int(g.editorManager.frameIndex)
+		frameCount := g.getActiveAnimation().Duration()
 		if frameCount > 0 {
-			ctx.Slider(&frameIndex, 0, frameCount-1, 1).On(func() {
-				g.editorManager.frameIndex = frameIndex
-				g.editorManager.frameCounter = 0 // Reset counter when manually changing frame
-				// AnimationPlayer automatically handles sprite selection
-				g.refreshBoxEditor() // Refresh box editor when frame changes
-			})
+			ctx.Slider(&g.character.AnimationPlayer.FrameCounter, 0, frameCount-1, 1) // imagine if this works correctly from the start
 		}
-		ctx.Text(fmt.Sprintf("%d / %d", g.editorManager.frameIndex+1, frameCount))
+		ctx.Text(fmt.Sprintf("%d / %d", g.character.AnimationPlayer.GetActiveFrameDataIndex()+1, frameCount))
 
 		ctx.SetGridLayout([]int{-1, 0, -1, -1, -1, -1}, nil)
 
 		ctx.Text("Frame Duration:")
-		if g.editorManager.frameIndex >= 0 && g.editorManager.frameIndex < len(g.editorManager.activeAnimation.FrameData) {
-			duration := int(g.editorManager.activeAnimation.FrameData[g.editorManager.frameIndex].Duration)
-			ctx.NumberField(&duration, 1)
+		duration := g.getActiveAnimation().FrameData[g.character.AnimationPlayer.GetActiveFrameDataIndex()].Duration
+		ctx.NumberField(&duration, 1).On(func() {
 			if duration < 1 {
 				duration = 1
 			}
-			g.editorManager.activeAnimation.FrameData[g.editorManager.frameIndex].Duration = duration
-
-			ctx.Text("Animation Switch:")
-			animationSwitch := g.editorManager.activeAnimation.FrameData[g.editorManager.frameIndex].AnimationSwitch
-			ctx.TextField(&animationSwitch).On(func() {
-				g.editorManager.activeAnimation.FrameData[g.editorManager.frameIndex].AnimationSwitch = animationSwitch
-			})
-		} else {
-			ctx.Text("Invalid frame index")
-		}
+			g.getActiveAnimation().FrameData[g.character.AnimationPlayer.GetActiveFrameDataIndex()].Duration = duration
+		})
 
 		ctx.Button("Add Image").On(func() {
 			g.AddImageToFrame()
@@ -64,27 +49,22 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 			g.removeFrame()
 		})
 		playPauseToggleText := "Play"
-		if g.editorManager.playingAnim {
+		if g.uiVariables.playingAnim {
 			playPauseToggleText = "Stop"
 		}
 		ctx.Button(playPauseToggleText).On(func() {
 			if playPauseToggleText == "Play" {
-				g.editorManager.playingAnim = true
-				g.editorManager.frameCounter = 0 // Reset counter when starting playback
+				g.uiVariables.playingAnim = true
 			} else {
-				g.editorManager.playingAnim = false
-				g.editorManager.frameCounter = 0 // Reset counter when stopping playback
+				g.uiVariables.playingAnim = false
 			}
+			g.character.AnimationPlayer.FrameCounter = 0
 		})
 
 	})
 }
 
-func (g *Game) AddImageToFrame() {
-	if g.editorManager.activeAnimation == nil {
-		return
-	}
-
+func (g *Game) AddImageToFrame() { // Rename this to AddImageToAnimation
 	picker := filepicker.GetFilePicker()
 	filter := filepicker.FileFilter{
 		Description: "Image files",
@@ -97,57 +77,35 @@ func (g *Game) AddImageToFrame() {
 		return
 	}
 
-	if err := g.editorManager.addSpriteByFile(path); err != nil {
+	if err := g.addSpriteByFile(path); err != nil {
 		g.writeLog(fmt.Sprintf("failed to add image to frame: %s", err))
 		return
 	}
-
-	g.editorManager.frameCount = len(g.editorManager.activeAnimation.FrameData)
-	g.editorManager.frameIndex = g.editorManager.frameCount - 1
-	// Removed the duplicate FrameData append since addSpriteByFile already handles it
 }
 
 func (g *Game) copyLastFrame() {
-	if g.editorManager.activeAnimation == nil {
-		return
-	}
-	lastFrameIndex := len(g.editorManager.activeAnimation.FrameData) - 1
+	lastFrameIndex := len(g.getActiveAnimation().FrameData) - 1
 	if lastFrameIndex < 0 {
 		return
 	}
-
-	// Get the sprite that the last frame points to
-	lastFrameData := g.editorManager.activeAnimation.FrameData[lastFrameIndex]
-	if lastFrameData.SpriteIndex >= 0 && lastFrameData.SpriteIndex < len(g.editorManager.activeAnimation.Sprites) {
-		lastFrame := g.editorManager.activeAnimation.Sprites[lastFrameData.SpriteIndex]
-		newFrame := deepCopySprite(lastFrame)
-
-		g.editorManager.activeAnimation.Sprites = append(g.editorManager.activeAnimation.Sprites, newFrame)
-
-		// Copy the last frame's properties and update SpriteIndex to point to the newly created sprite
-		lastProp := lastFrameData
-		lastProp.SpriteIndex = len(g.editorManager.activeAnimation.Sprites) - 1
-		g.editorManager.activeAnimation.FrameData = append(g.editorManager.activeAnimation.FrameData, lastProp)
-	}
+	lastFrameData := g.getActiveAnimation().FrameData[lastFrameIndex]
+	g.getActiveAnimation().FrameData = append(g.getActiveAnimation().FrameData, lastFrameData)
 }
 
 func (g *Game) removeFrame() {
-	if g.editorManager.activeAnimation == nil || len(g.editorManager.activeAnimation.FrameData) == 0 {
+	if g.getActiveAnimation() == nil || len(g.getActiveAnimation().FrameData) == 0 {
 		return
 	}
-
-	// Remove the FrameData at current frameIndex
-	if g.editorManager.frameIndex >= 0 && g.editorManager.frameIndex < len(g.editorManager.activeAnimation.FrameData) {
-		props := g.editorManager.activeAnimation.FrameData
-		g.editorManager.activeAnimation.FrameData = append(props[:g.editorManager.frameIndex], props[g.editorManager.frameIndex+1:]...)
-	}
+	lastIndex := len(g.getActiveAnimation().FrameData) - 1
+	frameData := g.getActiveAnimation().FrameData
+	g.getActiveAnimation().FrameData = append(frameData[:g.uiVariables.frameDataIndex], frameData[g.uiVariables.frameDataIndex+1:]...)
 
 	// Adjust frameIndex after removal
-	if g.editorManager.frameIndex > 0 {
-		g.editorManager.frameIndex--
+	if g.uiVariables.frameDataIndex > 0 {
+		g.uiVariables.frameDataIndex = lastIndex - 1
 	}
 
-	if len(g.editorManager.activeAnimation.FrameData) == 0 {
-		g.editorManager.frameIndex = 0
+	if len(g.getActiveAnimation().FrameData) == 0 {
+		g.uiVariables.frameDataIndex = 0
 	}
 }

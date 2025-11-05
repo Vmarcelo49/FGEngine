@@ -28,7 +28,7 @@ func (g *Game) updateDebugUI() error {
 		g.uiToolbar(ctx)
 		g.uiProjectPanel(ctx)
 
-		if g.editorManager.activeAnimation != nil {
+		if g.character.AnimationPlayer.ActiveAnimation != nil {
 			g.uiFrameProperties(ctx)
 			g.guiTimeline(ctx)
 		}
@@ -43,19 +43,16 @@ func (g *Game) updateDebugUI() error {
 }
 
 func (g *Game) writeLog(text string) {
-	if len(g.editorManager.logBuf) > 0 {
-		g.editorManager.logBuf += "\n"
+	if len(g.uiVariables.logBuf) > 0 {
+		g.uiVariables.logBuf += "\n"
 	}
-	g.editorManager.logBuf += text
-	g.editorManager.logUpdated = true
+	g.uiVariables.logBuf += text
+	g.uiVariables.logUpdated = true
 }
 
 func (g *Game) resetCharacterState() {
-	g.writeLog("There's a character loaded, clearing current state")
-	g.activeCharacter = nil
-	g.editorManager.activeAnimation = nil
-	g.editorManager.previousAnimationName = ""
-	g.writeLog("Cleared current state")
+	g.character = nil
+	g.writeLog("There was a Character loaded, cleared current state")
 }
 
 func (g *Game) uiToolbar(ctx *debugui.Context) {
@@ -67,7 +64,7 @@ func (g *Game) uiToolbar(ctx *debugui.Context) {
 		ctx.Button("Load Character").On(func() {
 			g.loadCharacter()
 		})
-		if g.activeCharacter != nil {
+		if g.character != nil {
 			ctx.Button("Save Character").On(func() {
 				g.saveCharacter()
 			})
@@ -80,25 +77,25 @@ func (g *Game) logWindow(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{-1}, []int{-1, 0})
 		ctx.Panel(func(layout debugui.ContainerLayout) {
 			ctx.SetGridLayout([]int{-1}, []int{-1})
-			ctx.Text(g.editorManager.logBuf)
-			if g.editorManager.logUpdated {
+			ctx.Text(g.uiVariables.logBuf)
+			if g.uiVariables.logUpdated {
 				ctx.SetScroll(image.Pt(layout.ScrollOffset.X, layout.ContentSize.Y))
-				g.editorManager.logUpdated = false
+				g.uiVariables.logUpdated = false
 			}
 		})
 		ctx.GridCell(func(bounds image.Rectangle) {
 			submit := func() {
-				if g.editorManager.logSubmitBuf == "" {
+				if g.uiVariables.logSubmitBuf == "" {
 					return
 				}
-				g.writeLog(g.editorManager.logSubmitBuf)
-				g.editorManager.logSubmitBuf = ""
+				g.writeLog(g.uiVariables.logSubmitBuf)
+				g.uiVariables.logSubmitBuf = ""
 			}
 			ctx.SetGridLayout([]int{-3, -1}, nil)
-			ctx.TextField(&g.editorManager.logSubmitBuf).On(func() {
+			ctx.TextField(&g.uiVariables.logSubmitBuf).On(func() {
 				if ebiten.IsKeyPressed(ebiten.KeyEnter) {
 					submit()
-					ctx.SetTextFieldValue(g.editorManager.logSubmitBuf)
+					ctx.SetTextFieldValue(g.uiVariables.logSubmitBuf)
 				}
 			})
 			ctx.Button("Submit").On(func() {
@@ -111,54 +108,37 @@ func (g *Game) logWindow(ctx *debugui.Context) {
 func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 	ctx.Window("Properties", image.Rect(config.WindowWidth-panelWidth, toolbarHeight, config.WindowWidth, config.WindowHeight), func(layout debugui.ContainerLayout) {
 		ctx.Header("Frame Info", true, func() {
-			currentFrame := g.editorManager.getCurrentSprite()
-			if currentFrame == nil {
+			if g.character.AnimationPlayer.GetActiveFrameData() == nil {
 				ctx.Text("No frame selected")
 				return
 			}
-			// Get current frame properties
-			frameIndex := g.editorManager.frameIndex
-			if frameIndex >= 0 && frameIndex < len(g.editorManager.activeAnimation.FrameData) {
-				properties := &g.editorManager.activeAnimation.FrameData[frameIndex]
+			frameData := g.character.AnimationPlayer.GetActiveFrameData()
 
-				// Add SpriteIndex editor
-				ctx.Text("Sprite Index:")
-				spriteIndex := properties.SpriteIndex
-				maxSpriteIndex := len(g.editorManager.activeAnimation.Sprites) - 1
-				if maxSpriteIndex < 0 {
-					maxSpriteIndex = 0
-				}
-				ctx.Slider(&spriteIndex, 0, maxSpriteIndex, 1).On(func() {
-					if spriteIndex >= 0 && spriteIndex < len(g.editorManager.activeAnimation.Sprites) {
-						properties.SpriteIndex = spriteIndex
-						// AnimationPlayer automatically handles sprite selection
+			ctx.Text("Sprite Index:")
+
+			lastSpriteIndex := len(g.character.AnimationPlayer.ActiveAnimation.Sprites) - 1
+			if lastSpriteIndex < 0 {
+				lastSpriteIndex = 0
+			}
+
+			ctx.Slider(&frameData.SpriteIndex, 0, lastSpriteIndex, 1) // Here is where we set the sprite index
+
+			ctx.Text(fmt.Sprintf("Points to sprite: %d / %d", frameData.SpriteIndex+1, len(g.getActiveAnimation().Sprites)))
+
+			ctx.SetGridLayout([]int{-1, -1, -1}, nil)
+			ctx.Loop(len(state.OrderedStates), func(i int) { // Set checkboxes for each state
+				stateFlag := state.OrderedStates[i]
+				isActive := (frameData.State & stateFlag) != 0
+				ctx.Checkbox(&isActive, stateFlag.String()).On(func() {
+					if isActive {
+						frameData.State |= stateFlag
+					} else {
+						frameData.State &= ^stateFlag
 					}
 				})
-				ctx.Text(fmt.Sprintf("Points to sprite: %d / %d", spriteIndex+1, len(g.editorManager.activeAnimation.Sprites)))
-
-				ctx.SetGridLayout([]int{-1, -1, -1}, nil)
-				ctx.Loop(len(state.OrderedStates), func(i int) {
-					stateFlag := state.OrderedStates[i]
-					isActive := (properties.State & stateFlag) != 0
-					ctx.Checkbox(&isActive, stateFlag.String()).On(func() {
-						if isActive {
-							properties.State |= stateFlag
-						} else {
-							properties.State &= ^stateFlag
-						}
-					})
-				})
-				ctx.SetGridLayout(nil, nil)
-				ctx.Text("Current State: " + properties.State.String())
-
-			} else {
-				if len(g.editorManager.activeAnimation.FrameData) != len(g.editorManager.activeAnimation.Sprites) {
-					ctx.Text(fmt.Sprintf("error? currently there are %d props, but the number of frames is %d", len(g.editorManager.activeAnimation.FrameData), len(g.editorManager.activeAnimation.Sprites)))
-				}
-				if len(g.editorManager.activeAnimation.FrameData) == 0 && len(g.editorManager.activeAnimation.Sprites) == 0 {
-					ctx.Text("no sprites or properties found")
-				}
-			}
+			})
+			ctx.SetGridLayout(nil, nil)
+			ctx.Text("Current State: " + frameData.State.String())
 		})
 	})
 }

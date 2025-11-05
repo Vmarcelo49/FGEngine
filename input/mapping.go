@@ -1,6 +1,8 @@
 package input
 
-import "github.com/hajimehoshi/ebiten/v2"
+import (
+	"github.com/hajimehoshi/ebiten/v2"
+)
 
 type InputMap struct {
 	KeyboardBindings map[GameInput][]ebiten.Key

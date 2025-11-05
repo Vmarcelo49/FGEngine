@@ -6,20 +6,46 @@ import (
 	"fgengine/collision"
 	"fgengine/state"
 	"fgengine/types"
-	"fmt"
 	"path/filepath"
 	"strings"
 )
 
 func (g *Game) createCharacter() {
 	g.checkIfResetNeeded()
-	g.activeCharacter = &character.Character{
+	g.character = &character.Character{
 		Animations:      make(map[string]*animation.Animation),
 		Name:            "character",
-		StateMachine:    &state.StateMachine{},        //needed for the rect
-		AnimationPlayer: &animation.AnimationPlayer{}, // Initialize AnimationPlayer
+		StateMachine:    &state.StateMachine{},
+		AnimationPlayer: &animation.AnimationPlayer{},
 	}
 	g.writeLog("New character created")
+}
+
+func (g *Game) updateAnimationFrame() {
+	if g.uiVariables.playingAnim && g.character != nil {
+		g.character.AnimationPlayer.FrameCounter++
+	}
+	animPlayer := g.character.AnimationPlayer // Just to reduce line length
+
+	if animPlayer.ShouldLoop {
+		if animPlayer.FrameCounter >= animPlayer.ActiveAnimation.Duration() {
+			animPlayer.FrameCounter = 0
+			return
+		}
+	}
+	if animPlayer.FrameCounter >= animPlayer.ActiveAnimation.Duration() {
+		animPlayer.FrameCounter = animPlayer.ActiveAnimation.Duration() - 1
+	}
+}
+
+func (g *Game) getActiveAnimation() *animation.Animation {
+	if g.character == nil {
+		return nil
+	}
+	if g.character.AnimationPlayer.ActiveAnimation != nil {
+		return g.character.AnimationPlayer.ActiveAnimation
+	}
+	return nil
 }
 
 func (g *Game) loadCharacter() {
@@ -29,69 +55,36 @@ func (g *Game) loadCharacter() {
 		g.writeLog("Failed to load character: " + err.Error())
 		return
 	}
-	g.activeCharacter = character
-	g.activeCharacter.StateMachine = &state.StateMachine{}
-	g.activeCharacter.AnimationPlayer = &animation.AnimationPlayer{} // Initialize AnimationPlayer
+	g.character = character
 
-	// Set the initial animation if available
-	if len(g.activeCharacter.Animations) > 0 {
+	if len(g.character.Animations) > 0 {
 		// Try to set idle animation, or first available animation
-		if idleAnim, exists := g.activeCharacter.Animations["idle"]; exists {
-			g.activeCharacter.AnimationPlayer.ActiveAnimation = idleAnim
+		if idleAnim, exists := g.character.Animations["idle"]; exists {
+			g.character.AnimationPlayer.ActiveAnimation = idleAnim
 		} else {
-			// Set first available animation
-			for _, anim := range g.activeCharacter.Animations {
-				g.activeCharacter.AnimationPlayer.ActiveAnimation = anim
+			for _, anim := range g.character.Animations {
+				g.character.AnimationPlayer.ActiveAnimation = anim
 				break
 			}
 		}
 	}
-
-	// Set initial sprite if there's an animation available
-	if len(g.activeCharacter.Animations) > 0 {
-		for _, anim := range g.activeCharacter.Animations {
-			if len(anim.FrameData) > 0 && len(anim.Sprites) > 0 {
-				// AnimationPlayer will handle sprite selection automatically
-				break
-			}
-		}
-	}
-
-	// Ensure animations map is initialized
-	if character.Animations == nil {
-		character.Animations = make(map[string]*animation.Animation)
-	}
-
-	idleAnim, ok := character.Animations["idle"]
-	if !ok {
-		// Create a placeholder idle animation using notFound.png
-		g.writeLog("No 'idle' animation found, creating placeholder...")
-		idleAnim = g.createPlaceholderIdleAnimation()
-		character.Animations["idle"] = idleAnim
-	}
-	g.editorManager.activeAnimation = idleAnim
 	g.writeLog("Character loaded successfully")
 }
 
 // when creating or loading a new character, check if we need to reset the current state
-func (g *Game) checkIfResetNeeded() {
-	if g.activeCharacter != nil && g.editorManager.activeAnimation != nil {
+func (g *Game) checkIfResetNeeded() { // TODO rename this to deleteCurrentCharacter
+	if g.character != nil && g.getActiveAnimation() != nil {
 		g.resetCharacterState()
 	}
 }
 
 func (g *Game) saveCharacter() {
-	if g.activeCharacter == nil {
+	if g.character == nil {
 		g.writeLog("Failed to save character: No active character to save")
 		return
 	}
-	if g.editorManager.activeAnimation != nil && g.editorManager.activeAnimation.Name != "" {
-		animCopy := deepCopyAnimation(g.editorManager.activeAnimation)
-		g.activeCharacter.Animations[g.editorManager.activeAnimation.Name] = animCopy
-		g.writeLog(fmt.Sprintf("Including current animation '%s' in character", g.editorManager.activeAnimation.Name))
-	}
 
-	err := exportCharacterToYAML(g.activeCharacter)
+	err := exportCharacterToYAML(g.character)
 	if err != nil {
 		g.writeLog("Failed to export character: " + err.Error())
 	} else {
