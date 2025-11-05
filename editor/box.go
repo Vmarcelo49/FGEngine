@@ -32,7 +32,7 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 		ctx.Text(fmt.Sprintf("Boxes - Collision: %d, Hurt: %d, Hit: %d", len(frameData.Boxes[collision.Collision]), len(frameData.Boxes[collision.Hurt]), len(frameData.Boxes[collision.Hit])))
 
 		// Show current box type selection
-		currentBoxType := collision.BoxType(g.uiVariables.boxDropdownIndex)
+		currentBoxType := collision.BoxType(g.uiVariables.boxDropdownTypeIndex)
 		ctx.Text(fmt.Sprintf("Current Type: %s", currentBoxType.String()))
 
 		if g.uiVariables.activeBoxIndex >= 0 {
@@ -65,15 +65,19 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{-1}, nil)
 		ctx.Text("Create New Box:")
 		ctx.SetGridLayout([]int{-2, -1}, nil)
-		ctx.Dropdown(&g.uiVariables.boxDropdownIndex, []string{collision.Collision.String(), collision.Hit.String(), collision.Hurt.String()}).On(func() {
-			g.clearBoxSelection()
-			g.uiVariables.boxEditor.activeBoxType = collision.BoxType(g.uiVariables.boxDropdownIndex)
+		ctx.Dropdown(&g.uiVariables.boxDropdownTypeIndex, []string{collision.Collision.String(), collision.Hit.String(), collision.Hurt.String()}).On(func() {
+			g.uiVariables.activeBoxIndex = -1 // Clear selection when changing box type
+			g.uiVariables.activeBoxType = collision.BoxType(g.uiVariables.boxDropdownTypeIndex)
 		})
 		ctx.Button("Add Box").On(func() {
 			g.addBox()
 		})
 
-		if g.uiVariables.boxEditor != nil {
+		if g.getActiveAnimation() != nil {
+			if len(frameData.Boxes[currentBoxType]) == 0 {
+				ctx.Text("No boxes of this type available.")
+				return
+			}
 			activeBox := g.getActiveBox()
 			if activeBox != nil {
 				ctx.SetGridLayout([]int{-1}, nil)
@@ -118,7 +122,7 @@ func (g *Game) addBox() {
 		g.writeLog("No active frame data to add box to")
 		return
 	}
-	boxType := collision.BoxType(g.uiVariables.boxDropdownIndex)
+	boxType := collision.BoxType(g.uiVariables.boxDropdownTypeIndex)
 	newRect := types.Rect{X: 0, Y: 0, W: 50, H: 50}
 
 	frameData.Boxes[boxType] = append(frameData.Boxes[boxType], newRect)

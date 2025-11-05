@@ -13,7 +13,7 @@ type uiVariables struct {
 	logBuf                  string
 	logUpdated              bool
 	logSubmitBuf            string
-	boxDropdownIndex        int
+	boxDropdownTypeIndex    int
 
 	// Box editor
 	activeBoxType  collision.BoxType

@@ -3,10 +3,8 @@ package editor
 import (
 	"fgengine/animation"
 	"fgengine/character"
-	"fgengine/collision"
 	"fgengine/filepicker"
 	"fgengine/state"
-	"fgengine/types"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -24,33 +22,46 @@ func exportCharacterToYAML(c *character.Character) error {
 	filename := fmt.Sprintf("%s.yaml", c.Name)
 	path := filepath.Join(assetsDir, filename)
 
-	tempCharacter := *c
-	tempCharacter.Animations = make(map[string]*animation.Animation)
+	// Store original paths to restore after serialization
+	originalPaths := make(map[*animation.Sprite]string)
 
-	for name, anim := range c.Animations {
-		tempAnim := deepCopyAnimation(anim)
-		for _, sprite := range tempAnim.Sprites {
+	// Temporarily modify paths to relative
+	for _, anim := range c.Animations {
+		for _, sprite := range anim.Sprites {
 			if sprite.ImagePath != "" {
+				originalPaths[sprite] = sprite.ImagePath
 				sprite.ImagePath = makeRelativePath(sprite.ImagePath, path)
 			}
 		}
-
-		tempCharacter.Animations[name] = tempAnim
 	}
 
 	file, err := os.Create(path)
 	if err != nil {
+		for sprite, originalPath := range originalPaths {
+			sprite.ImagePath = originalPath
+		}
 		return fmt.Errorf("failed to create YAML file: %w", err)
 	}
 	defer file.Close()
 
-	yamlInfo, err := yaml.Marshal(&tempCharacter)
+	yamlInfo, err := yaml.Marshal(c)
 	if err != nil {
+		for sprite, originalPath := range originalPaths {
+			sprite.ImagePath = originalPath
+		}
 		return fmt.Errorf("failed to marshal character to YAML: %w", err)
 	}
 
 	if _, err = file.Write(yamlInfo); err != nil {
+		for sprite, originalPath := range originalPaths {
+			sprite.ImagePath = originalPath
+		}
 		return fmt.Errorf("failed to write YAML to file: %w", err)
+	}
+
+	// Restore original paths
+	for sprite, originalPath := range originalPaths {
+		sprite.ImagePath = originalPath
 	}
 
 	return nil
@@ -157,41 +168,6 @@ func loadCharacterFromYAMLDialog() (*character.Character, error) {
 	}
 
 	return character, nil
-}
-
-func deepCopyAnimation(a *animation.Animation) *animation.Animation {
-	animCopy := &animation.Animation{
-		Name:      a.Name,
-		FrameData: make([]animation.FrameData, len(a.FrameData)),
-	}
-
-	copy(animCopy.FrameData, a.FrameData)
-
-	animCopy.Sprites = make([]*animation.Sprite, len(a.Sprites))
-	for i, sprite := range a.Sprites {
-		animCopy.Sprites[i] = deepCopySprite(sprite)
-	}
-
-	return animCopy
-}
-
-func deepCopySprite(source *animation.Sprite) *animation.Sprite {
-	destination := &animation.Sprite{}
-	destination.ImagePath = source.ImagePath
-	destination.Rect = source.Rect
-
-	destination.Boxes = make(map[collision.BoxType][]types.Rect)
-
-	copyBoxes(source.Boxes, destination.Boxes)
-	return destination
-}
-
-func copyBoxes(sourceBoxes map[collision.BoxType][]types.Rect, destBoxes map[collision.BoxType][]types.Rect) {
-	for key, boxes := range sourceBoxes {
-		boxesCopy := make([]types.Rect, len(boxes))
-		copy(boxesCopy, boxes)
-		destBoxes[key] = boxesCopy
-	}
 }
 
 func exportAnimationToYaml(source *animation.Animation, path string) error {
