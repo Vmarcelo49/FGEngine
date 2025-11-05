@@ -1,6 +1,8 @@
 package editor
 
 import (
+	"fgengine/collision"
+	"fgengine/types"
 	_ "image/png"
 )
 
@@ -11,5 +13,13 @@ type uiVariables struct {
 	logBuf                  string
 	logUpdated              bool
 	logSubmitBuf            string
-	boxActionIndex          int
+	boxDropdownIndex        int
+
+	// Box editor
+	activeBoxType  collision.BoxType
+	activeBoxIndex int
+	// mouse input related
+	dragged           bool
+	dragStartMousePos types.Vector2
+	dragStartBoxPos   types.Vector2
 }

@@ -28,7 +28,7 @@ func (g *Game) handleBoxMouseEdit() {
 			if selectedBoxIndex >= 0 {
 				g.uiVariables.boxEditor.activeBoxIndex = selectedBoxIndex
 				g.uiVariables.boxEditor.activeBoxType = selectedBoxType
-				g.uiVariables.boxActionIndex = int(selectedBoxType) // Update UI dropdown
+				g.uiVariables.boxDropdownIndex = int(selectedBoxType) // Update UI dropdown
 				g.uiVariables.boxEditor.dragged = true
 				g.uiVariables.boxEditor.dragStartMousePos.X = worldMousePos.X
 				g.uiVariables.boxEditor.dragStartMousePos.Y = worldMousePos.Y

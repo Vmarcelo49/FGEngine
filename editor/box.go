@@ -1,7 +1,6 @@
 package editor
 
 import (
-	"fgengine/animation"
 	"fgengine/collision"
 	"fgengine/types"
 	"fmt"
@@ -9,76 +8,48 @@ import (
 	"github.com/ebitengine/debugui"
 )
 
-type BoxEditor struct {
-	boxes map[collision.BoxType][]types.Rect
-
-	activeBoxType  collision.BoxType
-	activeBoxIndex int
-	// mouse input related
-	dragged           bool
-	dragStartMousePos types.Vector2
-	dragStartBoxPos   types.Vector2
-}
-
-func (g *Game) getActiveBoxindex() int {
-	if g.uiVariables.boxEditor == nil {
-		return -1
-	}
-	return g.uiVariables.boxEditor.activeBoxIndex
-}
-
 func (g *Game) getActiveBox() *types.Rect {
-	sprite := g.uiVariables.getCurrentSprite()
-	if sprite == nil || g.uiVariables.boxEditor == nil {
+	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	if frameData == nil {
 		return nil
 	}
 
-	boxType := g.uiVariables.boxEditor.activeBoxType
-	boxIndex := g.uiVariables.boxEditor.activeBoxIndex
+	boxType := g.uiVariables.activeBoxType
+	boxIndex := g.uiVariables.activeBoxIndex
 
-	if boxIndex < 0 || boxIndex >= len(sprite.Boxes[boxType]) {
-		return nil
-	}
-
-	return &sprite.Boxes[boxType][boxIndex]
+	return &frameData.Boxes[boxType][boxIndex]
 }
 
 func (g *Game) boxEditor(ctx *debugui.Context) {
 	ctx.Header("Box Editor", true, func() {
-		sprite := g.uiVariables.getCurrentSprite()
-		if sprite == nil {
-			ctx.Text("No sprite selected")
+		frameData := g.character.AnimationPlayer.GetActiveFrameData()
+		if frameData == nil {
+			ctx.Text("No frame data available")
 			return
 		}
 
-		if g.uiVariables.boxEditor == nil {
-			g.loadBoxEditor(sprite)
-		}
-
 		ctx.SetGridLayout([]int{-1}, nil)
-		ctx.Text(fmt.Sprintf("Boxes - Collision: %d, Hurt: %d, Hit: %d", len(sprite.Boxes[collision.Collision]), len(sprite.Boxes[collision.Hurt]), len(sprite.Boxes[collision.Hit])))
+		ctx.Text(fmt.Sprintf("Boxes - Collision: %d, Hurt: %d, Hit: %d", len(frameData.Boxes[collision.Collision]), len(frameData.Boxes[collision.Hurt]), len(frameData.Boxes[collision.Hit])))
 
 		// Show current box type selection
-		currentBoxType := collision.BoxType(g.uiVariables.boxActionIndex)
+		currentBoxType := collision.BoxType(g.uiVariables.boxDropdownIndex)
 		ctx.Text(fmt.Sprintf("Current Type: %s", currentBoxType.String()))
 
-		if g.uiVariables.boxEditor.activeBoxIndex >= 0 {
-			boxTypeStr := g.uiVariables.boxEditor.activeBoxType.String()
-			ctx.Text(fmt.Sprintf("Selected: %s Box", boxTypeStr))
+		if g.uiVariables.activeBoxIndex >= 0 {
+			ctx.Text(fmt.Sprintf("Selected: %s Box", g.uiVariables.activeBoxType.String()))
 
 			ctx.SetGridLayout([]int{-1, -1}, nil)
 			// index selection
 			ctx.Text("Index:")
-			activeIndex := g.getActiveBoxindex()
-			ctx.NumberField(&activeIndex, 1).On(func() {
-				boxes := sprite.Boxes[g.uiVariables.boxEditor.activeBoxType]
-				if len(boxes) > 0 && activeIndex >= 0 && activeIndex < len(boxes) {
-					g.uiVariables.boxEditor.activeBoxIndex = activeIndex
+			ctx.NumberField(&g.uiVariables.activeBoxIndex, 1).On(func() {
+				boxes := frameData.Boxes[g.uiVariables.activeBoxType]
+				if len(boxes) > 0 && g.uiVariables.activeBoxIndex >= 0 && g.uiVariables.activeBoxIndex < len(boxes) {
+					g.uiVariables.activeBoxIndex = g.uiVariables.activeBoxIndex
 				}
 			})
 
 			ctx.Button("Clear Selection").On(func() {
-				g.clearBoxSelection()
+				g.uiVariables.activeBoxIndex = -1
 			})
 			ctx.Button("Delete Box").On(func() {
 				g.deleteSelectedBox()
@@ -87,16 +58,16 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 			ctx.Text("No box selected")
 			ctx.SetGridLayout([]int{-1}, nil)
 			ctx.Button("Clear Selection").On(func() {
-				g.clearBoxSelection()
+				g.uiVariables.activeBoxIndex = -1
 			})
 		}
 
 		ctx.SetGridLayout([]int{-1}, nil)
 		ctx.Text("Create New Box:")
 		ctx.SetGridLayout([]int{-2, -1}, nil)
-		ctx.Dropdown(&g.uiVariables.boxActionIndex, []string{collision.Collision.String(), collision.Hit.String(), collision.Hurt.String()}).On(func() {
+		ctx.Dropdown(&g.uiVariables.boxDropdownIndex, []string{collision.Collision.String(), collision.Hit.String(), collision.Hurt.String()}).On(func() {
 			g.clearBoxSelection()
-			g.uiVariables.boxEditor.activeBoxType = collision.BoxType(g.uiVariables.boxActionIndex)
+			g.uiVariables.boxEditor.activeBoxType = collision.BoxType(g.uiVariables.boxDropdownIndex)
 		})
 		ctx.Button("Add Box").On(func() {
 			g.addBox()
@@ -121,101 +92,38 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 	})
 }
 
-func (g *Game) loadBoxEditor(sprite *animation.Sprite) {
-	if sprite.Boxes == nil {
-		sprite.Boxes = make(map[collision.BoxType][]types.Rect)
-	}
-
-	g.uiVariables.boxEditor = &BoxEditor{
-		boxes:          sprite.Boxes,
-		activeBoxType:  collision.BoxType(g.uiVariables.boxActionIndex),
-		activeBoxIndex: -1,
-	}
-}
-
-func (g *Game) clearBoxSelection() {
-	if g.uiVariables.boxEditor != nil {
-		g.uiVariables.boxEditor.activeBoxIndex = -1
-	}
-}
-
-// refreshBoxEditor updates the box editor when the frame changes
-func (g *Game) refreshBoxEditor() {
-	sprite := g.uiVariables.getCurrentSprite()
-	if sprite == nil {
-		return
-	}
-
-	// If no box editor exists, create it
-	if g.uiVariables.boxEditor == nil {
-		g.loadBoxEditor(sprite)
-		return
-	}
-
-	if sprite.Boxes == nil {
-		sprite.Boxes = make(map[collision.BoxType][]types.Rect)
-	}
-
-	// Point box editor directly to the current sprite's boxes and clear selection
-	g.uiVariables.boxEditor.boxes = sprite.Boxes
-	g.clearBoxSelection()
-}
-
 func (g *Game) deleteSelectedBox() {
 	activeBox := g.getActiveBox()
 	if activeBox == nil {
+		g.writeLog("tried to remove a nil box wth")
 		return
 	}
 
-	sprite := g.uiVariables.getCurrentSprite()
-	if sprite == nil {
+	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	if frameData == nil {
 		return
 	}
 
-	boxType := g.uiVariables.boxEditor.activeBoxType
-	boxIndex := g.uiVariables.boxEditor.activeBoxIndex
+	boxType := g.uiVariables.activeBoxType
+	boxIndex := g.uiVariables.activeBoxIndex
 
-	// Remove the box from the slice
-	sprite.Boxes[boxType] = append(
-		sprite.Boxes[boxType][:boxIndex],
-		sprite.Boxes[boxType][boxIndex+1:]...)
-
-	g.clearBoxSelection()
+	frameData.Boxes[boxType] = append(frameData.Boxes[boxType][:boxIndex], frameData.Boxes[boxType][boxIndex+1:]...)
+	g.uiVariables.activeBoxIndex = -1 // Clear selection after deletion
+	g.writeLog(fmt.Sprintf("Deleted %s box at index %d", boxType.String(), boxIndex))
 }
 
 func (g *Game) addBox() {
-	if g.uiVariables.activeAnimation == nil {
-		g.writeLog("Cannot add box: No active animation")
+	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	if frameData == nil {
+		g.writeLog("No active frame data to add box to")
 		return
 	}
-
-	sprite := g.uiVariables.getCurrentSprite()
-	if sprite == nil {
-		g.writeLog("Cannot add box: No active sprite")
-		return
-	}
-
-	if g.uiVariables.boxEditor == nil {
-		g.loadBoxEditor(sprite)
-	}
-
-	// Set the box type from the dropdown selection
-	g.uiVariables.boxEditor.activeBoxType = collision.BoxType(g.uiVariables.boxActionIndex)
-
-	selectedBoxIndex := g.addBoxOfType(sprite, g.uiVariables.boxEditor.activeBoxType)
-	g.uiVariables.boxEditor.activeBoxIndex = selectedBoxIndex
-
-	g.writeLog(fmt.Sprintf("Added %s box", g.uiVariables.boxEditor.activeBoxType.String()))
-}
-
-func (g *Game) addBoxOfType(currentFrame *animation.Sprite, typeOfBox collision.BoxType) int {
+	boxType := collision.BoxType(g.uiVariables.boxDropdownIndex)
 	newRect := types.Rect{X: 0, Y: 0, W: 50, H: 50}
 
-	if currentFrame.Boxes[typeOfBox] == nil {
-		currentFrame.Boxes[typeOfBox] = []types.Rect{}
-	}
-	currentFrame.Boxes[typeOfBox] = append(currentFrame.Boxes[typeOfBox], newRect)
+	frameData.Boxes[boxType] = append(frameData.Boxes[boxType], newRect)
+	g.uiVariables.activeBoxIndex = len(frameData.Boxes[boxType]) - 1
+	g.writeLog(fmt.Sprintf("Added %s box", boxType.String()))
 
-	// Return the index of the newly added box
-	return len(currentFrame.Boxes[typeOfBox]) - 1
+	g.uiVariables.activeBoxIndex = len(frameData.Boxes[boxType]) - 1
 }
