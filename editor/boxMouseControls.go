@@ -23,42 +23,48 @@ func (g *Game) handleBoxMouseEdit() {
 	worldMousePos := g.getWorldMousePosition(float64(mouseX), float64(mouseY))
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
-		if !g.uiVariables.boxEditor.dragged {
+		if !g.uiVariables.dragged {
 			selectedBoxIndex, selectedBoxType := g.getBoxIndexUnderMouse(worldMousePos.X, worldMousePos.Y)
 			if selectedBoxIndex >= 0 {
-				g.uiVariables.boxEditor.activeBoxIndex = selectedBoxIndex
-				g.uiVariables.boxEditor.activeBoxType = selectedBoxType
+				g.uiVariables.activeBoxIndex = selectedBoxIndex
+				g.uiVariables.activeBoxType = selectedBoxType
 				g.uiVariables.boxDropdownTypeIndex = int(selectedBoxType) // Update UI dropdown
-				g.uiVariables.boxEditor.dragged = true
-				g.uiVariables.boxEditor.dragStartMousePos.X = worldMousePos.X
-				g.uiVariables.boxEditor.dragStartMousePos.Y = worldMousePos.Y
+				g.uiVariables.dragged = true
+				g.uiVariables.dragStartMousePos.X = worldMousePos.X
+				g.uiVariables.dragStartMousePos.Y = worldMousePos.Y
 
 				if activeBox := g.getActiveBox(); activeBox != nil {
-					g.uiVariables.boxEditor.dragStartBoxPos.X = activeBox.X
-					g.uiVariables.boxEditor.dragStartBoxPos.Y = activeBox.Y
+					g.uiVariables.dragStartBoxPos.X = activeBox.X
+					g.uiVariables.dragStartBoxPos.Y = activeBox.Y
 				}
 			}
 		} else {
 			delta := types.Vector2{
-				X: worldMousePos.X - g.uiVariables.boxEditor.dragStartMousePos.X,
-				Y: worldMousePos.Y - g.uiVariables.boxEditor.dragStartMousePos.Y,
+				X: worldMousePos.X - g.uiVariables.dragStartMousePos.X,
+				Y: worldMousePos.Y - g.uiVariables.dragStartMousePos.Y,
 			}
 
 			if activeBox := g.getActiveBox(); activeBox != nil {
-				activeBox.X = g.uiVariables.boxEditor.dragStartBoxPos.X + delta.X
-				activeBox.Y = g.uiVariables.boxEditor.dragStartBoxPos.Y + delta.Y
+				activeBox.X = g.uiVariables.dragStartBoxPos.X + delta.X
+				activeBox.Y = g.uiVariables.dragStartBoxPos.Y + delta.Y
 			}
 		}
 	} else {
 		// End dragging when left mouse button is released
-		if g.uiVariables.boxEditor.dragged {
-			g.uiVariables.boxEditor.dragged = false
+		if g.uiVariables.dragged {
+			g.uiVariables.dragged = false
 		}
 	}
 }
 
 func (g *Game) getBoxIndexUnderMouse(worldX, worldY float64) (int, collision.BoxType) {
-	if g.character == nil || g.uiVariables.boxEditor == nil {
+	if g.character == nil {
+		return -1, collision.Collision
+	}
+
+	// Get the active frame data
+	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	if frameData == nil {
 		return -1, collision.Collision
 	}
 
@@ -70,7 +76,7 @@ func (g *Game) getBoxIndexUnderMouse(worldX, worldY float64) (int, collision.Box
 	boxTypes := []collision.BoxType{collision.Hit, collision.Hurt, collision.Collision}
 
 	for _, boxType := range boxTypes {
-		if boxes, exists := g.uiVariables.boxEditor.boxes[boxType]; exists {
+		if boxes, exists := frameData.Boxes[boxType]; exists {
 			for i, box := range boxes {
 				// Transform box to world coordinates by adding character position
 				worldBoxX := characterPos.X + box.X

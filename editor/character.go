@@ -11,7 +11,7 @@ import (
 )
 
 func (g *Game) createCharacter() {
-	g.checkIfResetNeeded()
+	g.deleteCurrentCharacter()
 	g.character = &character.Character{
 		Animations:      make(map[string]*animation.Animation),
 		Name:            "character",
@@ -49,7 +49,7 @@ func (g *Game) getActiveAnimation() *animation.Animation {
 }
 
 func (g *Game) loadCharacter() {
-	g.checkIfResetNeeded()
+	g.deleteCurrentCharacter()
 	character, err := loadCharacterFromYAMLDialog()
 	if err != nil {
 		g.writeLog("Failed to load character: " + err.Error())
@@ -72,7 +72,7 @@ func (g *Game) loadCharacter() {
 }
 
 // when creating or loading a new character, check if we need to reset the current state
-func (g *Game) checkIfResetNeeded() { // TODO rename this to deleteCurrentCharacter
+func (g *Game) deleteCurrentCharacter() {
 	if g.character != nil && g.getActiveAnimation() != nil {
 		g.resetCharacterState()
 	}
@@ -110,15 +110,14 @@ func (g *Game) createPlaceholderIdleAnimation() *animation.Animation {
 	placeholderSprite := &animation.Sprite{
 		ImagePath: "..\\common\\notFound.png",
 		Rect: types.Rect{
-			W: 64, // Default width
-			H: 64, // Default height
+			W: 64,
+			H: 64,
 		},
-		Boxes: make(map[collision.BoxType][]types.Rect),
 	}
 
 	placeholderFrame := animation.FrameData{
-		Duration:    60, // 1 second at 60 FPS
-		SpriteIndex: 0,  // Reference to the first (and only) sprite
+		Duration: 1,
+		Boxes:    make(map[collision.BoxType][]types.Rect),
 	}
 
 	return &animation.Animation{

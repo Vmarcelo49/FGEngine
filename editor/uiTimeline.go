@@ -40,10 +40,10 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		})
 
 		ctx.Button("Add Image").On(func() {
-			g.AddImageToFrame()
+			g.AddImageToAnimation()
 		})
 		ctx.Button("Copy Last Frame").On(func() {
-			g.copyLastFrame()
+			g.duplicateLastFrameData()
 		})
 		ctx.Button("Remove Frame").On(func() {
 			g.removeFrame()
@@ -64,7 +64,7 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 	})
 }
 
-func (g *Game) AddImageToFrame() { // Rename this to AddImageToAnimation
+func (g *Game) AddImageToAnimation() {
 	picker := filepicker.GetFilePicker()
 	filter := filepicker.FileFilter{
 		Description: "Image files",
@@ -83,7 +83,7 @@ func (g *Game) AddImageToFrame() { // Rename this to AddImageToAnimation
 	}
 }
 
-func (g *Game) copyLastFrame() {
+func (g *Game) duplicateLastFrameData() {
 	lastFrameIndex := len(g.getActiveAnimation().FrameData) - 1
 	if lastFrameIndex < 0 {
 		return

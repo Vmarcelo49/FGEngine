@@ -152,7 +152,6 @@ func loadCharacterFromYAMLDialog() (*character.Character, error) {
 		return nil, fmt.Errorf("failed to decode character")
 	}
 
-	// Convert relative paths to absolute paths based on YAML file location
 	for _, anim := range character.Animations {
 		for _, sprite := range anim.Sprites {
 			if sprite.ImagePath != "" {

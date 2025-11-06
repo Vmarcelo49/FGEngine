@@ -2,7 +2,6 @@ package graphics
 
 import (
 	"image/color"
-	"slices"
 	"sync"
 
 	"fgengine/animation"
@@ -30,26 +29,14 @@ func initWhitePixel() {
 	})
 }
 
-// DrawBoxes draws all collision boxes with camera transformation applied
-func DrawBoxes(renderable Renderable, screen *ebiten.Image, camera *Camera) {
+func DrawBoxes(frameData animation.FrameData, screen *ebiten.Image, camera *Camera, renderable Renderable) {
 	initWhitePixel()
-	currentSprite := renderable.GetSprite()
-	if currentSprite == nil {
-		return
-	}
+	boxImgOptions := &ebiten.DrawImageOptions{}
 
-	// consistent rendering order
-	boxTypes := make([]collision.BoxType, 0, len(currentSprite.Boxes))
-	for boxType := range currentSprite.Boxes {
-		boxTypes = append(boxTypes, boxType)
-	}
-	slices.Sort(boxTypes)
-
-	for _, boxType := range boxTypes {
-		boxes := currentSprite.Boxes[boxType]
+	for boxType, boxes := range frameData.Boxes {
 		for _, box := range boxes {
-			options := createBoxImageOptionsWithCamera(renderable, box, boxType, camera)
-			screen.DrawImage(whitePixel, options)
+			boxImgOptions = createBoxImageOptionsWithCamera(renderable, box, boxType, camera)
+			screen.DrawImage(whitePixel, boxImgOptions)
 		}
 	}
 
