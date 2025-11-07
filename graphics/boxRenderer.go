@@ -29,7 +29,7 @@ func initWhitePixel() {
 	})
 }
 
-func DrawBoxes(frameData animation.FrameData, screen *ebiten.Image, camera *Camera, renderable Renderable) {
+func DrawBoxes(frameData *animation.FrameData, screen *ebiten.Image, camera *Camera, renderable Renderable) {
 	initWhitePixel()
 	boxImgOptions := &ebiten.DrawImageOptions{}
 

@@ -16,8 +16,6 @@ const (
 	toolbarHeight = 52
 
 	leftPanelX       = 0
-	rightPanelX      = -panelWidth
-	bottomPanely     = -200
 	framePanelHeight = 200
 
 	toolBarButtonWidth = 100
@@ -27,10 +25,11 @@ func (g *Game) updateDebugUI() error {
 	if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 		g.uiToolbar(ctx)
 		g.uiProjectPanel(ctx)
-
-		if g.character.AnimationPlayer.ActiveAnimation != nil {
-			g.uiFrameProperties(ctx)
-			g.guiTimeline(ctx)
+		if g.character != nil {
+			if g.character.AnimationPlayer.ActiveAnimation != nil {
+				g.uiFrameProperties(ctx)
+				g.guiTimeline(ctx)
+			}
 		}
 
 		g.logWindow(ctx)

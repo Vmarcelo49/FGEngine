@@ -6,8 +6,6 @@ import (
 	"fgengine/collision"
 	"fgengine/state"
 	"fgengine/types"
-	"path/filepath"
-	"strings"
 )
 
 func (g *Game) createCharacter() {
@@ -22,9 +20,10 @@ func (g *Game) createCharacter() {
 }
 
 func (g *Game) updateAnimationFrame() {
-	if g.uiVariables.playingAnim && g.character != nil {
-		g.character.AnimationPlayer.FrameCounter++
+	if !g.uiVariables.playingAnim || g.character == nil {
+		return
 	}
+	g.character.AnimationPlayer.FrameCounter++
 	animPlayer := g.character.AnimationPlayer // Just to reduce line length
 
 	if animPlayer.ShouldLoop {
@@ -90,19 +89,6 @@ func (g *Game) saveCharacter() {
 	} else {
 		g.writeLog("Character saved successfully to assets/characters/!")
 	}
-}
-
-func ensureExtension(path, extension string) string {
-	extension = strings.TrimPrefix(extension, ".")
-
-	currentExt := strings.ToLower(filepath.Ext(path))
-	expectedExt := "." + strings.ToLower(extension)
-
-	if currentExt == expectedExt {
-		return path
-	}
-
-	return path + "." + extension
 }
 
 // createPlaceholderIdleAnimation creates a default idle animation using notFound.png

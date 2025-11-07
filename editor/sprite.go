@@ -59,6 +59,7 @@ func (g *Game) newAnimationFileDialog() (*animation.Animation, error) {
 	anim.FrameData[0].Boxes[collision.Hurt] = []types.Rect{
 		{X: 0, Y: 0, W: sprite.Rect.W, H: sprite.Rect.H},
 	}
+
 	return anim, nil
 }
 

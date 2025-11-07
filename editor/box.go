@@ -43,8 +43,8 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 			ctx.Text("Index:")
 			ctx.NumberField(&g.uiVariables.activeBoxIndex, 1).On(func() {
 				boxes := frameData.Boxes[g.uiVariables.activeBoxType]
-				if len(boxes) > 0 && g.uiVariables.activeBoxIndex >= 0 && g.uiVariables.activeBoxIndex < len(boxes) {
-					g.uiVariables.activeBoxIndex = g.uiVariables.activeBoxIndex
+				if g.uiVariables.activeBoxIndex < 0 || g.uiVariables.activeBoxIndex >= len(boxes) {
+					g.uiVariables.activeBoxIndex = -1 // Clear selection if out of bounds
 				}
 			})
 

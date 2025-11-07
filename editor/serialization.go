@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -213,23 +212,4 @@ func loadAnimationFromYAML() (animation.Animation, error) {
 		return animation.Animation{}, err
 	}
 	return anim, nil
-}
-
-func listAvailableCharacters() ([]string, error) {
-	assetsDir := "assets/characters"
-
-	entries, err := os.ReadDir(assetsDir)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read assets/characters directory: %w", err)
-	}
-
-	var characters []string
-	for _, entry := range entries { // TODO, add proper validation of the yaml files
-		if !entry.IsDir() && filepath.Ext(entry.Name()) == ".yaml" {
-			name := strings.TrimSuffix(entry.Name(), ".yaml")
-			characters = append(characters, name)
-		}
-	}
-
-	return characters, nil
 }

@@ -9,8 +9,8 @@ type Animation struct {
 // Returns total duration in frames
 func (a *Animation) Duration() int {
 	var duration int
-	for _, fdata := range a.FrameData {
-		duration += fdata.Duration
+	for _, frameData := range a.FrameData {
+		duration += frameData.Duration
 	}
 	return duration
 }
