@@ -13,6 +13,9 @@ func (g *Game) getActiveBox() *types.Rect {
 	if frameData == nil {
 		return nil
 	}
+	if frameData.Boxes == nil {
+		return nil
+	}
 
 	boxType := g.uiVariables.activeBoxType
 	boxIndex := g.uiVariables.activeBoxIndex

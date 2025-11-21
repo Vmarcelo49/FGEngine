@@ -21,12 +21,29 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 			return
 		}
 		ctx.SetGridLayout([]int{100, -1, 60}, nil)
-		ctx.Text("Navigate:")
-		frameCount := g.getActiveAnimation().Duration()
+
+		ctx.Text("Active Frame:")
+		frameCount := g.getActiveAnimation().Duration() // in frames
 		if frameCount > 0 {
 			ctx.Slider(&g.character.AnimationPlayer.FrameCounter, 0, frameCount-1, 1) // imagine if this works correctly from the start
 		}
 		ctx.Text(fmt.Sprintf("%d / %d", g.character.AnimationPlayer.GetActiveFrameDataIndex()+1, frameCount))
+
+		ctx.Text("Framedata:")
+		framedataLen := len(g.getActiveAnimation().FrameData)
+		if framedataLen > 1 {
+			ctx.Slider(&g.uiVariables.frameDataIndex, 0, framedataLen-1, 1).On(func() {
+				var sum int
+				for i, fd := range g.getActiveAnimation().FrameData {
+					if i == g.uiVariables.frameDataIndex {
+						g.character.AnimationPlayer.FrameCounter = sum
+					} else {
+						sum += fd.Duration
+					}
+				}
+			})
+		}
+		ctx.Text(fmt.Sprintf("%d / %d", g.uiVariables.frameDataIndex+1, framedataLen))
 
 		ctx.SetGridLayout([]int{-1, 0, -1, -1, -1, -1}, nil)
 
@@ -39,10 +56,10 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 			g.getActiveAnimation().FrameData[g.character.AnimationPlayer.GetActiveFrameDataIndex()].Duration = duration
 		})
 
-		ctx.Button("Add Image").On(func() {
+		ctx.Button("Add Frame by Image").On(func() {
 			g.AddImageToAnimation()
 		})
-		ctx.Button("Copy Last Frame").On(func() {
+		ctx.Button("Duplicate Frame").On(func() {
 			g.duplicateLastFrameData()
 		})
 		ctx.Button("Remove Frame").On(func() {
