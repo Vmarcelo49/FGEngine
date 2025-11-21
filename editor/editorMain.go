@@ -32,6 +32,7 @@ type MouseInput struct {
 }
 
 func (g *Game) Update() error {
+	g.handleCameraInput()
 	g.handleBoxMouseEdit()
 	g.updateAnimationFrame()
 	if err := g.updateDebugUI(); err != nil {
@@ -57,7 +58,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func MakeEditorGame() *Game {
 	game := &Game{
 		uiVariables: &uiVariables{
-			logBuf: "Move Camera with Right click drag\n",
+			logBuf:           "Move Camera with Right click drag\n",
+			enableMouseInput: new(bool),
 		},
 		inputManager: input.NewInputManager(),
 		camera:       graphics.NewCamera(),

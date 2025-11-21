@@ -16,8 +16,9 @@ type uiVariables struct {
 	boxDropdownTypeIndex    int
 
 	// Box editor
-	activeBoxType  collision.BoxType
-	activeBoxIndex int
+	enableMouseInput *bool
+	activeBoxType    collision.BoxType
+	activeBoxIndex   int
 	// mouse input related
 	dragged           bool
 	dragStartMousePos types.Vector2

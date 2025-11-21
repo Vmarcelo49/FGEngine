@@ -10,13 +10,16 @@ import (
 )
 
 func (g *Game) handleBoxMouseEdit() {
-	g.handleCameraInput()
+	if !*g.uiVariables.enableMouseInput {
+		return
+	}
 	if g.character == nil {
 		return
 	}
 	if len(g.character.Animations) == 0 {
 		return
 	}
+
 	mouseX, mouseY := ebiten.CursorPosition()
 
 	// Convert mouse screen coordinates to world coordinates accounting for scaling

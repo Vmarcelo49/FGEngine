@@ -25,6 +25,7 @@ func (g *Game) getActiveBox() *types.Rect {
 
 func (g *Game) boxEditor(ctx *debugui.Context) {
 	ctx.Header("Box Editor", true, func() {
+		ctx.Checkbox(g.uiVariables.enableMouseInput, "Enable mouse controls")
 		frameData := g.character.AnimationPlayer.GetActiveFrameData()
 		if frameData == nil {
 			ctx.Text("No frame data available")
