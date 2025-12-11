@@ -23,7 +23,8 @@ type Game struct {
 	camera   *graphics.Camera
 	stageImg *ebiten.Image
 
-	debugui debugui.DebugUI
+	renderQueue *graphics.RenderQueue
+	debugui     debugui.DebugUI
 }
 
 func (g *Game) Update() error {
@@ -71,9 +72,7 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	animation.DrawStaticImageStage(g.stageImg, screen, g.camera.WorldToScreen(types.Vector2{X: 0, Y: 0}), g.camera.Scaling)
-	for _, p := range g.players {
-		graphics.Draw(p.Character, screen, g.camera)
-	}
+	g.renderQueue.Draw(screen, g.camera)
 	g.debugui.Draw(screen)
 }
 

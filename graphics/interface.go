@@ -2,8 +2,11 @@ package graphics
 
 import (
 	"fgengine/animation"
+	"fgengine/constants"
 	"fgengine/types"
 	"image/color"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Renderable interface {
@@ -26,4 +29,24 @@ func DefaultRenderProperties() RenderProperties {
 		Layer:    0,
 		ColorMod: color.RGBA{R: 255, G: 255, B: 255, A: 255}, // White = no change
 	}
+}
+
+type NewRenderable interface {
+	Draw(screen *ebiten.Image, camera *Camera)
+}
+
+type RenderQueue struct {
+	layers [constants.LayerCount][]NewRenderable
+}
+
+func (rq *RenderQueue) Draw(screen *ebiten.Image, camera *Camera) {
+	for i := range rq.layers {
+		for _, renderable := range rq.layers[i] {
+			renderable.Draw(screen, camera)
+		}
+	}
+}
+
+func (rq *RenderQueue) Add(NewRenderable) {
+
 }

@@ -20,40 +20,61 @@ func Draw(renderable Renderable, screen *ebiten.Image, camera *Camera) {
 	worldPos := renderable.GetPosition()
 	screenPos := camera.WorldToScreen(worldPos)
 
-	applyCameraTransform(options, camera, renderable, screenPos)
+	ApplyCameraTransform(options, camera, renderable, screenPos)
 
 	screen.DrawImage(entityImage, options)
 }
 
-// applyCameraTransform applies the camera transformation logic to drawing options
-func applyCameraTransform(options *ebiten.DrawImageOptions, camera *Camera, renderable Renderable, screenPos types.Vector2) {
-	if layoutMatchesCamSize(camera) {
-		// Apply scaling around center of viewport
-		if camera.Scaling != 0 && camera.Scaling != 1 {
-			// Calculate center of viewport (in screen space)
-			centerX := camera.Viewport.W / 2
-			centerY := camera.Viewport.H / 2
+// ApplyCameraTransform applies the camera transformation logic to drawing options
+func ApplyCameraTransform(options *ebiten.DrawImageOptions, camera *Camera, renderable Renderable, screenPos types.Vector2) {
+	// Sempre aplica escala do renderable primeiro
+	renderProps := renderable.GetRenderProperties()
+	options.GeoM.Scale(renderProps.Scale.X, renderProps.Scale.Y)
 
-			// Calculate relative position from center
-			relativeX := screenPos.X - centerX
-			relativeY := screenPos.Y - centerY
+	// Calcula o centro do viewport uma vez
+	centerX := camera.Viewport.W / 2
+	centerY := camera.Viewport.H / 2
 
-			// Scale the relative position
-			scaledRelativeX := relativeX * camera.Scaling
-			scaledRelativeY := relativeY * camera.Scaling
+	// Aplica zoom da câmera se necessário
+	if camera.Scaling != 0 && camera.Scaling != 1 {
+		// Escala ao redor do centro do viewport
+		options.GeoM.Translate(-centerX, -centerY)
+		options.GeoM.Scale(camera.Scaling, camera.Scaling)
+		options.GeoM.Translate(centerX, centerY)
 
-			// Calculate final position (back from center)
-			finalX := scaledRelativeX + centerX
-			finalY := scaledRelativeY + centerY
-
-			options.GeoM.Scale(camera.Scaling, camera.Scaling)
-			options.GeoM.Translate(finalX, finalY)
-		} else {
-			options.GeoM.Translate(screenPos.X, screenPos.Y)
+		// scale again?
+		if !layoutMatchesCamSize(camera) {
+			options.GeoM.Scale(renderProps.Scale.X, renderProps.Scale.Y)
 		}
-	} else {
-		zoomAroundCenterOption(options, camera, renderable, screenPos)
 	}
+
+	// Aplica posição final
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
+}
+
+func ApplyCameraTransformNEW(options *ebiten.DrawImageOptions, camera *Camera, scaling types.Vector2, screenPos types.Vector2) {
+	// Sempre aplica escala do renderable primeiro
+	options.GeoM.Scale(scaling.X, scaling.Y)
+
+	// Calcula o centro do viewport uma vez
+	centerX := camera.Viewport.W / 2
+	centerY := camera.Viewport.H / 2
+
+	// Aplica zoom da câmera se necessário
+	if camera.Scaling != 0 && camera.Scaling != 1 {
+		// Escala ao redor do centro do viewport
+		options.GeoM.Translate(-centerX, -centerY)
+		options.GeoM.Scale(camera.Scaling, camera.Scaling)
+		options.GeoM.Translate(centerX, centerY)
+
+		// scale again?
+		if !layoutMatchesCamSize(camera) {
+			options.GeoM.Scale(scaling.X, scaling.Y)
+		}
+	}
+
+	// Aplica posição final
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
 }
 
 func DrawStatic(renderable Renderable, screen *ebiten.Image) {

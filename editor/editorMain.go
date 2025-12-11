@@ -43,7 +43,8 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	if g.character != nil && g.character.AnimationPlayer.ActiveAnimation != nil {
-		graphics.Draw(g.character, screen, g.camera)
+		//graphics.Draw(g.character, screen, g.camera)
+		g.character.Draw(screen, g.camera)
 		graphics.DrawBoxes(g.character.AnimationPlayer.GetActiveFrameData(), screen, g.camera, g.character)
 	}
 

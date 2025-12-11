@@ -60,7 +60,7 @@ func createBoxImageOptionsWithCamera(renderable Renderable, box types.Rect, boxT
 		renderProperties: DefaultRenderProperties(),
 	}
 
-	applyCameraTransform(boxImgOptions, camera, boxRenderable, screenPos)
+	ApplyCameraTransform(boxImgOptions, camera, boxRenderable, screenPos)
 
 	if color, exists := boxColors[boxType]; exists {
 		boxImgOptions.ColorScale.ScaleWithColor(color)

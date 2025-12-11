@@ -4,8 +4,6 @@ import (
 	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/types"
-
-	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Camera struct {
@@ -99,21 +97,4 @@ func (c *Camera) IsVisible(renderable Renderable) bool {
 
 func layoutMatchesCamSize(camera *Camera) bool {
 	return (float64(config.LayoutSizeW) == camera.Viewport.W && float64(config.LayoutSizeH) == camera.Viewport.H)
-}
-
-func zoomAroundCenterOption(options *ebiten.DrawImageOptions, camera *Camera, renderable Renderable, screenPos types.Vector2) {
-	centerViewportX := camera.Viewport.W / 2
-	centerViewportY := camera.Viewport.H / 2
-
-	relativeX := screenPos.X - centerViewportX
-	relativeY := screenPos.Y - centerViewportY
-
-	scaledRelativeX := relativeX * camera.Scaling
-	scaledRelativeY := relativeY * camera.Scaling
-
-	finalX := scaledRelativeX + centerViewportX
-	finalY := scaledRelativeY + centerViewportY
-
-	options.GeoM.Scale(renderable.GetRenderProperties().Scale.X*camera.Scaling, renderable.GetRenderProperties().Scale.Y*camera.Scaling)
-	options.GeoM.Translate(finalX, finalY)
 }
