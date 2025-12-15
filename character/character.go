@@ -2,7 +2,6 @@ package character
 
 import (
 	"fgengine/animation"
-	"fgengine/graphics"
 	"fgengine/state"
 	"fgengine/types"
 	"fmt"
@@ -110,7 +109,6 @@ func loadCharacterByFile(filePath string) (*Character, error) {
 			}
 		}
 	}
-
 	return character, nil
 }
 
@@ -132,8 +130,4 @@ func (c *Character) GetSprite() *animation.Sprite {
 		return nil
 	}
 	return c.AnimationPlayer.GetSpriteFromFrameCounter()
-}
-
-func (c *Character) GetRenderProperties() graphics.RenderProperties {
-	return graphics.DefaultRenderProperties()
 }

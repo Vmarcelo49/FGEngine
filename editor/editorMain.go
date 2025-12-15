@@ -20,9 +20,11 @@ type Game struct {
 	character    *character.Character
 	uiVariables  *uiVariables
 	camera       *graphics.Camera
+	renderQueue  *graphics.RenderQueue
 	inputManager *input.InputManager
 	mouse        *MouseInput
-	debugui      debugui.DebugUI
+
+	debugui debugui.DebugUI
 }
 
 type MouseInput struct {
@@ -42,11 +44,7 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	if g.character != nil && g.character.AnimationPlayer.ActiveAnimation != nil {
-		//graphics.Draw(g.character, screen, g.camera)
-		g.character.Draw(screen, g.camera)
-		graphics.DrawBoxes(g.character.AnimationPlayer.GetActiveFrameData(), screen, g.camera, g.character)
-	}
+	g.renderQueue.Draw(screen, g.camera)
 
 	g.drawMouseCrosshair(screen)
 	g.debugui.Draw(screen)
@@ -64,6 +62,7 @@ func MakeEditorGame() *Game {
 		},
 		inputManager: input.NewInputManager(),
 		camera:       graphics.NewCamera(),
+		renderQueue:  &graphics.RenderQueue{},
 	}
 	game.camera.Scaling = float64(config.LayoutSizeW) / constants.Camera.W
 	game.camera.SetPosition(types.Vector2{X: (-constants.World.W / 2), Y: (-constants.World.H / 2)})

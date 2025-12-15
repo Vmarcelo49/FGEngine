@@ -1,42 +1,18 @@
 package graphics
 
 import (
-	"fgengine/animation"
 	"fgengine/constants"
-	"fgengine/types"
-	"image/color"
+	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type Renderable interface {
-	GetPosition() types.Vector2
-	GetSprite() *animation.Sprite
-	GetRenderProperties() RenderProperties
-}
-
-type RenderProperties struct {
-	Scale    types.Vector2 // 1.0 = normal size
-	Rotation float64       // in radians
-	Layer    int           // Higher numbers render on top (0 = default)
-	ColorMod color.RGBA    // Color modulation (white = no change)
-}
-
-func DefaultRenderProperties() RenderProperties {
-	return RenderProperties{
-		Scale:    types.Vector2{X: 1.0, Y: 1.0},
-		Rotation: 0.0,
-		Layer:    0,
-		ColorMod: color.RGBA{R: 255, G: 255, B: 255, A: 255}, // White = no change
-	}
-}
-
-type NewRenderable interface {
+type Drawable interface {
 	Draw(screen *ebiten.Image, camera *Camera)
 }
 
 type RenderQueue struct {
-	layers [constants.LayerCount][]NewRenderable
+	layers [constants.LayerCount][]Drawable
 }
 
 func (rq *RenderQueue) Draw(screen *ebiten.Image, camera *Camera) {
@@ -47,6 +23,58 @@ func (rq *RenderQueue) Draw(screen *ebiten.Image, camera *Camera) {
 	}
 }
 
-func (rq *RenderQueue) Add(NewRenderable) {
+func (rq *RenderQueue) Add(item Drawable, layer int) {
+	if layer < 0 || layer >= constants.LayerCount {
+		log.Panicf("invalid layer %d (valid: 0-%d)", layer, constants.LayerCount-1)
+	}
+	rq.layers[layer] = append(rq.layers[layer], item)
+}
 
+func (rq *RenderQueue) Remove(item Drawable) {
+	for i := range rq.layers {
+		for j, renderable := range rq.layers[i] {
+			if item == renderable {
+				lastIdx := len(rq.layers[i]) - 1
+				rq.layers[i][j] = rq.layers[i][lastIdx]
+				rq.layers[i] = rq.layers[i][:lastIdx]
+				return
+			}
+		}
+	}
+}
+
+func (rq *RenderQueue) SetLast(item Drawable) bool {
+	for i := range rq.layers {
+		for j, renderable := range rq.layers[i] {
+			if item == renderable {
+				// removes from current position
+				rq.layers[i] = append(rq.layers[i][:j], rq.layers[i][j+1:]...)
+				// to set it to last
+				rq.layers[i] = append(rq.layers[i], item)
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (rq *RenderQueue) SetFirst(item Drawable) bool {
+	for i := range rq.layers {
+		for j, renderable := range rq.layers[i] {
+			if item == renderable {
+				if j != 0 {
+					rq.layers[i][0], rq.layers[i][j] = rq.layers[i][j], rq.layers[i][0]
+
+				}
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (rq *RenderQueue) Clear() {
+	for i := range rq.layers {
+		rq.layers[i] = rq.layers[i][:0]
+	}
 }

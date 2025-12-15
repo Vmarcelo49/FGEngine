@@ -4,6 +4,7 @@ import (
 	"fgengine/animation"
 	"fgengine/character"
 	"fgengine/collision"
+	"fgengine/constants"
 	"fgengine/state"
 	"fgengine/types"
 )
@@ -16,6 +17,9 @@ func (g *Game) createCharacter() {
 		StateMachine:    &state.StateMachine{},
 		AnimationPlayer: &animation.AnimationPlayer{},
 	}
+	g.renderQueue.Clear()
+	g.renderQueue.Add(g.character, constants.LayerPlayer)
+	g.renderQueue.Add(&character.BoxDrawable{Character: g.character}, constants.LayerHUD)
 	g.writeLog("New character created")
 }
 
@@ -25,15 +29,16 @@ func (g *Game) updateAnimationFrame() {
 	}
 	g.character.AnimationPlayer.FrameCounter++
 	animPlayer := g.character.AnimationPlayer // Just to reduce line length
+	animDuration := animPlayer.ActiveAnimation.Duration()
 
 	if animPlayer.ShouldLoop {
-		if animPlayer.FrameCounter >= animPlayer.ActiveAnimation.Duration() {
+		if animPlayer.FrameCounter >= animDuration {
 			animPlayer.FrameCounter = 0
 			return
 		}
 	}
-	if animPlayer.FrameCounter >= animPlayer.ActiveAnimation.Duration() {
-		animPlayer.FrameCounter = animPlayer.ActiveAnimation.Duration() - 1
+	if animPlayer.FrameCounter >= animDuration {
+		animPlayer.FrameCounter = animDuration - 1
 	}
 }
 

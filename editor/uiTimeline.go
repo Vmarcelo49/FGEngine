@@ -27,7 +27,8 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		if frameCount > 0 {
 			ctx.Slider(&g.character.AnimationPlayer.FrameCounter, 0, frameCount-1, 1) // imagine if this works correctly from the start
 		}
-		ctx.Text(fmt.Sprintf("%d / %d", g.character.AnimationPlayer.GetActiveFrameDataIndex()+1, frameCount))
+		_, framedataIndex := g.character.AnimationPlayer.GetActiveFrameData()
+		ctx.Text(fmt.Sprintf("%d / %d", framedataIndex+1, frameCount))
 
 		ctx.Text("Framedata:")
 		framedataLen := len(g.getActiveAnimation().FrameData)
@@ -48,12 +49,12 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{-1, 0, -1, -1, -1, -1}, nil)
 
 		ctx.Text("Frame Duration:")
-		duration := g.getActiveAnimation().FrameData[g.character.AnimationPlayer.GetActiveFrameDataIndex()].Duration
+		duration := g.getActiveAnimation().FrameData[framedataIndex].Duration
 		ctx.NumberField(&duration, 1).On(func() {
 			if duration < 1 {
 				duration = 1
 			}
-			g.getActiveAnimation().FrameData[g.character.AnimationPlayer.GetActiveFrameDataIndex()].Duration = duration
+			g.getActiveAnimation().FrameData[framedataIndex].Duration = duration
 		})
 
 		ctx.Button("Add Frame by Image").On(func() {

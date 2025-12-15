@@ -66,7 +66,7 @@ func (g *Game) getBoxIndexUnderMouse(worldX, worldY float64) (int, collision.Box
 	}
 
 	// Get the active frame data
-	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	frameData, _ := g.character.AnimationPlayer.GetActiveFrameData()
 	if frameData == nil {
 		return -1, collision.Collision
 	}

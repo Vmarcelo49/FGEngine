@@ -4,6 +4,8 @@ import (
 	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/types"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Camera struct {
@@ -78,23 +80,26 @@ func (c *Camera) ScreenToWorld(screenPos types.Vector2) types.Vector2 {
 	}
 }
 
-func (c *Camera) IsVisible(renderable Renderable) bool {
-	pos := renderable.GetPosition()
-	sprite := renderable.GetSprite()
-
-	// If no sprite, fall back to point check
-	if sprite == nil {
-		return c.Viewport.Contains(pos.X, pos.Y)
-	}
-	renderableRect := types.Rect{
-		X: pos.X,
-		Y: pos.Y,
-		W: sprite.Rect.W,
-		H: sprite.Rect.H,
-	}
-	return c.Viewport.IsOverlapping(renderableRect)
-}
-
 func layoutMatchesCamSize(camera *Camera) bool {
 	return (float64(config.LayoutSizeW) == camera.Viewport.W && float64(config.LayoutSizeH) == camera.Viewport.H)
+}
+
+func CameraTransform(options *ebiten.DrawImageOptions, camera *Camera, entityScale types.Vector2, screenPos types.Vector2) {
+	options.GeoM.Scale(entityScale.X, entityScale.Y)
+
+	centerX := camera.Viewport.W / 2
+	centerY := camera.Viewport.H / 2
+
+	if camera.Scaling != 0 && camera.Scaling != 1 {
+		options.GeoM.Translate(-centerX, -centerY)
+		options.GeoM.Scale(camera.Scaling, camera.Scaling)
+		options.GeoM.Translate(centerX, centerY)
+
+		// scale again?
+		if !layoutMatchesCamSize(camera) {
+			options.GeoM.Scale(entityScale.X, entityScale.Y)
+		}
+	}
+
+	options.GeoM.Translate(screenPos.X, screenPos.Y)
 }

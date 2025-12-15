@@ -107,11 +107,11 @@ func (g *Game) logWindow(ctx *debugui.Context) {
 func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 	ctx.Window("Properties", image.Rect(config.WindowWidth-panelWidth, toolbarHeight, config.WindowWidth, config.WindowHeight), func(layout debugui.ContainerLayout) {
 		ctx.Header("Frame Info", true, func() {
-			if g.character.AnimationPlayer.GetActiveFrameData() == nil {
+			frameData, _ := g.character.AnimationPlayer.GetActiveFrameData()
+			if frameData == nil {
 				ctx.Text("No frame selected")
 				return
 			}
-			frameData := g.character.AnimationPlayer.GetActiveFrameData()
 
 			ctx.Text("Sprite Index:")
 

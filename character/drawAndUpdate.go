@@ -2,15 +2,28 @@ package character
 
 import (
 	"fgengine/constants"
+	"fgengine/graphics"
 	"fgengine/state"
+	"fgengine/types"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
+
+func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
+	img := graphics.LoadImage(c.GetSprite().ImagePath)
+	op := &ebiten.DrawImageOptions{}
+
+	screenPos := camera.WorldToScreen(c.StateMachine.Position)
+	graphics.CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
+	screen.DrawImage(img, op)
+}
 
 func (c *Character) Update() {
 	// Update animation frame timing first
 	c.updateAnimation()
 
 	// Get current frame properties for dynamic values
-	frameData := c.AnimationPlayer.GetActiveFrameData()
+	frameData, _ := c.AnimationPlayer.GetActiveFrameData()
 	if frameData == nil {
 		panic("Frame properties should not be nil if animation is set")
 	}
