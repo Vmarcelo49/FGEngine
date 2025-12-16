@@ -34,9 +34,7 @@ func (rq *RenderQueue) Remove(item Drawable) {
 	for i := range rq.layers {
 		for j, renderable := range rq.layers[i] {
 			if item == renderable {
-				lastIdx := len(rq.layers[i]) - 1
-				rq.layers[i][j] = rq.layers[i][lastIdx]
-				rq.layers[i] = rq.layers[i][:lastIdx]
+				rq.layers[i] = append(rq.layers[i][:j], rq.layers[i][j+1:]...)
 				return
 			}
 		}
@@ -47,9 +45,7 @@ func (rq *RenderQueue) SetLast(item Drawable) bool {
 	for i := range rq.layers {
 		for j, renderable := range rq.layers[i] {
 			if item == renderable {
-				// removes from current position
 				rq.layers[i] = append(rq.layers[i][:j], rq.layers[i][j+1:]...)
-				// to set it to last
 				rq.layers[i] = append(rq.layers[i], item)
 				return true
 			}
@@ -63,8 +59,8 @@ func (rq *RenderQueue) SetFirst(item Drawable) bool {
 		for j, renderable := range rq.layers[i] {
 			if item == renderable {
 				if j != 0 {
-					rq.layers[i][0], rq.layers[i][j] = rq.layers[i][j], rq.layers[i][0]
-
+					copy(rq.layers[i][1:j+1], rq.layers[i][0:j])
+					rq.layers[i][0] = item
 				}
 				return true
 			}
@@ -75,6 +71,9 @@ func (rq *RenderQueue) SetFirst(item Drawable) bool {
 
 func (rq *RenderQueue) Clear() {
 	for i := range rq.layers {
+		for j := range rq.layers[i] {
+			rq.layers[i][j] = nil
+		}
 		rq.layers[i] = rq.layers[i][:0]
 	}
 }

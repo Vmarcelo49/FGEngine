@@ -16,10 +16,15 @@ func (ap *AnimationPlayer) GetActiveFrameData() (*FrameData, int) {
 	var elapsed, totalDuration int
 
 	for _, f := range ap.ActiveAnimation.FrameData {
-		totalDuration += f.Duration
+		totalDuration += f.Duration // TODO, remove this loop, add a totalDuration field to animations
 	}
-	frameCounter := ap.FrameCounter % totalDuration // Loop around if exceeds total duration, if looping
-
+	frameCounter := ap.FrameCounter
+	if ap.ShouldLoop {
+		frameCounter = ap.FrameCounter % totalDuration
+	} else if ap.FrameCounter >= totalDuration {
+		lastIdx := len(ap.ActiveAnimation.FrameData) - 1
+		return &ap.ActiveAnimation.FrameData[lastIdx], lastIdx
+	}
 	for i := range ap.ActiveAnimation.FrameData {
 		frame := &ap.ActiveAnimation.FrameData[i]
 		elapsed += frame.Duration
@@ -27,7 +32,8 @@ func (ap *AnimationPlayer) GetActiveFrameData() (*FrameData, int) {
 			return frame, i
 		}
 	}
-	return &ap.ActiveAnimation.FrameData[len(ap.ActiveAnimation.FrameData)-1], len(ap.ActiveAnimation.FrameData) - 1
+	lastIdx := len(ap.ActiveAnimation.FrameData) - 1
+	return &ap.ActiveAnimation.FrameData[lastIdx], lastIdx
 }
 
 func (ap *AnimationPlayer) GetSpriteFromFrameCounter() *Sprite {

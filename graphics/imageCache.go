@@ -9,15 +9,11 @@ import (
 )
 
 var (
-	imageCache map[string]*ebiten.Image
+	imageCache = make(map[string]*ebiten.Image)
 	cacheMutex sync.RWMutex
 )
 
 func LoadImage(path string) *ebiten.Image {
-	if imageCache == nil {
-		imageCache = make(map[string]*ebiten.Image)
-	}
-
 	cacheMutex.RLock()
 	if img, exists := imageCache[path]; exists {
 		cacheMutex.RUnlock()
@@ -46,7 +42,6 @@ func LoadImage(path string) *ebiten.Image {
 		defaultImage, _, defaultErr := ebitenutil.NewImageFromFile(defaultPath)
 		if defaultErr != nil {
 			log.Panicf("Failed to load default image %s: %v", defaultPath, defaultErr)
-			return nil
 		}
 
 		imageCache[defaultPath] = defaultImage
@@ -60,5 +55,11 @@ func LoadImage(path string) *ebiten.Image {
 func ClearImageCache() {
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()
+
+	for _, img := range imageCache {
+		if img != nil {
+			img.Deallocate()
+		}
+	}
 	imageCache = make(map[string]*ebiten.Image)
 }

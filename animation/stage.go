@@ -9,7 +9,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/vector"
 )
 
-// TODO, remove the global var and place stage logic in graphics to use the image cache and the camera instead of just the screen position
+// TODO, remake this completly
 
 var StageImage *ebiten.Image
 

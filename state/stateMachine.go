@@ -44,6 +44,7 @@ func (sm *StateMachine) HasAnyState(stateToCheck State) bool {
 }
 
 func (sm *StateMachine) RemoveState(stateToRemove State) {
+	sm.PreviousState = sm.ActiveState
 	sm.ActiveState &= ^stateToRemove
 	// guardrails to prevent charaters flying or being stuck
 	if stateToRemove == StateAirborne {
