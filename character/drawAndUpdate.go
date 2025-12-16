@@ -10,7 +10,14 @@ import (
 )
 
 func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
-	img := graphics.LoadImage(c.GetSprite().ImagePath)
+	sprite := c.GetSprite()
+	img := &ebiten.Image{}
+	if sprite == nil {
+		img = graphics.LoadImage("")
+	} else {
+		img = graphics.LoadImage(c.GetSprite().ImagePath)
+	}
+
 	op := &ebiten.DrawImageOptions{}
 
 	screenPos := camera.WorldToScreen(c.StateMachine.Position)
@@ -23,7 +30,7 @@ func (c *Character) Update() {
 	c.updateAnimation()
 
 	// Get current frame properties for dynamic values
-	frameData, _ := c.AnimationPlayer.GetActiveFrameData()
+	frameData := c.AnimationPlayer.GetActiveFrameData()
 	if frameData == nil {
 		panic("Frame properties should not be nil if animation is set")
 	}

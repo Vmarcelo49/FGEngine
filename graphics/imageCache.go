@@ -30,8 +30,6 @@ func LoadImage(path string) *ebiten.Image {
 
 	image, _, err := ebitenutil.NewImageFromFile(path)
 	if err != nil || image == nil {
-		log.Printf("Failed to load image %s: %v, using default image", path, err)
-
 		// Try to load the default image
 		defaultPath := "assets/common/notFound.png"
 		if defaultImg, exists := imageCache[defaultPath]; exists {

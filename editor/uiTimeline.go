@@ -23,25 +23,22 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{100, -1, 60}, nil)
 
 		ctx.Text("Active Frame:")
-		frameCount := g.getActiveAnimation().Duration() // in frames
+		frameCount := len(g.getActiveAnimation().FrameData)
 		if frameCount > 0 {
-			ctx.Slider(&g.character.AnimationPlayer.FrameCounter, 0, frameCount-1, 1) // imagine if this works correctly from the start
+			ctx.Slider(&g.character.AnimationPlayer.FrameIndex, 0, frameCount-1, 1).On(func() {
+				// Reset frame time when manually changing frame
+				g.character.AnimationPlayer.FrameTimeLeft = g.getActiveAnimation().FrameData[g.character.AnimationPlayer.FrameIndex].Duration
+			})
 		}
-		_, framedataIndex := g.character.AnimationPlayer.GetActiveFrameData()
+		framedataIndex := g.character.AnimationPlayer.FrameIndex
 		ctx.Text(fmt.Sprintf("%d / %d", framedataIndex+1, frameCount))
 
 		ctx.Text("Framedata:")
 		framedataLen := len(g.getActiveAnimation().FrameData)
 		if framedataLen > 1 {
 			ctx.Slider(&g.uiVariables.frameDataIndex, 0, framedataLen-1, 1).On(func() {
-				var sum int
-				for i, fd := range g.getActiveAnimation().FrameData {
-					if i == g.uiVariables.frameDataIndex {
-						g.character.AnimationPlayer.FrameCounter = sum
-					} else {
-						sum += fd.Duration
-					}
-				}
+				g.character.AnimationPlayer.FrameIndex = g.uiVariables.frameDataIndex
+				g.character.AnimationPlayer.FrameTimeLeft = g.getActiveAnimation().FrameData[g.uiVariables.frameDataIndex].Duration
 			})
 		}
 		ctx.Text(fmt.Sprintf("%d / %d", g.uiVariables.frameDataIndex+1, framedataLen))
@@ -76,7 +73,8 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 			} else {
 				g.uiVariables.playingAnim = false
 			}
-			g.character.AnimationPlayer.FrameCounter = 0
+			g.character.AnimationPlayer.FrameIndex = 0
+			g.character.AnimationPlayer.FrameTimeLeft = g.getActiveAnimation().FrameData[0].Duration
 		})
 
 	})

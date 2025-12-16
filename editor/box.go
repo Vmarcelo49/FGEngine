@@ -9,7 +9,7 @@ import (
 )
 
 func (g *Game) getActiveBox() *types.Rect {
-	frameData, _ := g.character.AnimationPlayer.GetActiveFrameData()
+	frameData := g.character.AnimationPlayer.GetActiveFrameData()
 	if frameData == nil {
 		return nil
 	}
@@ -26,7 +26,7 @@ func (g *Game) getActiveBox() *types.Rect {
 func (g *Game) boxEditor(ctx *debugui.Context) {
 	ctx.Header("Box Editor", true, func() {
 		ctx.Checkbox(g.uiVariables.enableMouseInput, "Enable mouse controls")
-		frameData, _ := g.character.AnimationPlayer.GetActiveFrameData()
+		frameData := g.character.AnimationPlayer.GetActiveFrameData()
 		if frameData == nil {
 			ctx.Text("No frame data available")
 			return
@@ -107,7 +107,7 @@ func (g *Game) deleteSelectedBox() {
 		return
 	}
 
-	frameData, _ := g.character.AnimationPlayer.GetActiveFrameData()
+	frameData := g.character.AnimationPlayer.GetActiveFrameData()
 	if frameData == nil {
 		return
 	}
@@ -121,7 +121,7 @@ func (g *Game) deleteSelectedBox() {
 }
 
 func (g *Game) addBox() {
-	frameData, _ := g.character.AnimationPlayer.GetActiveFrameData()
+	frameData := g.character.AnimationPlayer.GetActiveFrameData()
 	if frameData == nil {
 		g.writeLog("No active frame data to add box to")
 		return

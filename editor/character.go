@@ -27,19 +27,7 @@ func (g *Game) updateAnimationFrame() {
 	if !g.uiVariables.playingAnim || g.character == nil {
 		return
 	}
-	g.character.AnimationPlayer.FrameCounter++
-	animPlayer := g.character.AnimationPlayer // Just to reduce line length
-	animDuration := animPlayer.ActiveAnimation.Duration()
-
-	if animPlayer.ShouldLoop {
-		if animPlayer.FrameCounter >= animDuration {
-			animPlayer.FrameCounter = 0
-			return
-		}
-	}
-	if animPlayer.FrameCounter >= animDuration {
-		animPlayer.FrameCounter = animDuration - 1
-	}
+	g.character.AnimationPlayer.Update()
 }
 
 func (g *Game) getActiveAnimation() *animation.Animation {

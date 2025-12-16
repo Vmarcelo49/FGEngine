@@ -2,47 +2,67 @@ package animation
 
 type AnimationPlayer struct {
 	ActiveAnimation *Animation `yaml:"-"`
-	FrameCounter    int        `yaml:"-"`
+	FrameIndex      int        `yaml:"-"`
 	ShouldLoop      bool       `yaml:"-"`
 	AnimationQueue  []string   `yaml:"-"` // names are probably smaller than full Animation structs
-}
 
-// Returns the framedata and its index inside the framedata slice
-func (ap *AnimationPlayer) GetActiveFrameData() (*FrameData, int) {
-	if ap.ActiveAnimation == nil || len(ap.ActiveAnimation.FrameData) == 0 { // protections for the editor
-		return nil, -1
-	}
-
-	var elapsed, totalDuration int
-
-	for _, f := range ap.ActiveAnimation.FrameData {
-		totalDuration += f.Duration // TODO, remove this loop, add a totalDuration field to animations
-	}
-	frameCounter := ap.FrameCounter
-	if ap.ShouldLoop {
-		frameCounter = ap.FrameCounter % totalDuration
-	} else if ap.FrameCounter >= totalDuration {
-		lastIdx := len(ap.ActiveAnimation.FrameData) - 1
-		return &ap.ActiveAnimation.FrameData[lastIdx], lastIdx
-	}
-	for i := range ap.ActiveAnimation.FrameData {
-		frame := &ap.ActiveAnimation.FrameData[i]
-		elapsed += frame.Duration
-		if frameCounter < elapsed {
-			return frame, i
-		}
-	}
-	lastIdx := len(ap.ActiveAnimation.FrameData) - 1
-	return &ap.ActiveAnimation.FrameData[lastIdx], lastIdx
+	FrameTimeLeft int `yaml:"-"`
 }
 
 func (ap *AnimationPlayer) GetSpriteFromFrameCounter() *Sprite {
 	if ap.ActiveAnimation == nil {
 		return nil
 	}
-	frameData, _ := ap.GetActiveFrameData()
+	frameData := ap.GetActiveFrameData()
 	if frameData == nil {
 		return nil
 	}
 	return ap.ActiveAnimation.Sprites[frameData.SpriteIndex]
+}
+
+func (ap *AnimationPlayer) Update() {
+	if ap.ActiveAnimation == nil {
+		return
+	}
+
+	// Don't update if animation has ended (non-looping)
+	lastIndex := len(ap.ActiveAnimation.FrameData) - 1
+	if !ap.ShouldLoop && ap.FrameIndex == lastIndex && ap.FrameTimeLeft <= 0 {
+		return
+	}
+
+	ap.FrameTimeLeft--
+	if ap.FrameTimeLeft > 0 {
+		return
+	}
+
+	ap.FrameIndex++
+
+	if ap.FrameIndex >= len(ap.ActiveAnimation.FrameData) {
+		if ap.ShouldLoop {
+			ap.FrameIndex = 0
+		} else {
+			ap.FrameIndex = lastIndex
+			ap.FrameTimeLeft = 0
+			return
+		}
+	}
+
+	ap.FrameTimeLeft = ap.ActiveAnimation.FrameData[ap.FrameIndex].Duration
+}
+
+func (ap *AnimationPlayer) GetActiveFrameData() *FrameData {
+	if ap.ActiveAnimation == nil || len(ap.ActiveAnimation.FrameData) == 0 {
+		return nil
+	}
+	return &ap.ActiveAnimation.FrameData[ap.FrameIndex]
+}
+
+// IsFinished returns true if a non-looping animation has completed
+func (ap *AnimationPlayer) IsFinished() bool {
+	if ap.ActiveAnimation == nil || ap.ShouldLoop {
+		return false
+	}
+	lastIndex := len(ap.ActiveAnimation.FrameData) - 1
+	return ap.FrameIndex == lastIndex && ap.FrameTimeLeft <= 0
 }

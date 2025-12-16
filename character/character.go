@@ -71,7 +71,9 @@ func (c *Character) SetAnimation(name string) {
 
 	}
 	c.AnimationPlayer.ActiveAnimation = anim
-	c.AnimationPlayer.FrameCounter = 0
+	//c.AnimationPlayer.ShouldLoop = loop
+	c.AnimationPlayer.FrameIndex = 0
+	c.AnimationPlayer.FrameTimeLeft = anim.FrameData[0].Duration
 }
 
 // updateAnimation advances the animation frame based on a simple frame counter
@@ -80,14 +82,13 @@ func (c *Character) updateAnimation() {
 		return
 	}
 
-	c.AnimationPlayer.FrameCounter++
+	c.AnimationPlayer.Update()
 
 	// if anim ended and len(AnimationQueue) > 0, switch to next animation
-	if c.AnimationPlayer.ActiveAnimation.Duration() <= c.AnimationPlayer.FrameCounter && len(c.AnimationPlayer.AnimationQueue) > 0 {
+	if c.AnimationPlayer.IsFinished() && len(c.AnimationPlayer.AnimationQueue) > 0 {
 		c.SetAnimation(c.AnimationPlayer.AnimationQueue[0])
-		c.AnimationPlayer.AnimationQueue = c.AnimationPlayer.AnimationQueue[1:] // can this be out of range?
+		c.AnimationPlayer.AnimationQueue = c.AnimationPlayer.AnimationQueue[1:]
 	}
-
 }
 
 func loadCharacterByFile(filePath string) (*Character, error) {
