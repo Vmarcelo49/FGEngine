@@ -19,8 +19,8 @@ const (
 )
 
 const (
-	LayerHUD = iota
-	LayerBG
+	LayerBG = iota
+	LayerHUD
 	LayerPlayer
 	LayerEffects
 )

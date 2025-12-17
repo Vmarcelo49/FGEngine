@@ -11,6 +11,7 @@ import (
 	"fgengine/types"
 	"fmt"
 	"image"
+	"image/color"
 	"log"
 
 	"github.com/ebitengine/debugui"
@@ -71,7 +72,6 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	animation.DrawStaticImageStage(g.stageImg, screen, g.camera.WorldToScreen(types.Vector2{X: 0, Y: 0}), g.camera.Scaling)
 	g.renderQueue.Draw(screen, g.camera)
 	g.debugui.Draw(screen)
 }
@@ -92,13 +92,17 @@ func main() {
 	player1.Character.StateMachine.Position = types.Vector2{X: playerRect.X, Y: constants.GroundLevelY - float64(player1.Character.GetSprite().Rect.H)}
 
 	game := &Game{
-		players: []*player.Player{player1},
-		camera:  graphics.NewCamera(),
+		players:     []*player.Player{player1},
+		camera:      graphics.NewCamera(),
+		renderQueue: &graphics.RenderQueue{},
 	}
 	game.camera.LockWorldBounds = true
 
 	game.stageImg, _, _ = ebitenutil.NewImageFromFile("assets/stages/PlaceMarkers.png")
+	game.renderQueue.Add(player1.Character, constants.LayerPlayer)
 
+	stage := animation.NewGridStage(10, color.RGBA{255, 0, 0, 255}, color.RGBA{222, 94, 44, 255})
+	game.renderQueue.Add(stage, constants.LayerBG)
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
