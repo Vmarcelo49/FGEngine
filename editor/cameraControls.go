@@ -44,7 +44,7 @@ func (g *Game) handleCameraInput() {
 	}
 
 	// keyboard input for camera movement
-	inputs := g.inputManager.GetLocalInputs()
+	inputs := g.inputManager.LocalInputs()
 
 	var cameraMove types.Vector2
 	if inputs.IsPressed(input.Left) {

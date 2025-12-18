@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fgengine/animation"
 	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/input"
 	"fgengine/logic"
 	"fgengine/player"
+	"fgengine/stage"
 	"fgengine/types"
 	"fmt"
 	"image"
@@ -29,7 +29,7 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	logic.UpdateByInputs([]input.GameInput{g.players[0].Input.GetLocalInputs()}, g.players)
+	logic.UpdateByInputs([]input.GameInput{g.players[0].Input.LocalInputs()}, g.players)
 	if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 		ctx.Window("Game Debug Info", image.Rect(0, 0, 256, 144), func(layout debugui.ContainerLayout) {
 			ctx.Text("Camera Info:")
@@ -38,7 +38,7 @@ func (g *Game) Update() error {
 			ctx.Text("Character Info:")
 			for i, p := range g.players {
 				ctx.Text(fmt.Sprintf("Player %d:", i+1))
-				ctx.Text(fmt.Sprintf("Position: (%.2f, %.2f)", p.Character.GetPosition().X, p.Character.GetPosition().Y))
+				ctx.Text(fmt.Sprintf("Position: (%.2f, %.2f)", p.Character.Position().X, p.Character.Position().Y))
 				ctx.Text(fmt.Sprintf("State: %s", p.Character.StateMachine.ActiveState.String()))
 			}
 		})
@@ -87,9 +87,9 @@ func main() {
 
 	player1 := player.NewDebugPlayer()
 	// Center player horizontally in the world, position vertically on ground
-	playerRect := player1.Character.GetSprite().Rect
+	playerRect := player1.Character.Sprite().Rect
 	playerRect.AlignCenter(constants.World)
-	player1.Character.StateMachine.Position = types.Vector2{X: playerRect.X, Y: constants.GroundLevelY - float64(player1.Character.GetSprite().Rect.H)}
+	player1.Character.StateMachine.Position = types.Vector2{X: playerRect.X, Y: constants.GroundLevelY - float64(player1.Character.Sprite().Rect.H)}
 
 	game := &Game{
 		players:     []*player.Player{player1},
@@ -101,7 +101,7 @@ func main() {
 	game.stageImg, _, _ = ebitenutil.NewImageFromFile("assets/stages/PlaceMarkers.png")
 	game.renderQueue.Add(player1.Character, constants.LayerPlayer)
 
-	stage := animation.NewGridStage(10, color.RGBA{255, 0, 0, 255}, color.RGBA{222, 94, 44, 255})
+	stage := stage.NewGridStage(10, color.RGBA{255, 0, 0, 255}, color.RGBA{222, 94, 44, 255})
 	game.renderQueue.Add(stage, constants.LayerBG)
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)

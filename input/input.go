@@ -64,8 +64,8 @@ func (im *InputManager) UpdateGamepadList() {
 	im.GamepadIDs = ebiten.AppendGamepadIDs(im.GamepadIDs[:0])
 }
 
-// GetLocalInputs retrieves the current local input state.
-func (im *InputManager) GetLocalInputs() GameInput { // TODO, refactor to only check inputs of assigned gamepads and keyboard
+// LocalInputs retrieves the current local input state.
+func (im *InputManager) LocalInputs() GameInput { // TODO, refactor to only check inputs of assigned gamepads and keyboard
 	var localInputs GameInput
 
 	for gameInput, keys := range im.InputMap.KeyboardBindings {

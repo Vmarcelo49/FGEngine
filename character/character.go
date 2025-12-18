@@ -122,13 +122,13 @@ func resolveRelativePath(relativePath, referencePath string) string {
 	return filepath.Clean(filepath.Join(referenceDir, relativePath))
 }
 
-func (c *Character) GetPosition() types.Vector2 {
+func (c *Character) Position() types.Vector2 {
 	return c.StateMachine.Position
 }
 
-func (c *Character) GetSprite() *animation.Sprite {
+func (c *Character) Sprite() *animation.Sprite {
 	if c == nil || c.AnimationPlayer == nil {
 		return nil
 	}
-	return c.AnimationPlayer.GetSpriteFromFrameCounter()
+	return c.AnimationPlayer.ActiveSprite()
 }

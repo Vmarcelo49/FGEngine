@@ -14,7 +14,7 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 	rightX := config.WindowWidth - panelWidth - 1
 
 	ctx.Window("Timeline", image.Rect(panelWidth, topY, rightX, config.WindowHeight), func(layout debugui.ContainerLayout) {
-		sprite := g.character.AnimationPlayer.GetSpriteFromFrameCounter()
+		sprite := g.character.AnimationPlayer.ActiveSprite()
 
 		if sprite == nil {
 			ctx.Text("No frame selected")
@@ -23,22 +23,22 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{100, -1, 60}, nil)
 
 		ctx.Text("Active Frame:")
-		frameCount := len(g.getActiveAnimation().FrameData)
+		frameCount := len(g.ActiveAnimation().FrameData)
 		if frameCount > 0 {
 			ctx.Slider(&g.character.AnimationPlayer.FrameIndex, 0, frameCount-1, 1).On(func() {
 				// Reset frame time when manually changing frame
-				g.character.AnimationPlayer.FrameTimeLeft = g.getActiveAnimation().FrameData[g.character.AnimationPlayer.FrameIndex].Duration
+				g.character.AnimationPlayer.FrameTimeLeft = g.ActiveAnimation().FrameData[g.character.AnimationPlayer.FrameIndex].Duration
 			})
 		}
 		framedataIndex := g.character.AnimationPlayer.FrameIndex
 		ctx.Text(fmt.Sprintf("%d / %d", framedataIndex+1, frameCount))
 
 		ctx.Text("Framedata:")
-		framedataLen := len(g.getActiveAnimation().FrameData)
+		framedataLen := len(g.ActiveAnimation().FrameData)
 		if framedataLen > 1 {
 			ctx.Slider(&g.uiVariables.frameDataIndex, 0, framedataLen-1, 1).On(func() {
 				g.character.AnimationPlayer.FrameIndex = g.uiVariables.frameDataIndex
-				g.character.AnimationPlayer.FrameTimeLeft = g.getActiveAnimation().FrameData[g.uiVariables.frameDataIndex].Duration
+				g.character.AnimationPlayer.FrameTimeLeft = g.ActiveAnimation().FrameData[g.uiVariables.frameDataIndex].Duration
 			})
 		}
 		ctx.Text(fmt.Sprintf("%d / %d", g.uiVariables.frameDataIndex+1, framedataLen))
@@ -46,12 +46,12 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 		ctx.SetGridLayout([]int{-1, 0, -1, -1, -1, -1}, nil)
 
 		ctx.Text("Frame Duration:")
-		duration := g.getActiveAnimation().FrameData[framedataIndex].Duration
+		duration := g.ActiveAnimation().FrameData[framedataIndex].Duration
 		ctx.NumberField(&duration, 1).On(func() {
 			if duration < 1 {
 				duration = 1
 			}
-			g.getActiveAnimation().FrameData[framedataIndex].Duration = duration
+			g.ActiveAnimation().FrameData[framedataIndex].Duration = duration
 		})
 
 		ctx.Button("Add Frame by Image").On(func() {
@@ -74,7 +74,7 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 				g.uiVariables.playingAnim = false
 			}
 			g.character.AnimationPlayer.FrameIndex = 0
-			g.character.AnimationPlayer.FrameTimeLeft = g.getActiveAnimation().FrameData[0].Duration
+			g.character.AnimationPlayer.FrameTimeLeft = g.ActiveAnimation().FrameData[0].Duration
 		})
 
 	})
@@ -100,28 +100,28 @@ func (g *Game) AddImageToAnimation() {
 }
 
 func (g *Game) duplicateLastFrameData() {
-	lastFrameIndex := len(g.getActiveAnimation().FrameData) - 1
+	lastFrameIndex := len(g.ActiveAnimation().FrameData) - 1
 	if lastFrameIndex < 0 {
 		return
 	}
-	lastFrameData := g.getActiveAnimation().FrameData[lastFrameIndex]
-	g.getActiveAnimation().FrameData = append(g.getActiveAnimation().FrameData, lastFrameData)
+	lastFrameData := g.ActiveAnimation().FrameData[lastFrameIndex]
+	g.ActiveAnimation().FrameData = append(g.ActiveAnimation().FrameData, lastFrameData)
 }
 
 func (g *Game) removeFrame() {
-	if g.getActiveAnimation() == nil || len(g.getActiveAnimation().FrameData) == 0 {
+	if g.ActiveAnimation() == nil || len(g.ActiveAnimation().FrameData) == 0 {
 		return
 	}
-	lastIndex := len(g.getActiveAnimation().FrameData) - 1
-	frameData := g.getActiveAnimation().FrameData
-	g.getActiveAnimation().FrameData = append(frameData[:g.uiVariables.frameDataIndex], frameData[g.uiVariables.frameDataIndex+1:]...)
+	lastIndex := len(g.ActiveAnimation().FrameData) - 1
+	frameData := g.ActiveAnimation().FrameData
+	g.ActiveAnimation().FrameData = append(frameData[:g.uiVariables.frameDataIndex], frameData[g.uiVariables.frameDataIndex+1:]...)
 
 	// Adjust frameIndex after removal
 	if g.uiVariables.frameDataIndex > 0 {
 		g.uiVariables.frameDataIndex = lastIndex - 1
 	}
 
-	if len(g.getActiveAnimation().FrameData) == 0 {
+	if len(g.ActiveAnimation().FrameData) == 0 {
 		g.uiVariables.frameDataIndex = 0
 	}
 }

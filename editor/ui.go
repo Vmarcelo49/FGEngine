@@ -107,7 +107,7 @@ func (g *Game) logWindow(ctx *debugui.Context) {
 func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 	ctx.Window("Properties", image.Rect(config.WindowWidth-panelWidth, toolbarHeight, config.WindowWidth, config.WindowHeight), func(layout debugui.ContainerLayout) {
 		ctx.Header("Frame Info", true, func() {
-			frameData := g.character.AnimationPlayer.GetActiveFrameData()
+			frameData := g.character.AnimationPlayer.ActiveFrameData()
 			if frameData == nil {
 				ctx.Text("No frame selected")
 				return
@@ -122,7 +122,7 @@ func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 
 			ctx.Slider(&frameData.SpriteIndex, 0, lastSpriteIndex, 1) // Here is where we set the sprite index
 
-			ctx.Text(fmt.Sprintf("Points to sprite: %d / %d", frameData.SpriteIndex+1, len(g.getActiveAnimation().Sprites)))
+			ctx.Text(fmt.Sprintf("Points to sprite: %d / %d", frameData.SpriteIndex+1, len(g.ActiveAnimation().Sprites)))
 
 			ctx.SetGridLayout([]int{-1, -1, -1}, nil)
 			ctx.Loop(len(state.OrderedStates), func(i int) { // Set checkboxes for each state

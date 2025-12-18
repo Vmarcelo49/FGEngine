@@ -33,7 +33,7 @@ func createBoxImageOptionsWithCamera(chara *Character, box types.Rect, boxType c
 
 	boxImgOptions.GeoM.Scale(box.W, box.H)
 
-	worldPos := chara.GetPosition()
+	worldPos := chara.Position()
 	boxWorldPos := types.Vector2{
 		X: worldPos.X + box.X,
 		Y: worldPos.Y + box.Y,
@@ -55,7 +55,7 @@ type BoxDrawable struct {
 }
 
 func (b *BoxDrawable) Draw(screen *ebiten.Image, camera *graphics.Camera) {
-	framedata := b.Character.AnimationPlayer.GetActiveFrameData()
+	framedata := b.Character.AnimationPlayer.ActiveFrameData()
 	if framedata == nil || len(framedata.Boxes) == 0 {
 		return
 	}

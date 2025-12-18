@@ -37,7 +37,7 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 			})
 		}
 
-		animNames := g.getAnimationNames()
+		animNames := g.animationNames()
 		if len(animNames) == 0 {
 			ctx.Text("No animations found")
 			return
@@ -50,12 +50,12 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 		})
 		ctx.Text("Animation Name:")
 		oldName := animNames[g.uiVariables.animationSelectionIndex]
-		ctx.TextField(&g.getActiveAnimation().Name).On(func() {
-			if g.getActiveAnimation().Name == "" {
-				g.getActiveAnimation().Name = "noName" // animations with no names can cause issues
+		ctx.TextField(&g.ActiveAnimation().Name).On(func() {
+			if g.ActiveAnimation().Name == "" {
+				g.ActiveAnimation().Name = "noName" // animations with no names can cause issues
 			}
 
-			newName := g.getActiveAnimation().Name
+			newName := g.ActiveAnimation().Name
 
 			if oldName != newName {
 				anim := g.character.Animations[oldName]
@@ -63,7 +63,7 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 				g.character.Animations[newName] = anim
 				g.writeLog(fmt.Sprintf("Animation renamed from '%s' to '%s'", oldName, newName))
 
-				newAnimNames := g.getAnimationNames()
+				newAnimNames := g.animationNames()
 				for i, name := range newAnimNames {
 					if name == newName {
 						g.uiVariables.animationSelectionIndex = i
@@ -77,7 +77,7 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 	})
 }
 
-func (g *Game) getAnimationNames() []string {
+func (g *Game) animationNames() []string {
 	if g.character == nil {
 		return nil
 	}

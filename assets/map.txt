@@ -1,0 +1,24 @@
+assets/
+├── characters/
+│   └── helmet/                    # Uma pasta por personagem
+│       ├── helmet.yaml            # Definição
+│       ├── sprites/               # Sprites do personagem
+│       │   └── beta-helmet.png
+│       ├── sounds/                # Sons específicos (futuro)
+│       └── source/                # Arquivos fonte (.aseprite)
+│
+├── stages/
+│   └── training/                  # Uma pasta por stage
+│       ├── stage.yaml             # Definição do stage
+│       ├── background.png
+│       ├── layers/
+│       └── source/
+│           └── PlaceMarkers.aseprite
+│
+├── common/                        # Assets compartilhados
+    ├── ui/                        # Interface
+    ├── effects/                   # Partículas, flashes
+    ├── fonts/
+    └── placeholders/
+          └── notFound.png
+

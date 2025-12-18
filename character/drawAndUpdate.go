@@ -10,12 +10,12 @@ import (
 )
 
 func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
-	sprite := c.GetSprite()
+	sprite := c.Sprite()
 	img := &ebiten.Image{}
 	if sprite == nil {
 		img = graphics.LoadImage("")
 	} else {
-		img = graphics.LoadImage(c.GetSprite().ImagePath)
+		img = graphics.LoadImage(c.Sprite().ImagePath)
 	}
 
 	op := &ebiten.DrawImageOptions{}
@@ -30,7 +30,7 @@ func (c *Character) Update() {
 	c.updateAnimation()
 
 	// Get current frame properties for dynamic values
-	frameData := c.AnimationPlayer.GetActiveFrameData()
+	frameData := c.AnimationPlayer.ActiveFrameData()
 	if frameData == nil {
 		panic("Frame properties should not be nil if animation is set")
 	}
@@ -84,7 +84,7 @@ func (c *Character) Update() {
 	if c.StateMachine.Position.X < constants.World.X {
 		c.StateMachine.Position.X = constants.World.X
 	}
-	if c.StateMachine.Position.X+float64(c.GetSprite().Rect.W) > constants.World.Right() {
-		c.StateMachine.Position.X = constants.World.Right() - float64(c.GetSprite().Rect.W)
+	if c.StateMachine.Position.X+float64(c.Sprite().Rect.W) > constants.World.Right() {
+		c.StateMachine.Position.X = constants.World.Right() - float64(c.Sprite().Rect.W)
 	}
 }

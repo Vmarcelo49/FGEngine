@@ -8,8 +8,8 @@ import (
 	"github.com/ebitengine/debugui"
 )
 
-func (g *Game) getActiveBox() *types.Rect {
-	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+func (g *Game) activeBox() *types.Rect {
+	frameData := g.character.AnimationPlayer.ActiveFrameData()
 	if frameData == nil {
 		return nil
 	}
@@ -26,7 +26,7 @@ func (g *Game) getActiveBox() *types.Rect {
 func (g *Game) boxEditor(ctx *debugui.Context) {
 	ctx.Header("Box Editor", true, func() {
 		ctx.Checkbox(g.uiVariables.enableMouseInput, "Enable mouse controls")
-		frameData := g.character.AnimationPlayer.GetActiveFrameData()
+		frameData := g.character.AnimationPlayer.ActiveFrameData()
 		if frameData == nil {
 			ctx.Text("No frame data available")
 			return
@@ -77,12 +77,12 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 			g.addBox()
 		})
 
-		if g.getActiveAnimation() != nil {
+		if g.ActiveAnimation() != nil {
 			if len(frameData.Boxes[currentBoxType]) == 0 {
 				ctx.Text("No boxes of this type available.")
 				return
 			}
-			activeBox := g.getActiveBox()
+			activeBox := g.activeBox()
 			if activeBox != nil {
 				ctx.SetGridLayout([]int{-1}, nil)
 				ctx.Text("Box Properties:")
@@ -101,13 +101,13 @@ func (g *Game) boxEditor(ctx *debugui.Context) {
 }
 
 func (g *Game) deleteSelectedBox() {
-	activeBox := g.getActiveBox()
+	activeBox := g.activeBox()
 	if activeBox == nil {
 		g.writeLog("tried to remove a nil box wth")
 		return
 	}
 
-	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	frameData := g.character.AnimationPlayer.ActiveFrameData()
 	if frameData == nil {
 		return
 	}
@@ -121,7 +121,7 @@ func (g *Game) deleteSelectedBox() {
 }
 
 func (g *Game) addBox() {
-	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	frameData := g.character.AnimationPlayer.ActiveFrameData()
 	if frameData == nil {
 		g.writeLog("No active frame data to add box to")
 		return

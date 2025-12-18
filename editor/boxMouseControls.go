@@ -23,11 +23,11 @@ func (g *Game) handleBoxMouseEdit() {
 	mouseX, mouseY := ebiten.CursorPosition()
 
 	// Convert mouse screen coordinates to world coordinates accounting for scaling
-	worldMousePos := g.getWorldMousePosition(float64(mouseX), float64(mouseY))
+	worldMousePos := g.worldMousePosition(float64(mouseX), float64(mouseY))
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
 		if !g.uiVariables.dragged {
-			selectedBoxIndex, selectedBoxType := g.getBoxIndexUnderMouse(worldMousePos.X, worldMousePos.Y)
+			selectedBoxIndex, selectedBoxType := g.boxIndexUnderMouse(worldMousePos.X, worldMousePos.Y)
 			if selectedBoxIndex >= 0 {
 				g.uiVariables.activeBoxIndex = selectedBoxIndex
 				g.uiVariables.activeBoxType = selectedBoxType
@@ -36,7 +36,7 @@ func (g *Game) handleBoxMouseEdit() {
 				g.uiVariables.dragStartMousePos.X = worldMousePos.X
 				g.uiVariables.dragStartMousePos.Y = worldMousePos.Y
 
-				if activeBox := g.getActiveBox(); activeBox != nil {
+				if activeBox := g.activeBox(); activeBox != nil {
 					g.uiVariables.dragStartBoxPos.X = activeBox.X
 					g.uiVariables.dragStartBoxPos.Y = activeBox.Y
 				}
@@ -47,7 +47,7 @@ func (g *Game) handleBoxMouseEdit() {
 				Y: worldMousePos.Y - g.uiVariables.dragStartMousePos.Y,
 			}
 
-			if activeBox := g.getActiveBox(); activeBox != nil {
+			if activeBox := g.activeBox(); activeBox != nil {
 				activeBox.X = g.uiVariables.dragStartBoxPos.X + delta.X
 				activeBox.Y = g.uiVariables.dragStartBoxPos.Y + delta.Y
 			}
@@ -60,19 +60,19 @@ func (g *Game) handleBoxMouseEdit() {
 	}
 }
 
-func (g *Game) getBoxIndexUnderMouse(worldX, worldY float64) (int, collision.BoxType) {
+func (g *Game) boxIndexUnderMouse(worldX, worldY float64) (int, collision.BoxType) {
 	if g.character == nil {
 		return -1, collision.Collision
 	}
 
 	// Get the active frame data
-	frameData := g.character.AnimationPlayer.GetActiveFrameData()
+	frameData := g.character.AnimationPlayer.ActiveFrameData()
 	if frameData == nil {
 		return -1, collision.Collision
 	}
 
 	// Get character's world position to offset the boxes
-	characterPos := g.character.GetPosition()
+	characterPos := g.character.Position()
 	point := types.Vector2{X: worldX, Y: worldY}
 
 	// box priority order: Hit > Hurt > Collision
@@ -97,8 +97,8 @@ func (g *Game) getBoxIndexUnderMouse(worldX, worldY float64) (int, collision.Box
 	return -1, collision.Collision
 }
 
-// getWorldMousePosition converts screen mouse coordinates to world coordinates accounting for camera scaling
-func (g *Game) getWorldMousePosition(screenX, screenY float64) types.Vector2 {
+// worldMousePosition converts screen mouse coordinates to world coordinates accounting for camera scaling
+func (g *Game) worldMousePosition(screenX, screenY float64) types.Vector2 {
 	if g.camera.Scaling != 0 && g.camera.Scaling != 1 {
 		centerX := g.camera.Viewport.W / 2
 		centerY := g.camera.Viewport.H / 2

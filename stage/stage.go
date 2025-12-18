@@ -1,4 +1,4 @@
-package animation
+package stage
 
 import (
 	"fgengine/constants"
@@ -190,9 +190,4 @@ func (s *Stage) SetSourceImage(img *ebiten.Image) {
 // Invalidate forces the stage to regenerate its image on next draw
 func (s *Stage) Invalidate() {
 	s.dirty = true
-}
-
-// GetType returns the stage type
-func (s *Stage) GetType() StageType {
-	return s.stageType
 }

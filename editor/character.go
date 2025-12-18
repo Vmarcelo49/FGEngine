@@ -30,7 +30,7 @@ func (g *Game) updateAnimationFrame() {
 	g.character.AnimationPlayer.Update()
 }
 
-func (g *Game) getActiveAnimation() *animation.Animation {
+func (g *Game) ActiveAnimation() *animation.Animation {
 	if g.character == nil {
 		return nil
 	}
@@ -65,7 +65,7 @@ func (g *Game) loadCharacter() {
 
 // when creating or loading a new character, check if we need to reset the current state
 func (g *Game) deleteCurrentCharacter() {
-	if g.character != nil && g.getActiveAnimation() != nil {
+	if g.character != nil && g.ActiveAnimation() != nil {
 		g.resetCharacterState()
 	}
 }
