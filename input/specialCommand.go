@@ -4,17 +4,17 @@ import (
 	"slices"
 )
 
-// IsNonDirectionalInput checks if the input is a non-directional input (A, B, C, D)
-func IsNonDirectionalInput(input GameInput) bool {
-	directionalInputs := Up | Down | Left | Right
-	return input != NoInput && (input&directionalInputs) == 0
-}
-
 type InputSequence struct {
 	baseInput    []GameInput // the main input sequence
 	buffer       int         // tolerance for buffering inputs
 	cancelInputs []GameInput // inputs that can cancel the sequence
 	//alias []GameInput
+}
+
+// IsNonDirectionalInput checks if the input is a non-directional input (A, B, C, D)
+func IsNonDirectionalInput(input GameInput) bool {
+	directionalInputs := Up | Down | Left | Right
+	return input != NoInput && (input&directionalInputs) == 0
 }
 
 var InputSequences = map[string]InputSequence{ // instead of strings, this should be an enum of common animation names

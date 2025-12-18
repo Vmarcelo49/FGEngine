@@ -25,3 +25,10 @@ func NewDebugPlayer() *Player {
 		Input:     p1InputManager,
 	}
 }
+
+// DO NOT USE THIS YET, UNFINISHED
+func NewPlayer() *Player {
+	player := &Player{}
+
+	return player
+}

@@ -57,6 +57,7 @@ func (c *Character) initialize() {
 	c.SetAnimation("idle")
 
 	c.StateMachine = &state.StateMachine{}
+	c.StateMachine.ActiveState = state.StateIdle
 }
 
 func (c *Character) SetAnimation(name string) {

@@ -54,7 +54,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return config.LayoutSizeW, config.LayoutSizeH
 }
 
-func MakeEditorGame() *Game {
+func NewEditorGame() *Game {
 	game := &Game{
 		uiVariables: &uiVariables{
 			logBuf:           "Move Camera with Right click drag\n",
@@ -76,7 +76,7 @@ func Run() {
 	ebiten.SetWindowTitle("Animation Editor")
 	ebiten.SetWindowSize(config.WindowWidth, config.WindowHeight)
 
-	game := MakeEditorGame()
+	game := NewEditorGame()
 	if err := ebiten.RunGame(game); err != nil {
 		panic(err)
 	}

@@ -74,8 +74,13 @@ func (c *Character) Update() {
 		c.StateMachine.IgnoreGravityFrames--
 	}
 
-	if c.StateMachine.Position.Y >= constants.GroundLevelY {
-		c.StateMachine.Position.Y = constants.GroundLevelY
+	sprite := c.Sprite()
+	spriteH := 0.0
+	if sprite != nil {
+		spriteH = sprite.Rect.H
+	}
+	if c.StateMachine.Position.Y+spriteH >= constants.GroundLevelY {
+		c.StateMachine.Position.Y = constants.GroundLevelY - spriteH
 		c.StateMachine.Velocity.Y = 0
 		c.StateMachine.AddState(state.StateGrounded)
 		c.StateMachine.RemoveState(state.StateAirborne)

@@ -9,7 +9,19 @@ type InputMap struct {
 	GamepadButtons   map[GameInput][]ebiten.StandardGamepadButton
 }
 
-func MakeDefaultInputMap() *InputMap {
+type InputManager struct {
+	InputMap   *InputMap
+	GamepadIDs []ebiten.GamepadID
+}
+
+func NewInputManager() *InputManager {
+	return &InputManager{
+		InputMap:   NewDefaultInputMap(),
+		GamepadIDs: []ebiten.GamepadID{},
+	}
+}
+
+func NewDefaultInputMap() *InputMap {
 	return &InputMap{
 		KeyboardBindings: map[GameInput][]ebiten.Key{
 			Up:    {ebiten.KeyW, ebiten.KeySpace, ebiten.KeyUp},
@@ -31,17 +43,5 @@ func MakeDefaultInputMap() *InputMap {
 			C:     {ebiten.StandardGamepadButtonRightRight},
 			D:     {ebiten.StandardGamepadButtonRightBottom},
 		},
-	}
-}
-
-type InputManager struct {
-	InputMap   *InputMap
-	GamepadIDs []ebiten.GamepadID
-}
-
-func NewInputManager() *InputManager {
-	return &InputManager{
-		InputMap:   MakeDefaultInputMap(),
-		GamepadIDs: []ebiten.GamepadID{},
 	}
 }

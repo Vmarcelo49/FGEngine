@@ -14,17 +14,6 @@ type Sprite struct {
 	Rect      types.Rect `yaml:"rect"`
 }
 
-// Returns total duration in frames
-func (a *Animation) Duration() int {
-	if a.TotalDuration == 0 { // building this variable when called at least once, cus laziness to rewrite elsewhere
-		for _, frameData := range a.FrameData {
-			a.TotalDuration += frameData.Duration
-		}
-	}
-
-	return a.TotalDuration
-}
-
 type AnimationPlayer struct {
 	ActiveAnimation *Animation `yaml:"-"`
 	FrameIndex      int        `yaml:"-"`
@@ -90,6 +79,17 @@ func (ap *AnimationPlayer) IsFinished() bool {
 	}
 	lastIndex := len(ap.ActiveAnimation.FrameData) - 1
 	return ap.FrameIndex == lastIndex && ap.FrameTimeLeft <= 0
+}
+
+// Returns total duration in frames
+func (a *Animation) Duration() int {
+	if a.TotalDuration == 0 { // building this variable when called at least once, cus laziness to rewrite elsewhere
+		for _, frameData := range a.FrameData {
+			a.TotalDuration += frameData.Duration
+		}
+	}
+
+	return a.TotalDuration
 }
 
 // Notes for future reference:
