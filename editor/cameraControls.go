@@ -44,7 +44,7 @@ func (g *Game) handleCameraInput() {
 	}
 
 	// keyboard input for camera movement
-	inputs := g.inputManager.LocalInputs()
+	inputs := input.LocalInputsFromIDS([]ebiten.GamepadID{ebiten.GamepadID(-1)})
 
 	var cameraMove types.Vector2
 	if inputs.IsPressed(input.Left) {

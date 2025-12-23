@@ -6,6 +6,7 @@ require (
 	github.com/ebitengine/debugui v0.2.0-alpha.7
 	github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.16
 	github.com/sqweek/dialog v0.0.0-20240226140203-065105509627
+	golang.org/x/image v0.31.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -20,7 +21,6 @@ require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	golang.org/x/image v0.31.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/sys v0.36.0 // indirect
 	golang.org/x/text v0.29.0 // indirect

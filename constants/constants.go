@@ -31,3 +31,17 @@ var StageColor = color.RGBA{R: 100, G: 149, B: 237, A: 255} // Cornflower Blue
 
 var World = types.Rect{X: 0, Y: 0, W: WorldWidth, H: WorldHeight} // camera * 1.2
 var Camera = types.Rect{X: 0, Y: 0, W: CameraWidth, H: CameraHeight}
+
+type Scene int
+
+const (
+	SceneMainMenu = iota
+	SceneMatch
+	SceneControllerSelect
+	SceneMatchEnd
+	ScenePause
+	SceneOptions
+	SceneOptions_ControllerSetup
+	SceneCharacterSelect
+	SceneExit
+)

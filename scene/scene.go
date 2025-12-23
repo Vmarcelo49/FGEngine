@@ -1,26 +1,14 @@
 package scene
 
 import (
+	"fgengine/constants"
 	"fgengine/input"
 	"os"
 )
 
-type Scene int
-
-const (
-	MainMenu = iota
-	Match
-	ControllerSelect
-	MatchEnd
-	Pause
-	Options
-	CharacterSelect
-	Exit
-)
-
 type SceneManager struct {
-	currentScene  Scene
-	previousScene Scene
+	ActiveScene   constants.Scene
+	PreviousScene constants.Scene
 	menuItems     []MenuItem
 	selectedIndex int
 }
@@ -33,7 +21,7 @@ type MenuItem struct {
 func NewSceneManager() SceneManager {
 	sm := SceneManager{}
 	sm.setMenuItems()
-	sm.LoadScene(MainMenu)
+	sm.LoadScene(constants.SceneMainMenu)
 	return sm
 }
 
@@ -42,38 +30,38 @@ func (sm *SceneManager) setMenuItems() {
 	match := MenuItem{
 		Text: "match",
 		action: func() {
-			sm.LoadScene(Match)
+			sm.LoadScene(constants.SceneMatch)
 		},
 	}
 	options := MenuItem{
 		Text: "Options",
 		action: func() {
-			sm.LoadScene(Options)
+			sm.LoadScene(constants.SceneOptions)
 		},
 	}
 	exit := MenuItem{
 		Text: "Exit",
 		action: func() {
-			sm.LoadScene(Exit)
+			sm.LoadScene(constants.SceneExit)
 		},
 	}
 
 	sm.menuItems = []MenuItem{match, options, exit}
 }
 
-func (sm *SceneManager) LoadScene(scene Scene) {
-	if sm.currentScene != -1 {
-		sm.previousScene = sm.currentScene
+func (sm *SceneManager) LoadScene(scene constants.Scene) {
+	if sm.ActiveScene != -1 {
+		sm.PreviousScene = sm.ActiveScene
 	}
 
-	sm.currentScene = scene
+	sm.ActiveScene = scene
 
 	switch scene {
-	case MainMenu:
+	case constants.SceneMainMenu:
 		// stuff here
-	case ControllerSelect:
+	case constants.SceneControllerSelect:
 		// socorro
-	case Exit:
+	case constants.SceneExit:
 		os.Exit(0)
 	}
 
