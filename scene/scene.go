@@ -1,8 +1,12 @@
 package scene
 
 import (
+	"fgengine/graphics"
 	"fgengine/input"
+	"fgengine/types"
 	"os"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Scene int
@@ -40,7 +44,7 @@ func NewSceneManager() SceneManager {
 func (sm *SceneManager) setMenuItems() {
 
 	match := MenuItem{
-		Text: "match",
+		Text: "Match",
 		action: func() {
 			sm.LoadScene(Match)
 		},
@@ -101,6 +105,14 @@ func (sm *SceneManager) Update(allInputs []input.GameInput) {
 
 type MenuDrawable struct{}
 
-func (md *MenuDrawable) Draw() {
+func (md *MenuDrawable) Draw(screen *ebiten.Image, camera *graphics.Camera) {
+	yMargin := 75
+
+	buttonsCoords := []types.Vector2{}
+	img := graphics.LoadImage("assets\\common\\menu\\Rounded Rectangle.png")
+	buttonSizeH := float64(img.Bounds().Dx())
+	for i := range 3 { // 3 being the num of buttons
+		buttonsCoords = append(buttonsCoords, types.Vector2{X: 45, Y: float64(i*yMargin) + 40 + buttonSizeH})
+	}
 
 }
