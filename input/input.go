@@ -64,18 +64,18 @@ func (im *InputManager) UpdateGamepadList() {
 	im.GamepadIDs = ebiten.AppendGamepadIDs(im.GamepadIDs[:0])
 }
 
-// LocalInputs retrieves the current local input state.
-func (im *InputManager) LocalInputs() GameInput { // TODO, refactor to only check inputs of assigned gamepads and keyboard
+func LocalInputsFromIDS(ids []ebiten.GamepadID) GameInput {
 	var localInputs GameInput
+	inputmap := NewDefaultInputMap()
 
-	for gameInput, keys := range im.InputMap.KeyboardBindings {
+	for gameInput, keys := range inputmap.KeyboardBindings {
 		if slices.ContainsFunc(keys, ebiten.IsKeyPressed) {
 			localInputs |= gameInput // Once we find one pressed button for this input, we don't need to check the others
 		}
 	}
 
-	for _, gamepadID := range im.GamepadIDs {
-		for gameInput, buttons := range im.InputMap.GamepadButtons {
+	for _, gamepadID := range ids {
+		for gameInput, buttons := range inputmap.GamepadButtons {
 			for _, button := range buttons {
 				if ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {
 					localInputs |= gameInput

@@ -5,8 +5,8 @@ import (
 	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/input"
-	"fgengine/logic"
 	"fgengine/player"
+	"fgengine/scene"
 	"fgengine/stage"
 	"fgengine/types"
 	"fmt"
@@ -24,12 +24,14 @@ type Game struct {
 	camera   *graphics.Camera
 	stageImg *ebiten.Image
 
-	renderQueue *graphics.RenderQueue
-	debugui     debugui.DebugUI
+	sceneManager *scene.SceneManager
+	renderQueue  *graphics.RenderQueue
+	debugui      debugui.DebugUI
 }
 
 func (g *Game) Update() error {
-	logic.UpdateByInputs([]input.GameInput{g.players[0].Input.LocalInputs()}, g.players)
+	//logic.UpdateByInputs([]input.GameInput{g.players[0].Input.LocalInputs()}, g.players)
+	input.Update(&g.sceneManager.ActiveScene)
 	if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 		ctx.Window("Game Debug Info", image.Rect(0, 0, 256, 144), func(layout debugui.ContainerLayout) {
 			ctx.Text("Camera Info:")
