@@ -7,7 +7,7 @@ require (
 	github.com/hajimehoshi/ebiten/v2 v2.9.0-alpha.16
 	github.com/sqweek/dialog v0.0.0-20240226140203-065105509627
 	golang.org/x/image v0.31.0
-	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

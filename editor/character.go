@@ -87,7 +87,7 @@ func (g *Game) saveCharacter() {
 // createPlaceholderIdleAnimation creates a default idle animation using notFound.png
 func (g *Game) createPlaceholderIdleAnimation() *animation.Animation {
 	placeholderSprite := &animation.Sprite{
-		ImagePath: "..\\common\\notFound.png",
+		ImagePath: "../common/notFound.png", // todo check this path
 		Rect: types.Rect{
 			W: 64,
 			H: 64,

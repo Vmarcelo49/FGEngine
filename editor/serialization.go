@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func exportCharacterToYAML(c *character.Character) error {
@@ -21,10 +21,13 @@ func exportCharacterToYAML(c *character.Character) error {
 	filename := fmt.Sprintf("%s.yaml", c.Name)
 	path := filepath.Join(assetsDir, filename)
 
-	// Store original paths to restore after serialization
 	originalPaths := make(map[*animation.Sprite]string)
+	defer func() {
+		for sprite, originalPath := range originalPaths {
+			sprite.ImagePath = originalPath
+		}
+	}()
 
-	// Temporarily modify paths to relative
 	for _, anim := range c.Animations {
 		for _, sprite := range anim.Sprites {
 			if sprite.ImagePath != "" {
@@ -36,31 +39,17 @@ func exportCharacterToYAML(c *character.Character) error {
 
 	file, err := os.Create(path)
 	if err != nil {
-		for sprite, originalPath := range originalPaths {
-			sprite.ImagePath = originalPath
-		}
 		return fmt.Errorf("failed to create YAML file: %w", err)
 	}
 	defer file.Close()
 
 	yamlInfo, err := yaml.Marshal(c)
 	if err != nil {
-		for sprite, originalPath := range originalPaths {
-			sprite.ImagePath = originalPath
-		}
 		return fmt.Errorf("failed to marshal character to YAML: %w", err)
 	}
 
 	if _, err = file.Write(yamlInfo); err != nil {
-		for sprite, originalPath := range originalPaths {
-			sprite.ImagePath = originalPath
-		}
 		return fmt.Errorf("failed to write YAML to file: %w", err)
-	}
-
-	// Restore original paths
-	for sprite, originalPath := range originalPaths {
-		sprite.ImagePath = originalPath
 	}
 
 	return nil
@@ -95,24 +84,25 @@ func resolveRelativePath(relativePath, referencePath string) string {
 	return filepath.Clean(filepath.Join(referenceDir, relativePath))
 }
 
-func loadCharacterFromYAML(characterName string) (*character.Character, error) {
-	filename := fmt.Sprintf("%s.yaml", characterName)
-	path := filepath.Join("assets/characters", filename)
-
+func loadCharacterFromPath(path string) (*character.Character, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open character file %s: %w", path, err)
+		return nil, fmt.Errorf("failed to open character file: %w", err)
 	}
 	defer file.Close()
 
 	decoder := yaml.NewDecoder(file)
-	character := &character.Character{}
-	if err := decoder.Decode(character); err != nil {
+	char := &character.Character{
+		Animations:      make(map[string]*animation.Animation),
+		StateMachine:    &state.StateMachine{},
+		AnimationPlayer: &animation.AnimationPlayer{},
+	}
+
+	if err := decoder.Decode(char); err != nil {
 		return nil, fmt.Errorf("failed to decode character: %w", err)
 	}
 
-	// Convert relative paths to absolute paths based on YAML file location
-	for _, anim := range character.Animations {
+	for _, anim := range char.Animations {
 		for _, sprite := range anim.Sprites {
 			if sprite.ImagePath != "" {
 				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, path)
@@ -120,8 +110,13 @@ func loadCharacterFromYAML(characterName string) (*character.Character, error) {
 		}
 	}
 
-	character.FilePath = path
-	return character, nil
+	char.FilePath = path
+	return char, nil
+}
+
+func loadCharacterFromYAML(characterName string) (*character.Character, error) {
+	path := filepath.Join("assets/characters", fmt.Sprintf("%s.yaml", characterName))
+	return loadCharacterFromPath(path)
 }
 
 func loadCharacterFromYAMLDialog() (*character.Character, error) {
@@ -135,37 +130,8 @@ func loadCharacterFromYAMLDialog() (*character.Character, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to load character: user cancelled")
 	}
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open character file: %w", err)
-	}
-	defer file.Close()
 
-	decoder := yaml.NewDecoder(file)
-	character := &character.Character{
-		Animations:      make(map[string]*animation.Animation),
-		StateMachine:    &state.StateMachine{},
-		AnimationPlayer: &animation.AnimationPlayer{},
-	}
-	if err := decoder.Decode(character); err != nil {
-		return nil, fmt.Errorf("failed to decode character")
-	}
-
-	for _, anim := range character.Animations {
-		for _, sprite := range anim.Sprites {
-			if sprite.ImagePath != "" {
-				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, path)
-			}
-		}
-	}
-
-	character.FilePath = path
-
-	if character.Animations == nil {
-		character.Animations = make(map[string]*animation.Animation)
-	}
-
-	return character, nil
+	return loadCharacterFromPath(path)
 }
 
 func exportAnimationToYaml(source *animation.Animation, path string) error {
