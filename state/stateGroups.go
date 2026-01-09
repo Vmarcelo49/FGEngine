@@ -12,6 +12,14 @@ func (sm *StateMachine) HandleInput(playerInput input.GameInput) {
 	if len(sm.InputHistory) > constants.MaxInputHistory {
 		sm.InputHistory = sm.InputHistory[len(sm.InputHistory)-constants.MaxInputHistory:]
 	}
+
+	// reset queued actions each frame
+	sm.MoveInput = 0
+	sm.JumpRequested = false
+	sm.AttackRequested = false
+	sm.DashRequested = false
+	sm.ClearState(StateA | StateB | StateC)
+
 	if sm.IsInactable() {
 		return // this is terrible
 	}
@@ -20,19 +28,32 @@ func (sm *StateMachine) HandleInput(playerInput input.GameInput) {
 	for key, seq := range input.InputSequences { // cooldown here probably would be good
 		if input.DetectInputSequence(seq, sm.InputHistory) {
 			if reflect.DeepEqual(seq, input.InputSequences[key]) {
-				sm.SetState(StateDash | StateForward)
-				return
+				sm.DashRequested = true
 			}
 		}
 	}
 
-	// then check for single inputs
-	if playerInput == input.Right {
-		sm.AddState(StateWalkForward)
+	// directional inputs (world space)
+	if playerInput.IsPressed(input.Left) {
+		sm.MoveInput = -1
+	}
+	if playerInput.IsPressed(input.Right) {
+		sm.MoveInput = 1
 	}
 
-	if playerInput == input.NoInput {
-		sm.RemoveState(MovementStates) // remove movement states when no input
-		sm.AddState(StateNeutral)
+	// button states
+	if playerInput.IsPressed(input.A) {
+		sm.AttackRequested = true
+		sm.AddState(StateA)
+	}
+	if playerInput.IsPressed(input.B) {
+		sm.AddState(StateB)
+	}
+	if playerInput.IsPressed(input.C) {
+		sm.AddState(StateC)
+	}
+
+	if playerInput.IsPressed(input.Up) && sm.HasState(StateGrounded) {
+		sm.JumpRequested = true
 	}
 }

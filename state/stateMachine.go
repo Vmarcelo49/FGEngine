@@ -16,11 +16,22 @@ type StateMachine struct {
 	ActiveState          State
 	PreviousState        State
 	HP                   int
+	HitstunFrames        int
 	Position             types.Vector2
 	Velocity             types.Vector2
 	IgnoreGravityFrames  int
 	InputHistory         []input.GameInput
 	CharacterOrientation FacingDirection
+	MoveInput            int  // -1 left, 0 idle, 1 right
+	JumpRequested        bool // queued jump until processed by character update
+	AttackRequested      bool // queued attack until processed by character update
+	DashRequested        bool // queued dash until processed by character update
+}
+
+// ClearState removes flags without toggling grounded/airborne like RemoveState does.
+func (sm *StateMachine) ClearState(flags State) {
+	sm.PreviousState = sm.ActiveState
+	sm.ActiveState &^= flags
 }
 
 func (sm *StateMachine) AddState(stateToAdd State) {

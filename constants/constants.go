@@ -12,7 +12,7 @@ const (
 	CameraWidth  float64 = 640
 	CameraHeight float64 = 360
 
-	Gravity         float64 = 1
+	Gravity         float64 = 0.8
 	MaxInputHistory int     = 30
 
 	GroundLevelY float64 = WorldHeight - 50

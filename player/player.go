@@ -32,3 +32,19 @@ func NewPlayer() *Player {
 
 	return player
 }
+
+// NewPlayerWithInput builds a player using the debug character and the provided input.
+func NewPlayerWithInput(manager *input.InputManager) (*Player, error) {
+	chara, err := character.LoadCharacter(character.Helmet)
+	if err != nil {
+		return nil, err
+	}
+	if manager == nil {
+		manager = input.NewInputManager()
+	}
+
+	return &Player{
+		Character: chara,
+		Input:     manager,
+	}, nil
+}

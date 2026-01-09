@@ -5,6 +5,8 @@ import (
 	"fgengine/state"
 	"fgengine/types"
 	"fmt"
+	"image"
+	_ "image/png"
 	"os"
 	"path/filepath"
 
@@ -24,9 +26,9 @@ type Character struct {
 	Animations map[string]*animation.Animation `yaml:"animations"`
 
 	// Ingame Related
-	StateMachine *state.StateMachine `yaml:"-"`
-
+	StateMachine    *state.StateMachine        `yaml:"-"`
 	AnimationPlayer *animation.AnimationPlayer `yaml:"-"`
+	AttackHasHit    bool                       `yaml:"-"` // prevents multi-hitting a single swing
 }
 
 type CharacterID int
@@ -54,10 +56,19 @@ func LoadCharacter(id CharacterID) (*Character, error) {
 
 func (c *Character) initialize() {
 	c.AnimationPlayer = &animation.AnimationPlayer{}
+
+	if c.Friction == 0 {
+		panic(fmt.Sprintf("character %s has nil friction, check the character file", c.Name))
+	}
+	if c.JumpHeight == 0 {
+		panic(fmt.Sprintf("character %s has nil jump height, check the character file", c.Name))
+	}
+
 	c.SetAnimation("idle")
 
 	c.StateMachine = &state.StateMachine{}
 	c.StateMachine.ActiveState = state.StateIdle
+	c.StateMachine.HP = 10000
 }
 
 func (c *Character) SetAnimation(name string) {
@@ -74,7 +85,25 @@ func (c *Character) SetAnimation(name string) {
 	c.AnimationPlayer.ActiveAnimation = anim
 	//c.AnimationPlayer.ShouldLoop = loop
 	c.AnimationPlayer.FrameIndex = 0
-	c.AnimationPlayer.FrameTimeLeft = anim.FrameData[0].Duration
+	if len(anim.FrameData) > 0 {
+		c.AnimationPlayer.FrameTimeLeft = anim.FrameData[0].Duration
+	} else {
+		c.AnimationPlayer.FrameTimeLeft = 0
+	}
+}
+
+// ensureAnimation switches animations only when the requested one differs, preventing restarts.
+func (c *Character) ensureAnimation(name string, loop bool) {
+	current := ""
+	if c.AnimationPlayer != nil && c.AnimationPlayer.ActiveAnimation != nil {
+		current = c.AnimationPlayer.ActiveAnimation.Name
+	}
+	if current == name && c.AnimationPlayer.ShouldLoop == loop {
+		return
+	}
+
+	c.SetAnimation(name)
+	c.AnimationPlayer.ShouldLoop = loop
 }
 
 // updateAnimation advances the animation frame based on a simple frame counter
@@ -109,6 +138,7 @@ func loadCharacterByFile(filePath string) (*Character, error) {
 			if sprite.ImagePath != "" {
 				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, filePath)
 			}
+			ensureSpriteRect(sprite)
 		}
 	}
 	return character, nil
@@ -132,4 +162,50 @@ func (c *Character) Sprite() *animation.Sprite {
 		return nil
 	}
 	return c.AnimationPlayer.ActiveSprite()
+}
+
+func (c *Character) BoundingBox() types.Rect {
+	sprite := c.Sprite()
+	return types.Rect{
+		X: c.StateMachine.Position.X,
+		Y: c.StateMachine.Position.Y,
+		W: sprite.Rect.W,
+		H: sprite.Rect.H,
+	}
+}
+
+func ensureSpriteRect(sprite *animation.Sprite) {
+	if sprite == nil {
+		return
+	}
+	if sprite.Rect.W != 0 && sprite.Rect.H != 0 {
+		return
+	}
+
+	width, height := probeImageSize(sprite.ImagePath)
+	if width == 0 || height == 0 {
+		return
+	}
+
+	sprite.Rect.W = float64(width)
+	sprite.Rect.H = float64(height)
+}
+
+func probeImageSize(path string) (int, int) {
+	if path == "" {
+		return 0, 0
+	}
+
+	f, err := os.Open(path)
+	if err != nil {
+		return 0, 0
+	}
+	defer f.Close()
+
+	conf, _, err := image.DecodeConfig(f)
+	if err != nil {
+		return 0, 0
+	}
+
+	return conf.Width, conf.Height
 }

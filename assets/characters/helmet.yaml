@@ -1,0 +1,58 @@
+id: 1
+name: Helmet
+friction: 0.75
+jumpHeight: 15
+animations:
+  idle:
+    name: idle
+    sprites:
+      - imgPath: ./helmet/sprite/beta-helmet.png
+        rect: {x: 0, y: 0, w: 0, h: 0}
+    framedata:
+      - duration: 6
+        spriteIndex: 0
+  walk:
+    name: walk
+    sprites:
+      - imgPath: ./helmet/sprite/beta-helmet.png
+        rect: {x: 0, y: 0, w: 0, h: 0}
+    framedata:
+      - duration: 4
+        spriteIndex: 0
+  dash:
+    name: dash
+    sprites:
+      - imgPath: ./helmet/sprite/beta-helmet.png
+        rect: {x: 0, y: 0, w: 0, h: 0}
+    framedata:
+      - duration: 4
+        spriteIndex: 0
+  jump:
+    name: jump
+    sprites:
+      - imgPath: ./helmet/sprite/beta-helmet.png
+        rect: {x: 0, y: 0, w: 0, h: 0}
+    framedata:
+      - duration: 6
+        spriteIndex: 0
+  fall:
+    name: fall
+    sprites:
+      - imgPath: ./helmet/sprite/beta-helmet.png
+        rect: {x: 0, y: 0, w: 0, h: 0}
+    framedata:
+      - duration: 6
+        spriteIndex: 0
+  attack:
+    name: attack
+    sprites:
+      - imgPath: ./helmet/sprite/beta-helmet.png
+        rect: {x: 0, y: 0, w: 0, h: 0}
+    framedata:
+      - duration: 6
+        spriteIndex: 0
+        animPhase: 1
+        damage: 12
+      - duration: 10
+        spriteIndex: 0
+        animPhase: 2
