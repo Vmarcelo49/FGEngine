@@ -3,7 +3,6 @@ package graphics
 import (
 	"fgengine/config"
 	"fgengine/constants"
-	"fgengine/player"
 	"fgengine/types"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -103,23 +102,4 @@ func CameraTransform(options *ebiten.DrawImageOptions, camera *Camera, entitySca
 	}
 
 	options.GeoM.Translate(screenPos.X, screenPos.Y)
-}
-
-func (c *Camera) UpdateCameraWithPlayers(players []*player.Player) {
-	if len(players) == 0 {
-		return
-	}
-
-	if len(players) == 1 {
-		c.UpdatePosition(players[0].Character.Position())
-		return
-	}
-
-	p1 := players[0].Character.Position()
-	p2 := players[1].Character.Position()
-	mid := types.Vector2{
-		X: (p1.X + p2.X) / 2,
-		Y: (p1.Y + p2.Y) / 2,
-	}
-	c.UpdatePosition(mid)
 }
