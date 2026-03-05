@@ -3,7 +3,7 @@ package input
 import "fgengine/constants"
 
 func Update(activeScene *constants.Scene) {
-	checkForGamepadsConnections()
+	UpdateGamepads()
 
 	switch *activeScene {
 	case constants.SceneOptions_ControllerSetup:

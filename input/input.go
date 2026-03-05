@@ -7,7 +7,22 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
-type GameInput uint8
+type ControllerPosition int
+
+const (
+	UnAssigned ControllerPosition = iota
+	P1Side
+	P2Side
+)
+
+type Input struct {
+	Owner   ControllerPosition
+	Buttons GameInput
+	ID      ebiten.GamepadID
+	Mapping InputMap
+}
+
+type GameInput byte
 
 const (
 	NoInput GameInput = 0
@@ -64,17 +79,53 @@ func (im *InputManager) UpdateGamepadList() {
 	im.GamepadIDs = ebiten.AppendGamepadIDs(im.GamepadIDs[:0])
 }
 
-func LocalInputsFromIDS(ids []ebiten.GamepadID) GameInput {
+func CombinedInputs() []Input {
+	var inputs []Input
+	for _, id := range GamepadIDs {
+		inputs = append(inputs, Input{
+			Owner:   UnAssigned,
+			Buttons: PollGamepads([]ebiten.GamepadID{id}),
+			ID:      id,
+			Mapping: *NewDefaultInputMap(),
+		})
+	}
+	inputs = append(inputs, Input{
+		Owner:   UnAssigned,
+		Buttons: PollGamepads([]ebiten.GamepadID{-1}), // Poll all gamepads + keyboard
+		ID:      -1,                                   // -1 for keyboard
+		Mapping: *NewDefaultInputMap(),
+	})
+	return inputs
+}
+
+// PollGamepads returns the combined GameInput for the specified gamepad IDs and the keyboard(if ID is -1). If no IDs are provided(nil is passed), it checks all connected gamepads.
+func PollGamepads(ids []ebiten.GamepadID) GameInput {
 	var localInputs GameInput
 	inputmap := NewDefaultInputMap()
 
-	for gameInput, keys := range inputmap.KeyboardBindings {
-		if slices.ContainsFunc(keys, ebiten.IsKeyPressed) {
-			localInputs |= gameInput // Once we find one pressed button for this input, we don't need to check the others
+	// If nil is passed, check all connected gamepads
+	pollIDs := ids
+	pollKeyboard := false
+	if ids == nil {
+		pollIDs = GamepadIDs
+		pollKeyboard = true
+	} else {
+		// Check if -1 (keyboard) is among the requested IDs
+		pollKeyboard = slices.Contains(ids, ebiten.GamepadID(-1))
+	}
+
+	if pollKeyboard {
+		for gameInput, keys := range inputmap.KeyboardBindings {
+			if slices.ContainsFunc(keys, ebiten.IsKeyPressed) {
+				localInputs |= gameInput
+			}
 		}
 	}
 
-	for _, gamepadID := range ids {
+	for _, gamepadID := range pollIDs {
+		if gamepadID == ebiten.GamepadID(-1) {
+			continue // Skip keyboard marker in gamepad polling
+		}
 		for gameInput, buttons := range inputmap.GamepadButtons {
 			for _, button := range buttons {
 				if ebiten.IsStandardGamepadButtonPressed(gamepadID, button) {

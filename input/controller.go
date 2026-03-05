@@ -11,7 +11,8 @@ import (
 
 var GamepadIDs []ebiten.GamepadID
 
-func checkForGamepadsConnections() {
+// UpdateGamepads checks for newly connected or disconnected gamepads and updates the GamepadIDs slice accordingly. It also logs these events.
+func UpdateGamepads() {
 	connectedGamepads := inpututil.AppendJustConnectedGamepadIDs(nil)
 
 	for _, id := range connectedGamepads {
@@ -29,14 +30,6 @@ func checkForGamepadsConnections() {
 
 }
 
-type ControllerPosition int
-
-const (
-	P1Side ControllerPosition = iota
-	Center
-	P2Side
-)
-
 type ControllerState struct {
 	ByPosition map[ControllerPosition][]ebiten.GamepadID
 	PositionOf map[ebiten.GamepadID]ControllerPosition
@@ -49,10 +42,10 @@ func newControllerState() *ControllerState {
 	}
 	// Initialize with current gamepads in Center
 	for _, id := range GamepadIDs {
-		cd.assign(id, Center)
+		cd.assign(id, UnAssigned)
 	}
 	// Add keyboard (-1) to Center
-	cd.assign(ebiten.GamepadID(-1), Center)
+	cd.assign(ebiten.GamepadID(-1), UnAssigned)
 	return cd
 }
 
@@ -80,10 +73,10 @@ func (c *ControllerState) assign(id ebiten.GamepadID, pos ControllerPosition) {
 }
 
 func (c *ControllerState) move(id ebiten.GamepadID, dir int) {
-	order := []ControllerPosition{P1Side, Center, P2Side}
+	order := []ControllerPosition{P1Side, UnAssigned, P2Side}
 	cur, ok := c.PositionOf[id]
 	if !ok {
-		cur = Center
+		cur = UnAssigned
 	}
 	idx := 0
 	for i, p := range order {
@@ -108,13 +101,13 @@ func (c *ControllerState) update() {
 	// Ensure newly seen IDs have a default position
 	for _, id := range tempIDs {
 		if _, ok := c.PositionOf[id]; !ok {
-			c.assign(id, Center)
+			c.assign(id, UnAssigned)
 		}
 	}
 
 	// Handle per-id left/right movement
 	for _, id := range tempIDs {
-		activeInput := LocalInputsFromIDS([]ebiten.GamepadID{id})
+		activeInput := PollGamepads([]ebiten.GamepadID{id})
 		left := activeInput.IsPressed(Left)
 		right := activeInput.IsPressed(Right)
 		if left && !right {

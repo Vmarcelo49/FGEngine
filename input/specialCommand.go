@@ -20,7 +20,7 @@ func IsNonDirectionalInput(input GameInput) bool {
 var InputSequences = map[string]InputSequence{ // instead of strings, this should be an enum of common animation names
 	"66": {
 		baseInput: []GameInput{
-			Right, NoInput, Right,
+			Right, NoInput, Right, // instead of NoInput, this could be an "any non-directional input" placeholder that matches any of A, B, C, D
 		},
 		buffer: 10,
 		cancelInputs: []GameInput{

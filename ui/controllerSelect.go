@@ -24,7 +24,7 @@ func NewControllerUI(state *input.ControllerState) *ControllerUI {
 func (c *ControllerUI) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 	baseY := camera.Viewport.H / 4
 
-	positions := []input.ControllerPosition{input.P1Side, input.Center, input.P2Side}
+	positions := []input.ControllerPosition{input.P1Side, input.UnAssigned, input.P2Side}
 	for _, pos := range positions {
 		x := columnX(camera, pos, c.gamepadImg.Bounds().Dx())
 		ids := c.State.ByPosition[pos]
@@ -44,7 +44,7 @@ func columnX(camera *graphics.Camera, pos input.ControllerPosition, iconWidth in
 	switch pos {
 	case input.P1Side:
 		return camera.Viewport.W/4 - float64(iconWidth/2)
-	case input.Center:
+	case input.UnAssigned:
 		return camera.Viewport.W/2 - float64(iconWidth/2)
 	case input.P2Side:
 		return camera.Viewport.W*3/4 - float64(iconWidth/2)

@@ -1,5 +1,0 @@
-i am lost, what should i do next?
-
-Lets consult the last commits
-
-creation of the filepicker... i dont want to mess with this rn
