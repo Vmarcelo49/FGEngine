@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"fgengine/constants"
 	"fgengine/graphics"
 	"fgengine/input"
 
@@ -22,7 +23,7 @@ func MakeControllerScene() Scene {
 	return cScene
 }
 
-func (c *ControllerScene) Update(inputs [2]input.Input) SceneStatus {
+func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
 	input.UpdateGamepads()
 	combinedInputs := input.CombinedInputs()
 
@@ -70,11 +71,13 @@ func (c *ControllerScene) Draw(screen *ebiten.Image) {
 		}
 		switch pos {
 		case input.P1Side:
-			op.GeoM.Translate(100, 100)
+			leftSidePos := constants.CameraWidth/2 - float64(img.Bounds().Dx())/2 - 100
+			op.GeoM.Translate(leftSidePos, 100)
 		case input.P2Side:
-			op.GeoM.Translate(300, 100)
+			rightSidePos := constants.CameraWidth/2 + float64(img.Bounds().Dx())/2 + 100
+			op.GeoM.Translate(rightSidePos, 100)
 		default:
-			op.GeoM.Translate(200, 300)
+			op.GeoM.Translate(constants.CameraWidth/2-float64(img.Bounds().Dx())/2, 300)
 		}
 		screen.DrawImage(img, op)
 	}

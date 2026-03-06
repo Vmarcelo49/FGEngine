@@ -79,6 +79,19 @@ func (im *InputManager) UpdateGamepadList() {
 	im.GamepadIDs = ebiten.AppendGamepadIDs(im.GamepadIDs[:0])
 }
 
+func GetPlayerInputs() [2]GameInput {
+	inputs := [2]GameInput{NoInput, NoInput}
+	for _, inpu := range GlobalInputs {
+		if inpu.Owner == P1Side {
+			inputs[0] |= inpu.Buttons
+		}
+		if inpu.Owner == P2Side {
+			inputs[1] |= inpu.Buttons
+		}
+	}
+	return inputs
+}
+
 func CombinedInputs() []Input {
 	var inputs []Input
 	for _, id := range GamepadIDs {

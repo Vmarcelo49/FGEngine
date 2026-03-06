@@ -8,7 +8,7 @@ import (
 )
 
 type Scene interface {
-	Update([2]input.Input) SceneStatus
+	Update([2]input.GameInput) SceneStatus
 	Draw(*ebiten.Image)
 }
 
@@ -34,7 +34,7 @@ func NewSceneManager() *SceneManager {
 
 func (sm *SceneManager) Update() error {
 	input.UpdateGamepads()
-	sceneSignal := sm.currentScene.Update(input.CurrentInputs())
+	sceneSignal := sm.currentScene.Update(input.GetPlayerInputs())
 	switch sceneSignal {
 	case Scene1:
 		//sm.currentScene = MakeScene1()
