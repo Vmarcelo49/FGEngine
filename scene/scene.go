@@ -33,11 +33,10 @@ func NewSceneManager() *SceneManager {
 }
 
 func (sm *SceneManager) Update() error {
-	input.UpdateGamepads()
-	sceneSignal := sm.currentScene.Update(input.GetPlayerInputs())
+	sceneSignal := sm.currentScene.Update(input.UpdateGamepads())
 	switch sceneSignal {
 	case Scene1:
-		//sm.currentScene = MakeScene1()
+		sm.currentScene = MakeMainMenuScene()
 	case Scene2:
 		//sm.currentScene = MakeScene2()
 	case SceneController:

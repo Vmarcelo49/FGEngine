@@ -9,7 +9,6 @@ import (
 	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/graphics"
-	"fgengine/input"
 	"fgengine/types"
 
 	"github.com/ebitengine/debugui"
@@ -17,12 +16,11 @@ import (
 )
 
 type Game struct {
-	character    *character.Character
-	uiVariables  *uiVariables
-	camera       *graphics.Camera
-	renderQueue  *graphics.RenderQueue
-	inputManager *input.InputManager
-	mouse        *MouseInput
+	character   *character.Character
+	uiVariables *uiVariables
+	camera      *graphics.Camera
+	renderQueue *graphics.RenderQueue
+	mouse       *MouseInput
 
 	debugui debugui.DebugUI
 }
@@ -60,9 +58,8 @@ func NewEditorGame() *Game {
 			logBuf:           "Move Camera with Right click drag\n",
 			enableMouseInput: new(bool),
 		},
-		inputManager: input.NewInputManager(),
-		camera:       graphics.NewCamera(),
-		renderQueue:  &graphics.RenderQueue{},
+		camera:      graphics.NewCamera(),
+		renderQueue: &graphics.RenderQueue{},
 	}
 	game.camera.Scaling = float64(config.LayoutSizeW) / constants.Camera.W
 	game.camera.SetPosition(types.Vector2{X: (-constants.World.W / 2), Y: (-constants.World.H / 2)})

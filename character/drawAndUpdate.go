@@ -3,6 +3,7 @@ package character
 import (
 	"fgengine/constants"
 	"fgengine/graphics"
+	"fgengine/input"
 	"fgengine/state"
 	"fgengine/types"
 
@@ -25,7 +26,21 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 	screen.DrawImage(img, op)
 }
 
-func (c *Character) Update() {
+func (c *Character) Update(gameInput input.GameInput) {
+	facing := c.StateMachine.Facing
+	if !c.StateMachine.IsInactable() {
+		switch gameInput {
+		case input.Left:
+			c.StateMachine.Position.X -= c.Walkspeed
+		case input.Right:
+			c.StateMachine.Position.X += c.Walkspeed
+		}
+	}
+
+}
+
+// Must be replaced
+func (c *Character) UpdateOLD() {
 	// Update animation frame timing first
 	c.updateAnimation()
 

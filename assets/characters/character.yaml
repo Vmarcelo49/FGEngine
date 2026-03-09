@@ -1,0 +1,36 @@
+name: character
+animations:
+    newAnimation:
+        name: walk
+        sprites:
+            - imgPath: ../common/walk.png
+              rect:
+                w: 100
+                h: 200
+        framedata:
+            - boxes:
+                0:
+                    - w: 100
+                      h: 200
+                2:
+                    - w: 100
+                      h: 200
+              duration: 1
+        totalduration: 0
+    walk:
+        name: idle
+        sprites:
+            - imgPath: ../common/idle.png
+              rect:
+                w: 100
+                h: 200
+        framedata:
+            - boxes:
+                0:
+                    - w: 100
+                      h: 200
+                2:
+                    - w: 100
+                      h: 200
+              duration: 1
+        totalduration: 0

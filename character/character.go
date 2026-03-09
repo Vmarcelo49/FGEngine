@@ -22,6 +22,7 @@ type Character struct {
 	JumpHeight float64                         `yaml:"jumpHeight,omitempty"`
 	FilePath   string                          `yaml:"filepath,omitempty"`
 	Animations map[string]*animation.Animation `yaml:"animations"`
+	Walkspeed  float64                         `yaml:"walkSpeed,omitempty"`
 
 	// Ingame Related
 	StateMachine *state.StateMachine `yaml:"-"`
@@ -60,6 +61,8 @@ func (c *Character) initialize() {
 	c.StateMachine.ActiveState = state.StateIdle
 }
 
+// LoadCharacterFromFile loads a character from a specified YAML file path.
+// Sets up the character's animations and state machine after loading.
 func (c *Character) SetAnimation(name string) {
 	anim, ok := c.Animations[name]
 	if !ok {

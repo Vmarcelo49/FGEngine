@@ -13,14 +13,14 @@ const (
 )
 
 type StateMachine struct {
-	ActiveState          State
-	PreviousState        State
-	HP                   int
-	Position             types.Vector2
-	Velocity             types.Vector2
-	IgnoreGravityFrames  int
-	InputHistory         []input.GameInput
-	CharacterOrientation FacingDirection
+	ActiveState         State
+	PreviousState       State
+	HP                  int
+	Position            types.Vector2
+	Velocity            types.Vector2
+	IgnoreGravityFrames int
+	InputHistory        []input.GameInput
+	Facing              FacingDirection
 }
 
 func (sm *StateMachine) AddState(stateToAdd State) {

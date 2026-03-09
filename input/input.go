@@ -16,67 +16,11 @@ const (
 )
 
 type Input struct {
-	Owner   ControllerPosition
-	Buttons GameInput
-	ID      ebiten.GamepadID
-	Mapping InputMap
-}
-
-type GameInput byte
-
-const (
-	NoInput GameInput = 0
-)
-
-const (
-	Up GameInput = 1 << iota
-	Down
-	Left
-	Right
-	A
-	B
-	C
-	D
-)
-
-func (gi GameInput) String() string {
-	if gi == NoInput {
-		return "NoInput"
-	}
-	str := ""
-	if gi&Up != 0 {
-		str += "Up "
-	}
-	if gi&Down != 0 {
-		str += "Down "
-	}
-	if gi&Left != 0 {
-		str += "Left "
-	}
-	if gi&Right != 0 {
-		str += "Right "
-	}
-	if gi&A != 0 {
-		str += "A "
-	}
-	if gi&B != 0 {
-		str += "B "
-	}
-	if gi&C != 0 {
-		str += "C "
-	}
-	if gi&D != 0 {
-		str += "D "
-	}
-	return str
-}
-
-func (gi GameInput) IsPressed(input GameInput) bool {
-	return gi&input != 0
-}
-
-func (im *InputManager) UpdateGamepadList() {
-	im.GamepadIDs = ebiten.AppendGamepadIDs(im.GamepadIDs[:0])
+	Owner       ControllerPosition
+	Buttons     GameInput
+	PrevButtons GameInput
+	ID          ebiten.GamepadID
+	Mapping     InputMap
 }
 
 func GetPlayerInputs() [2]GameInput {
@@ -89,25 +33,6 @@ func GetPlayerInputs() [2]GameInput {
 			inputs[1] |= inpu.Buttons
 		}
 	}
-	return inputs
-}
-
-func CombinedInputs() []Input {
-	var inputs []Input
-	for _, id := range GamepadIDs {
-		inputs = append(inputs, Input{
-			Owner:   UnAssigned,
-			Buttons: PollGamepads([]ebiten.GamepadID{id}),
-			ID:      id,
-			Mapping: *NewDefaultInputMap(),
-		})
-	}
-	inputs = append(inputs, Input{
-		Owner:   UnAssigned,
-		Buttons: PollGamepads([]ebiten.GamepadID{-1}), // Poll all gamepads + keyboard
-		ID:      -1,                                   // -1 for keyboard
-		Mapping: *NewDefaultInputMap(),
-	})
 	return inputs
 }
 
@@ -168,18 +93,4 @@ func PollGamepads(ids []ebiten.GamepadID) GameInput {
 	}
 	checkSOCD(&localInputs)
 	return localInputs
-}
-
-func (im *InputManager) AssignGamepadID(id ebiten.GamepadID) {
-	im.GamepadIDs = append(im.GamepadIDs, id)
-}
-
-func checkSOCD(input *GameInput) {
-	if input.IsPressed(Left) && input.IsPressed(Right) {
-		*input &^= (Left | Right)
-	}
-
-	if input.IsPressed(Up) && input.IsPressed(Down) {
-		*input &^= (Up | Down)
-	}
 }

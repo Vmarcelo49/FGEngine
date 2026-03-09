@@ -9,18 +9,6 @@ type InputMap struct {
 	GamepadButtons   map[GameInput][]ebiten.StandardGamepadButton
 }
 
-type InputManager struct {
-	InputMap   *InputMap
-	GamepadIDs []ebiten.GamepadID
-}
-
-func NewInputManager() *InputManager {
-	return &InputManager{
-		InputMap:   NewDefaultInputMap(),
-		GamepadIDs: []ebiten.GamepadID{},
-	}
-}
-
 func NewDefaultInputMap() *InputMap {
 	return &InputMap{
 		KeyboardBindings: map[GameInput][]ebiten.Key{
