@@ -40,9 +40,9 @@ func (m *MainMenuScene) Update(inputs [2]input.GameInput) SceneStatus {
 	if input.JustPressed(p1, prev, input.A) {
 		switch m.selected {
 		case 0: // Play
-			return Scene1
+			return Scene2
 		case 1: // Options
-			return SceneDontChange
+			return Scene1
 		case 2: // Exit
 			return SceneDontChange
 		}

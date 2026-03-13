@@ -55,7 +55,7 @@ type BoxDrawable struct {
 }
 
 func (b *BoxDrawable) Draw(screen *ebiten.Image, camera *graphics.Camera) {
-	framedata := b.Character.AnimationPlayer.ActiveFrameData()
+	framedata := b.Character.StateMachine.ActiveAnim.ActiveFrameData()
 	if framedata == nil || len(framedata.Boxes) == 0 {
 		return
 	}

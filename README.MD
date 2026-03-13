@@ -4,9 +4,7 @@ Fighting game engine written in go using ebitengine.
 
 ## State
 
-It has been quite a while since i've seen my code, i have to re learn what evenrything is(probably should not take much time)
+Massive rewrites...
 
-## Next goals
-
-Re-organize character related packages, merge character, state and animation first
+Simplify code, starting from the editor was a huge mistake, first we want to make the character with the statemachine!
 

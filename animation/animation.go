@@ -1,12 +1,15 @@
 package animation
 
-import "fgengine/types"
+import (
+	"fgengine/types"
+	"fmt"
+)
 
 type Animation struct {
 	Name          string      `yaml:"name,omitempty"`
 	Sprites       []*Sprite   `yaml:"sprites"`
 	FrameData     []FrameData `yaml:"framedata"`
-	TotalDuration int
+	TotalDuration int         `yaml:"-"`
 }
 
 type Sprite struct {
@@ -15,10 +18,11 @@ type Sprite struct {
 }
 
 type AnimationPlayer struct {
-	ActiveAnimation *Animation `yaml:"-"`
-	FrameIndex      int        `yaml:"-"`
-	ShouldLoop      bool       `yaml:"-"`
-	AnimationQueue  []string   `yaml:"-"` // names are probably smaller than full Animation structs
+	ActiveAnimation *Animation            `yaml:"-"`
+	Animations      map[string]*Animation `yaml:"animations"`
+	FrameIndex      int                   `yaml:"-"`
+	ShouldLoop      bool                  `yaml:"-"`
+	AnimationQueue  []string              `yaml:"-"` // names are probably smaller than full Animation structs
 
 	FrameTimeLeft int `yaml:"-"`
 }
@@ -32,6 +36,18 @@ func (ap *AnimationPlayer) ActiveSprite() *Sprite {
 		return nil
 	}
 	return ap.ActiveAnimation.Sprites[frameData.SpriteIndex]
+}
+
+func (ap *AnimationPlayer) SetAnimation(name string, loop bool) {
+	anim, exists := ap.Animations[name]
+	if !exists {
+		fmt.Println(fmt.Sprintf("Animation '%s' not found", name))
+		return
+	}
+	ap.ActiveAnimation = anim
+	ap.ShouldLoop = loop
+	ap.FrameIndex = 0
+	ap.FrameTimeLeft = anim.FrameData[0].Duration
 }
 
 func (ap *AnimationPlayer) Update() {

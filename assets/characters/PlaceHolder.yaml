@@ -1,0 +1,36 @@
+name: PlaceHolder
+stateMachine:
+  activeAnim:
+    animations:
+      idle:
+        name: idle
+        sprites:
+          - imgPath: ../common/idle.png
+            rect:
+              w: 100
+              h: 200
+        framedata:
+          - duration: 1
+            spriteIndex: 0
+      "6":
+        name: "6"
+        sprites:
+          - imgPath: ../common/walk.png
+            rect:
+              w: 100
+              h: 200
+        framedata:
+          - duration: 1
+            spriteIndex: 0
+            changeXSpeed: 2
+      "4":
+        name: "4"
+        sprites:
+          - imgPath: ../common/walk.png
+            rect:
+              w: 100
+              h: 200
+        framedata:
+          - duration: 1
+            spriteIndex: 0
+            changeXSpeed: -2

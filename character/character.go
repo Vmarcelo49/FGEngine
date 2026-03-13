@@ -2,7 +2,7 @@ package character
 
 import (
 	"fgengine/animation"
-	"fgengine/state"
+	"fgengine/constants"
 	"fgengine/types"
 	"fmt"
 	"os"
@@ -11,103 +11,43 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	defaultCharacterPath = "./assets/characters/"
-)
-
 type Character struct {
-	ID         int                             `yaml:"id,omitempty"`
-	Name       string                          `yaml:"name"`
-	Friction   float64                         `yaml:"friction,omitempty"`
-	JumpHeight float64                         `yaml:"jumpHeight,omitempty"`
-	FilePath   string                          `yaml:"filepath,omitempty"`
-	Animations map[string]*animation.Animation `yaml:"animations"`
-	Walkspeed  float64                         `yaml:"walkSpeed,omitempty"`
-
-	// Ingame Related
-	StateMachine *state.StateMachine `yaml:"-"`
-
-	AnimationPlayer *animation.AnimationPlayer `yaml:"-"`
+	Name         string                  `yaml:"name"`
+	StateMachine *animation.StateMachine `yaml:"stateMachine"`
 }
 
-type CharacterID int
-
-const (
-	Helmet CharacterID = iota
-)
-
-// LoadCharacter loads a character by its ID.
-func LoadCharacter(id CharacterID) (*Character, error) {
-	chara := &Character{}
-	var err error
-	switch id {
-	case Helmet:
-		chara, err = loadCharacterByFile(defaultCharacterPath + "helmet.yaml")
-		if err != nil {
-			return nil, err
-		}
-	default:
-		return nil, fmt.Errorf("unknown character ID: %d", id)
-	}
-	chara.initialize()
-	return chara, nil
-}
-
-func (c *Character) initialize() {
-	c.AnimationPlayer = &animation.AnimationPlayer{}
-	c.SetAnimation("idle")
-
-	c.StateMachine = &state.StateMachine{}
-	c.StateMachine.ActiveState = state.StateIdle
-}
-
-// LoadCharacterFromFile loads a character from a specified YAML file path.
-// Sets up the character's animations and state machine after loading.
-func (c *Character) SetAnimation(name string) {
-	anim, ok := c.Animations[name]
-	if !ok {
-		if idleAnim, exists := c.Animations["idle"]; exists { // Fallback to idle animation
-			anim = idleAnim
-			c.AnimationPlayer.ShouldLoop = true
-		} else {
-			panic(fmt.Sprintf("Animation '%s' not found for character '%s' and no 'idle' fallback exists", name, c.Name))
-		}
-
-	}
-	c.AnimationPlayer.ActiveAnimation = anim
-	//c.AnimationPlayer.ShouldLoop = loop
-	c.AnimationPlayer.FrameIndex = 0
-	c.AnimationPlayer.FrameTimeLeft = anim.FrameData[0].Duration
-}
-
-// updateAnimation advances the animation frame based on a simple frame counter
-func (c *Character) updateAnimation() {
-	if c.AnimationPlayer.ActiveAnimation == nil || len(c.AnimationPlayer.ActiveAnimation.FrameData) == 0 {
-		return
-	}
-
-	c.AnimationPlayer.Update()
-
-	// if anim ended and len(AnimationQueue) > 0, switch to next animation
-	if c.AnimationPlayer.IsFinished() && len(c.AnimationPlayer.AnimationQueue) > 0 {
-		c.SetAnimation(c.AnimationPlayer.AnimationQueue[0])
-		c.AnimationPlayer.AnimationQueue = c.AnimationPlayer.AnimationQueue[1:]
-	}
-}
-
-func loadCharacterByFile(filePath string) (*Character, error) {
-	data, err := os.ReadFile(filePath)
+func LoadCharacter(name string, playerSide int) (*Character, error) {
+	chara, err := loadCharacterByName(name)
 	if err != nil {
 		return nil, err
 	}
+	chara.initialize(playerSide)
+	return chara, nil
+}
 
-	character := &Character{}
-	if err := yaml.Unmarshal(data, character); err != nil {
-		return nil, err
+func loadCharacterByName(name string) (*Character, error) {
+	filePath := "./assets/characters/" + name + ".yaml"
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read character file: %w", err)
 	}
 
-	// Convert relative paths to absolute paths based on YAML file location
-	for _, anim := range character.Animations {
+	character := &Character{
+		Name: name,
+	}
+	if err := yaml.Unmarshal(data, character); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal character data: %w", err)
+	}
+
+	if character.StateMachine == nil || character.StateMachine.ActiveAnim == nil {
+		return nil, fmt.Errorf("character file is missing stateMachine.activeAnim")
+	}
+	if character.StateMachine.ActiveAnim.Animations == nil {
+		return nil, fmt.Errorf("character file is missing stateMachine.activeAnim.animations")
+	}
+
+	// Resolve relative paths for all sprites in all animations
+	for _, anim := range character.StateMachine.ActiveAnim.Animations {
 		for _, sprite := range anim.Sprites {
 			if sprite.ImagePath != "" {
 				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, filePath)
@@ -115,6 +55,41 @@ func loadCharacterByFile(filePath string) (*Character, error) {
 		}
 	}
 	return character, nil
+}
+
+func (c *Character) initialize(playerSide int) {
+	if c.StateMachine == nil {
+		c.StateMachine = &animation.StateMachine{}
+	}
+	if c.StateMachine.ActiveAnim == nil {
+		c.StateMachine.ActiveAnim = &animation.AnimationPlayer{}
+	}
+
+	var initialX float64
+	var facing animation.Orientation
+	if playerSide == 1 {
+		initialX = constants.WorldWidth / 4
+		facing = animation.Right
+	} else if playerSide == 2 {
+		initialX = 3 * constants.WorldWidth / 4
+		facing = animation.Left
+	}
+
+	c.StateMachine.HP = 10000
+	c.StateMachine.Position = types.Vector2{X: initialX, Y: constants.WorldHeight / 2}
+	c.StateMachine.Facing = facing
+	c.StateMachine.Velocity = types.Vector2{}
+	c.StateMachine.IgnoreGravityFrames = 0
+	c.StateMachine.InputHistory = nil
+
+	switch {
+	case c.StateMachine.ActiveAnim.Animations["idle"] != nil:
+		c.StateMachine.ActiveAnim.SetAnimation("idle", true)
+	case c.StateMachine.ActiveAnim.Animations["6"] != nil:
+		c.StateMachine.ActiveAnim.SetAnimation("6", true)
+	case c.StateMachine.ActiveAnim.Animations["4"] != nil:
+		c.StateMachine.ActiveAnim.SetAnimation("4", true)
+	}
 }
 
 // resolveRelativePath converts a relative path to an absolute path based on a reference path
@@ -131,8 +106,5 @@ func (c *Character) Position() types.Vector2 {
 }
 
 func (c *Character) Sprite() *animation.Sprite {
-	if c == nil || c.AnimationPlayer == nil {
-		return nil
-	}
-	return c.AnimationPlayer.ActiveSprite()
+	return c.StateMachine.ActiveAnim.ActiveSprite()
 }

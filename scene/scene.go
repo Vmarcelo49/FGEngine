@@ -23,7 +23,6 @@ const (
 
 type SceneManager struct {
 	currentScene Scene
-	//inputs
 }
 
 func NewSceneManager() *SceneManager {
@@ -38,7 +37,7 @@ func (sm *SceneManager) Update() error {
 	case Scene1:
 		sm.currentScene = MakeMainMenuScene()
 	case Scene2:
-		//sm.currentScene = MakeScene2()
+		sm.currentScene = MakeGameplayScene()
 	case SceneController:
 		sm.currentScene = MakeControllerScene()
 	}

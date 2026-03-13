@@ -11,8 +11,8 @@ type InputSequence struct {
 	//alias []GameInput
 }
 
-// IsNonDirectionalInput checks if the input is a non-directional input (A, B, C, D)
-func IsNonDirectionalInput(input GameInput) bool {
+// isNonDirectionalInput checks if the input is a non-directional input (A, B, C, D)
+func isNonDirectionalInput(input GameInput) bool {
 	directionalInputs := Up | Down | Left | Right
 	return input != NoInput && (input&directionalInputs) == 0
 }
@@ -66,7 +66,7 @@ func DetectInputSequence(inputSeq InputSequence, inputs []GameInput) bool {
 			}
 
 			// for NoInput in the sequence, match any non-directional input
-			if (expectedInput == NoInput && IsNonDirectionalInput(currentInput)) ||
+			if (expectedInput == NoInput && isNonDirectionalInput(currentInput)) ||
 				currentInput == expectedInput ||
 				(expectedInput != NoInput && (currentInput&expectedInput) == expectedInput) {
 				found = true
@@ -89,4 +89,13 @@ func DetectInputSequence(inputSeq InputSequence, inputs []GameInput) bool {
 	}
 
 	return true
+}
+
+func CheckSpecialMove(inputs []GameInput) string {
+	for name, seq := range InputSequences {
+		if DetectInputSequence(seq, inputs) {
+			return name
+		}
+	}
+	return ""
 }
