@@ -29,6 +29,7 @@ func MakeControllerScene() Scene {
 }
 
 func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
+	// Check for new gamepads and add them to the list if they aren't already there
 	for _, id := range input.GamepadIDs {
 		found := false
 		for _, entry := range c.controllerIMGs {
@@ -39,14 +40,12 @@ func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
 		}
 		if !found {
 			img := graphics.LoadImage("assets/common/gamepad.png")
-			if id == ebiten.GamepadID(-1) {
-				img = graphics.LoadImage("assets/common/keyboard.png")
-			}
 			c.controllerIMGs = append(c.controllerIMGs, controllerEntry{ID: id, Img: img})
 		}
 	}
+	// Assign gamepads to players based on input
 	for _, singleInput := range input.GlobalInputs {
-		cur := singleInput.Buttons
+		cur := singleInput.ActiveButtons
 		prev := singleInput.PrevButtons
 		if singleInput.Owner == input.P1Side {
 			if input.JustPressed(cur, prev, input.Right) {

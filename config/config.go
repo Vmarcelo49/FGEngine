@@ -4,6 +4,8 @@ import (
 	"fgengine/constants"
 	"fgengine/language"
 	"fgengine/types"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // Only user-configurable settings should be here
@@ -32,6 +34,8 @@ func SetEditorConfig() {
 
 func InitGameConfig() {
 	initDefaultConfig()
+	ebiten.SetWindowSize(WindowWidth, WindowHeight)
+	ebiten.SetWindowTitle("FG Engine")
 	LayoutSizeW = int(constants.Camera.W)
 	LayoutSizeH = int(constants.Camera.H)
 

@@ -15,6 +15,10 @@ type Animation struct {
 type Sprite struct {
 	ImagePath string     `yaml:"imgPath"`
 	Rect      types.Rect `yaml:"rect"`
+
+	Anchor  types.Vector2 `yaml:"anchor,omitempty"`
+	AnchorX float64       `yaml:"anchorX,omitempty"`
+	AnchorY float64       `yaml:"anchorY,omitempty"`
 }
 
 type AnimationPlayer struct {

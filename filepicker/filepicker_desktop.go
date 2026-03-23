@@ -32,6 +32,16 @@ func (d *DesktopFilePicker) LoadFile(filter FileFilter) (string, error) {
 	return path, nil
 }
 
+func (d *DesktopFilePicker) LoadFiles(filter FileFilter) ([]string, error) {
+	// TODO: Use native multi-select dialog when available in dialog package
+	// For now, call LoadFile once and return as slice
+	path, err := d.LoadFile(filter)
+	if err != nil {
+		return nil, err
+	}
+	return []string{path}, nil
+}
+
 func (d *DesktopFilePicker) SaveFile(filter FileFilter) (string, error) {
 	dialogBuilder := dialog.File()
 

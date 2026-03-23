@@ -9,6 +9,8 @@ stateMachine:
             rect:
               w: 100
               h: 200
+            anchorX: 50
+            anchorY: 200
         framedata:
           - duration: 1
             spriteIndex: 0
@@ -19,6 +21,8 @@ stateMachine:
             rect:
               w: 100
               h: 200
+            anchorX: 50
+            anchorY: 200
         framedata:
           - duration: 1
             spriteIndex: 0
@@ -30,7 +34,22 @@ stateMachine:
             rect:
               w: 100
               h: 200
+            anchorX: 50
+            anchorY: 200
         framedata:
           - duration: 1
             spriteIndex: 0
             changeXSpeed: -2
+      "jump":
+        name: "jump"
+        sprites:
+          - imgPath: ../common/jump.png
+            rect:
+              w: 100
+              h: 200
+            anchorX: 50
+            anchorY: 200
+        framedata:
+          - duration: 1
+            spriteIndex: 0
+            changeYSpeed: -5

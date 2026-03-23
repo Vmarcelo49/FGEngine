@@ -20,15 +20,6 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 			ctx.SetGridLayout([]int{-1, -1}, nil)
 			ctx.Text("Name:")
 			ctx.TextField(&g.character.Name)
-
-			ctx.Text("ID:")
-			ctx.NumberField(&g.character.ID, 1)
-
-			ctx.Text("Friction:")
-			ctx.NumberFieldF(&g.character.Friction, 1, 2)
-
-			ctx.Text("Jump Height:")
-			ctx.NumberFieldF(&g.character.JumpHeight, 1, 2)
 		})
 		ctx.SetGridLayout([]int{-1}, nil)
 		if g.character != nil {
@@ -43,10 +34,17 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 			return
 		}
 
+		if g.uiVariables.animationSelectionIndex < 0 || g.uiVariables.animationSelectionIndex >= len(animNames) {
+			g.uiVariables.animationSelectionIndex = 0
+		}
+		if g.ActiveAnimation() == nil {
+			g.setActiveAnimation(animNames[g.uiVariables.animationSelectionIndex], true)
+		}
+
 		ctx.SetGridLayout([]int{-1, -1}, nil)
 		ctx.Text("Select Animation:")
 		ctx.Dropdown(&g.uiVariables.animationSelectionIndex, animNames).On(func() {
-			g.character.SetAnimation(animNames[g.uiVariables.animationSelectionIndex])
+			g.setActiveAnimation(animNames[g.uiVariables.animationSelectionIndex], true)
 		})
 		ctx.Text("Animation Name:")
 		oldName := animNames[g.uiVariables.animationSelectionIndex]
@@ -58,9 +56,10 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 			newName := g.ActiveAnimation().Name
 
 			if oldName != newName {
-				anim := g.character.Animations[oldName]
-				delete(g.character.Animations, oldName)
-				g.character.Animations[newName] = anim
+				anim := g.animations()[oldName]
+				delete(g.animations(), oldName)
+				anim.Name = newName
+				g.animations()[newName] = anim
 				g.writeLog(fmt.Sprintf("Animation renamed from '%s' to '%s'", oldName, newName))
 
 				newAnimNames := g.animationNames()
@@ -78,11 +77,11 @@ func (g *Game) uiProjectPanel(ctx *debugui.Context) {
 }
 
 func (g *Game) animationNames() []string {
-	if g.character == nil {
+	if g.animations() == nil {
 		return nil
 	}
 	var anims []string
-	for name := range g.character.Animations {
+	for name := range g.animations() {
 		anims = append(anims, name)
 	}
 	slices.Sort(anims) // consistent ordering for dropdown
@@ -96,7 +95,6 @@ func (g *Game) menuBarNewAnim() {
 		return
 	}
 
-	g.character.Animations[newAnim.Name] = newAnim
-	g.character.AnimationPlayer.ActiveAnimation = newAnim
+	newAnim.Name = newAnim.Name
 	g.writeLog("New animation created successfully")
 }

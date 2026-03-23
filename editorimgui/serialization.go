@@ -1,4 +1,7 @@
-package editor
+//go:build !js && !wasm
+// +build !js,!wasm
+
+package editorimgui
 
 import (
 	"fgengine/animation"

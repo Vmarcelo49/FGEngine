@@ -2,11 +2,11 @@ package editor
 
 import (
 	"fgengine/config"
-	"fgengine/filepicker"
 	"fmt"
 	"image"
 
 	"github.com/ebitengine/debugui"
+	"github.com/sqweek/dialog"
 )
 
 func (g *Game) guiTimeline(ctx *debugui.Context) {
@@ -14,7 +14,13 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 	rightX := config.WindowWidth - panelWidth - 1
 
 	ctx.Window("Timeline", image.Rect(panelWidth, topY, rightX, config.WindowHeight), func(layout debugui.ContainerLayout) {
-		sprite := g.character.AnimationPlayer.ActiveSprite()
+		player := g.activeAnimPlayer()
+		if player == nil {
+			ctx.Text("No animation player available")
+			return
+		}
+
+		sprite := player.ActiveSprite()
 
 		if sprite == nil {
 			ctx.Text("No frame selected")
@@ -24,21 +30,33 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 
 		ctx.Text("Active Frame:")
 		frameCount := len(g.ActiveAnimation().FrameData)
+		if frameCount == 0 {
+			ctx.Text("No frame data")
+			return
+		}
+		if player.FrameIndex < 0 || player.FrameIndex >= frameCount {
+			player.FrameIndex = 0
+		}
+		if g.uiVariables.frameDataIndex < 0 || g.uiVariables.frameDataIndex >= frameCount {
+			g.uiVariables.frameDataIndex = player.FrameIndex
+		}
+
 		if frameCount > 0 {
-			ctx.Slider(&g.character.AnimationPlayer.FrameIndex, 0, frameCount-1, 1).On(func() {
+			ctx.Slider(&player.FrameIndex, 0, frameCount-1, 1).On(func() {
 				// Reset frame time when manually changing frame
-				g.character.AnimationPlayer.FrameTimeLeft = g.ActiveAnimation().FrameData[g.character.AnimationPlayer.FrameIndex].Duration
+				player.FrameTimeLeft = g.ActiveAnimation().FrameData[player.FrameIndex].Duration
+				g.uiVariables.frameDataIndex = player.FrameIndex
 			})
 		}
-		framedataIndex := g.character.AnimationPlayer.FrameIndex
+		framedataIndex := player.FrameIndex
 		ctx.Text(fmt.Sprintf("%d / %d", framedataIndex+1, frameCount))
 
 		ctx.Text("Framedata:")
 		framedataLen := len(g.ActiveAnimation().FrameData)
 		if framedataLen > 1 {
 			ctx.Slider(&g.uiVariables.frameDataIndex, 0, framedataLen-1, 1).On(func() {
-				g.character.AnimationPlayer.FrameIndex = g.uiVariables.frameDataIndex
-				g.character.AnimationPlayer.FrameTimeLeft = g.ActiveAnimation().FrameData[g.uiVariables.frameDataIndex].Duration
+				player.FrameIndex = g.uiVariables.frameDataIndex
+				player.FrameTimeLeft = g.ActiveAnimation().FrameData[g.uiVariables.frameDataIndex].Duration
 			})
 		}
 		ctx.Text(fmt.Sprintf("%d / %d", g.uiVariables.frameDataIndex+1, framedataLen))
@@ -73,30 +91,26 @@ func (g *Game) guiTimeline(ctx *debugui.Context) {
 			} else {
 				g.uiVariables.playingAnim = false
 			}
-			g.character.AnimationPlayer.FrameIndex = 0
-			g.character.AnimationPlayer.FrameTimeLeft = g.ActiveAnimation().FrameData[0].Duration
+			player.FrameIndex = 0
+			player.FrameTimeLeft = g.ActiveAnimation().FrameData[0].Duration
 		})
 
 	})
 }
 
 func (g *Game) AddImageToAnimation() {
-	picker := filepicker.GetFilePicker()
-	filter := filepicker.FileFilter{
-		Description: "Image files",
-		Extensions:  []string{"png"},
-	}
-
-	path, err := picker.LoadFile(filter)
+	path, err := dialog.File().Filter("PNG Image", "png").Load()
 	if err != nil {
 		g.writeLog(fmt.Sprintf("failed to load image: %s", err))
 		return
 	}
 
-	if err := g.addSpriteByFile(path); err != nil {
-		g.writeLog(fmt.Sprintf("failed to add image to frame: %s", err))
+	if err := g.addSpritesFromFiles([]string{path}); err != nil {
+		g.writeLog(fmt.Sprintf("failed to add image to animation: %s", err))
 		return
 	}
+
+	g.writeLog("Added frame to animation")
 }
 
 func (g *Game) duplicateLastFrameData() {
@@ -112,16 +126,32 @@ func (g *Game) removeFrame() {
 	if g.ActiveAnimation() == nil || len(g.ActiveAnimation().FrameData) == 0 {
 		return
 	}
-	lastIndex := len(g.ActiveAnimation().FrameData) - 1
+	player := g.activeAnimPlayer()
+	if player == nil {
+		return
+	}
+
+	frameCount := len(g.ActiveAnimation().FrameData)
+	if g.uiVariables.frameDataIndex < 0 || g.uiVariables.frameDataIndex >= frameCount {
+		g.uiVariables.frameDataIndex = player.FrameIndex
+	}
+	if g.uiVariables.frameDataIndex < 0 || g.uiVariables.frameDataIndex >= frameCount {
+		g.uiVariables.frameDataIndex = frameCount - 1
+	}
+
 	frameData := g.ActiveAnimation().FrameData
 	g.ActiveAnimation().FrameData = append(frameData[:g.uiVariables.frameDataIndex], frameData[g.uiVariables.frameDataIndex+1:]...)
 
-	// Adjust frameIndex after removal
-	if g.uiVariables.frameDataIndex > 0 {
-		g.uiVariables.frameDataIndex = lastIndex - 1
+	if len(g.ActiveAnimation().FrameData) == 0 {
+		player.FrameIndex = 0
+		player.FrameTimeLeft = 0
+		g.uiVariables.frameDataIndex = 0
+		return
 	}
 
-	if len(g.ActiveAnimation().FrameData) == 0 {
-		g.uiVariables.frameDataIndex = 0
+	if g.uiVariables.frameDataIndex >= len(g.ActiveAnimation().FrameData) {
+		g.uiVariables.frameDataIndex = len(g.ActiveAnimation().FrameData) - 1
 	}
+	player.FrameIndex = g.uiVariables.frameDataIndex
+	player.FrameTimeLeft = g.ActiveAnimation().FrameData[player.FrameIndex].Duration
 }

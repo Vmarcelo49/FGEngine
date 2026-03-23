@@ -1,4 +1,7 @@
-package editor
+//go:build !js && !wasm
+// +build !js,!wasm
+
+package editorimgui
 
 import (
 	"fgengine/animation"
@@ -11,26 +14,6 @@ import (
 	"github.com/sqweek/dialog"
 )
 
-// Opens a PNG file, appends a new sprite to the active animation
-// TODO: refactor to accept file data instead of path for better cross-platform support
-func (g *Game) addSpriteByFile(path string) error {
-	if g.ActiveAnimation() == nil {
-		return fmt.Errorf("no active animation available")
-	}
-	sprite, err := loadSpriteFromImagePath(path)
-	if err != nil {
-		return fmt.Errorf("error creating sprite from file: %w", err)
-	}
-	g.ActiveAnimation().Sprites = append(g.ActiveAnimation().Sprites, sprite)
-	newFrameData := animation.FrameData{
-		Duration:    1,
-		SpriteIndex: len(g.ActiveAnimation().Sprites) - 1, // Index of the newly added sprite
-	}
-	g.ActiveAnimation().FrameData = append(g.ActiveAnimation().FrameData, newFrameData)
-	return nil
-}
-
-// addSpritesFromFiles opens multiple PNG files and creates one frame per image
 func (g *Game) addSpritesFromFiles(paths []string) error {
 	if g.ActiveAnimation() == nil {
 		return fmt.Errorf("no active animation available")

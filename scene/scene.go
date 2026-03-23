@@ -23,23 +23,40 @@ const (
 
 type SceneManager struct {
 	currentScene Scene
+	waitNeutral  bool
 }
 
 func NewSceneManager() *SceneManager {
 	return &SceneManager{
 		currentScene: MakeControllerScene(),
+		waitNeutral:  true,
 	}
 }
 
 func (sm *SceneManager) Update() error {
-	sceneSignal := sm.currentScene.Update(input.UpdateGamepads())
+	polledInputs := input.UpdateGamepads()
+	activeInputs := polledInputs
+
+	// Prevent button carry-over between scenes by waiting for full release.
+	if sm.waitNeutral {
+		if polledInputs[0] == input.NoInput && polledInputs[1] == input.NoInput {
+			sm.waitNeutral = false
+		} else {
+			activeInputs = [2]input.GameInput{input.NoInput, input.NoInput}
+		}
+	}
+
+	sceneSignal := sm.currentScene.Update(activeInputs)
 	switch sceneSignal {
 	case Scene1:
 		sm.currentScene = MakeMainMenuScene()
+		sm.waitNeutral = true
 	case Scene2:
 		sm.currentScene = MakeGameplayScene()
+		sm.waitNeutral = true
 	case SceneController:
 		sm.currentScene = MakeControllerScene()
+		sm.waitNeutral = true
 	}
 	return nil
 }

@@ -9,7 +9,12 @@ import (
 )
 
 func (g *Game) activeBox() *types.Rect {
-	frameData := g.character.AnimationPlayer.ActiveFrameData()
+	player := g.activeAnimPlayer()
+	if player == nil {
+		return nil
+	}
+
+	frameData := player.ActiveFrameData()
 	if frameData == nil {
 		return nil
 	}
@@ -19,6 +24,10 @@ func (g *Game) activeBox() *types.Rect {
 
 	boxType := g.uiVariables.activeBoxType
 	boxIndex := g.uiVariables.activeBoxIndex
+	boxes, exists := frameData.Boxes[boxType]
+	if !exists || boxIndex < 0 || boxIndex >= len(boxes) {
+		return nil
+	}
 
 	return &frameData.Boxes[boxType][boxIndex]
 }
@@ -26,10 +35,20 @@ func (g *Game) activeBox() *types.Rect {
 func (g *Game) boxEditor(ctx *debugui.Context) {
 	ctx.Header("Box Editor", true, func() {
 		ctx.Checkbox(g.uiVariables.enableMouseInput, "Enable mouse controls")
-		frameData := g.character.AnimationPlayer.ActiveFrameData()
+		player := g.activeAnimPlayer()
+		if player == nil {
+			ctx.Text("No animation player available")
+			return
+		}
+
+		frameData := player.ActiveFrameData()
 		if frameData == nil {
 			ctx.Text("No frame data available")
 			return
+		}
+
+		if frameData.Boxes == nil {
+			frameData.Boxes = make(map[collision.BoxType][]types.Rect)
 		}
 
 		ctx.SetGridLayout([]int{-1}, nil)
@@ -107,7 +126,12 @@ func (g *Game) deleteSelectedBox() {
 		return
 	}
 
-	frameData := g.character.AnimationPlayer.ActiveFrameData()
+	player := g.activeAnimPlayer()
+	if player == nil {
+		return
+	}
+
+	frameData := player.ActiveFrameData()
 	if frameData == nil {
 		return
 	}
@@ -121,10 +145,19 @@ func (g *Game) deleteSelectedBox() {
 }
 
 func (g *Game) addBox() {
-	frameData := g.character.AnimationPlayer.ActiveFrameData()
+	player := g.activeAnimPlayer()
+	if player == nil {
+		g.writeLog("No animation player available")
+		return
+	}
+
+	frameData := player.ActiveFrameData()
 	if frameData == nil {
 		g.writeLog("No active frame data to add box to")
 		return
+	}
+	if frameData.Boxes == nil {
+		frameData.Boxes = make(map[collision.BoxType][]types.Rect)
 	}
 	boxType := collision.BoxType(g.uiVariables.boxDropdownTypeIndex)
 	newRect := types.Rect{X: 0, Y: 0, W: 50, H: 50}

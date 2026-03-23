@@ -1,8 +1,7 @@
-package editor
+//go:build !js && !wasm
+// +build !js,!wasm
 
-// Editor can edit characters and animations
-// every animation has a set of properties and boxes that can be adjusted
-// run go run .\cmd\editor\
+package editorimgui
 
 import (
 	"fgengine/character"
@@ -11,7 +10,7 @@ import (
 	"fgengine/graphics"
 	"fgengine/types"
 
-	"github.com/ebitengine/debugui"
+	ebimgui "github.com/gabstv/ebiten-imgui/v3"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -21,8 +20,6 @@ type Game struct {
 	camera      *graphics.Camera
 	renderQueue *graphics.RenderQueue
 	mouse       *MouseInput
-
-	debugui debugui.DebugUI
 }
 
 type MouseInput struct {
@@ -35,7 +32,7 @@ func (g *Game) Update() error {
 	g.handleCameraInput()
 	g.handleBoxMouseEdit()
 	g.updateAnimationFrame()
-	if err := g.updateDebugUI(); err != nil {
+	if err := g.updateImGui(); err != nil {
 		return err
 	}
 	return nil
@@ -45,10 +42,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.renderQueue.Draw(screen, g.camera)
 
 	g.drawMouseCrosshair(screen)
-	g.debugui.Draw(screen)
+	ebimgui.Draw(screen)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	ebimgui.SetDisplaySize(float32(outsideWidth), float32(outsideHeight))
 	return config.LayoutSizeW, config.LayoutSizeH
 }
 

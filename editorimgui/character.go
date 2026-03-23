@@ -1,9 +1,11 @@
-package editor
+//go:build !js && !wasm
+// +build !js,!wasm
+
+package editorimgui
 
 import (
 	"fgengine/animation"
 	"fgengine/character"
-	"fgengine/collision"
 	"fgengine/constants"
 	"fgengine/types"
 )
@@ -114,7 +116,6 @@ func (g *Game) loadCharacter() {
 	g.writeLog("Character loaded successfully")
 }
 
-// when creating or loading a new character, check if we need to reset the current state
 func (g *Game) deleteCurrentCharacter() {
 	if g.character != nil && g.ActiveAnimation() != nil {
 		g.resetCharacterState()
@@ -132,27 +133,5 @@ func (g *Game) saveCharacter() {
 		g.writeLog("Failed to export character: " + err.Error())
 	} else {
 		g.writeLog("Character saved successfully to assets/characters/!")
-	}
-}
-
-// createPlaceholderIdleAnimation creates a default idle animation using notFound.png
-func (g *Game) createPlaceholderIdleAnimation() *animation.Animation {
-	placeholderSprite := &animation.Sprite{
-		ImagePath: "../common/notFound.png", // todo check this path
-		Rect: types.Rect{
-			W: 64,
-			H: 64,
-		},
-	}
-
-	placeholderFrame := animation.FrameData{
-		Duration: 1,
-		Boxes:    make(map[collision.BoxType][]types.Rect),
-	}
-
-	return &animation.Animation{
-		Name:      "idle",
-		Sprites:   []*animation.Sprite{placeholderSprite},
-		FrameData: []animation.FrameData{placeholderFrame},
 	}
 }

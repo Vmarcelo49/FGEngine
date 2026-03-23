@@ -19,6 +19,11 @@ func (w *WebAssemblyFilePicker) LoadFile(filter FileFilter) (string, error) {
 	return "", fmt.Errorf("WebAssembly file picker not implemented")
 }
 
+// LoadFiles TODO: implement using syscall/js and HTML File API for multiple file selection
+func (w *WebAssemblyFilePicker) LoadFiles(filter FileFilter) ([]string, error) {
+	return nil, fmt.Errorf("WebAssembly multiple file picker not implemented")
+}
+
 // SaveFile TODO: implement using syscall/js and File System Access API
 func (w *WebAssemblyFilePicker) SaveFile(filter FileFilter) (string, error) {
 	return "", fmt.Errorf("WebAssembly file save not implemented")

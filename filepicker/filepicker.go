@@ -7,6 +7,7 @@ type FileFilter struct {
 
 type FilePicker interface {
 	LoadFile(filter FileFilter) (string, error)
+	LoadFiles(filter FileFilter) ([]string, error)
 	SaveFile(filter FileFilter) (string, error)
 }
 

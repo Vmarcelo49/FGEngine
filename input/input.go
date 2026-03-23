@@ -16,21 +16,21 @@ const (
 )
 
 type Input struct {
-	Owner       ControllerPosition
-	Buttons     GameInput
-	PrevButtons GameInput
-	ID          ebiten.GamepadID
-	Mapping     InputMap
+	Owner         ControllerPosition
+	ActiveButtons GameInput
+	PrevButtons   GameInput
+	ID            ebiten.GamepadID
+	Mapping       InputMap
 }
 
 func GetPlayerInputs() [2]GameInput {
 	inputs := [2]GameInput{NoInput, NoInput}
 	for _, inpu := range GlobalInputs {
 		if inpu.Owner == P1Side {
-			inputs[0] |= inpu.Buttons
+			inputs[0] |= inpu.ActiveButtons
 		}
 		if inpu.Owner == P2Side {
-			inputs[1] |= inpu.Buttons
+			inputs[1] |= inpu.ActiveButtons
 		}
 	}
 	return inputs

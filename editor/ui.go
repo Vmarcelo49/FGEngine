@@ -2,7 +2,6 @@ package editor
 
 import (
 	"fgengine/config"
-	"fgengine/state"
 	"fmt"
 	"image"
 
@@ -25,11 +24,9 @@ func (g *Game) updateDebugUI() error {
 	if _, err := g.debugui.Update(func(ctx *debugui.Context) error {
 		g.uiToolbar(ctx)
 		g.uiProjectPanel(ctx)
-		if g.character != nil {
-			if g.character.AnimationPlayer.ActiveAnimation != nil {
-				g.uiFrameProperties(ctx)
-				g.guiTimeline(ctx)
-			}
+		if g.ActiveAnimation() != nil {
+			g.uiFrameProperties(ctx)
+			g.guiTimeline(ctx)
 		}
 
 		g.logWindow(ctx)
@@ -107,7 +104,13 @@ func (g *Game) logWindow(ctx *debugui.Context) {
 func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 	ctx.Window("Properties", image.Rect(config.WindowWidth-panelWidth, toolbarHeight, config.WindowWidth, config.WindowHeight), func(layout debugui.ContainerLayout) {
 		ctx.Header("Frame Info", true, func() {
-			frameData := g.character.AnimationPlayer.ActiveFrameData()
+			player := g.activeAnimPlayer()
+			if player == nil {
+				ctx.Text("No animation player")
+				return
+			}
+
+			frameData := player.ActiveFrameData()
 			if frameData == nil {
 				ctx.Text("No frame selected")
 				return
@@ -115,7 +118,7 @@ func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 
 			ctx.Text("Sprite Index:")
 
-			lastSpriteIndex := len(g.character.AnimationPlayer.ActiveAnimation.Sprites) - 1
+			lastSpriteIndex := len(player.ActiveAnimation.Sprites) - 1
 			if lastSpriteIndex < 0 {
 				lastSpriteIndex = 0
 			}
@@ -123,21 +126,6 @@ func (g *Game) uiFrameProperties(ctx *debugui.Context) {
 			ctx.Slider(&frameData.SpriteIndex, 0, lastSpriteIndex, 1) // Here is where we set the sprite index
 
 			ctx.Text(fmt.Sprintf("Points to sprite: %d / %d", frameData.SpriteIndex+1, len(g.ActiveAnimation().Sprites)))
-
-			ctx.SetGridLayout([]int{-1, -1, -1}, nil)
-			ctx.Loop(len(state.OrderedStates), func(i int) { // Set checkboxes for each state
-				stateFlag := state.OrderedStates[i]
-				isActive := (frameData.State & stateFlag) != 0
-				ctx.Checkbox(&isActive, stateFlag.String()).On(func() {
-					if isActive {
-						frameData.State |= stateFlag
-					} else {
-						frameData.State &= ^stateFlag
-					}
-				})
-			})
-			ctx.SetGridLayout(nil, nil)
-			ctx.Text("Current State: " + frameData.State.String())
 		})
 	})
 }

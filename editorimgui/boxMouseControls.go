@@ -1,4 +1,7 @@
-package editor
+//go:build !js && !wasm
+// +build !js,!wasm
+
+package editorimgui
 
 import (
 	"fgengine/collision"
@@ -21,8 +24,6 @@ func (g *Game) handleBoxMouseEdit() {
 	}
 
 	mouseX, mouseY := ebiten.CursorPosition()
-
-	// Convert mouse screen coordinates to world coordinates accounting for scaling
 	worldMousePos := g.worldMousePosition(float64(mouseX), float64(mouseY))
 
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
@@ -31,7 +32,7 @@ func (g *Game) handleBoxMouseEdit() {
 			if selectedBoxIndex >= 0 {
 				g.uiVariables.activeBoxIndex = selectedBoxIndex
 				g.uiVariables.activeBoxType = selectedBoxType
-				g.uiVariables.boxDropdownTypeIndex = int(selectedBoxType) // Update UI dropdown
+				g.uiVariables.boxDropdownTypeIndex = int(selectedBoxType)
 				g.uiVariables.dragged = true
 				g.uiVariables.dragStartMousePos.X = worldMousePos.X
 				g.uiVariables.dragStartMousePos.Y = worldMousePos.Y
@@ -52,11 +53,8 @@ func (g *Game) handleBoxMouseEdit() {
 				activeBox.Y = g.uiVariables.dragStartBoxPos.Y + delta.Y
 			}
 		}
-	} else {
-		// End dragging when left mouse button is released
-		if g.uiVariables.dragged {
-			g.uiVariables.dragged = false
-		}
+	} else if g.uiVariables.dragged {
+		g.uiVariables.dragged = false
 	}
 }
 
@@ -65,7 +63,6 @@ func (g *Game) boxIndexUnderMouse(worldX, worldY float64) (int, collision.BoxTyp
 		return -1, collision.Collision
 	}
 
-	// Get the active frame data
 	player := g.activeAnimPlayer()
 	if player == nil {
 		return -1, collision.Collision
@@ -76,23 +73,19 @@ func (g *Game) boxIndexUnderMouse(worldX, worldY float64) (int, collision.BoxTyp
 		return -1, collision.Collision
 	}
 
-	// Get character's world position to offset the boxes
 	characterPos := g.character.Position()
 	point := types.Vector2{X: worldX, Y: worldY}
 
-	// box priority order: Hit > Hurt > Collision
 	boxTypes := []collision.BoxType{collision.Hit, collision.Hurt, collision.Collision}
 
 	for _, boxType := range boxTypes {
 		if boxes, exists := frameData.Boxes[boxType]; exists {
 			for i, box := range boxes {
-				// Transform box to world coordinates by adding character position
 				worldBoxX := characterPos.X + box.X
 				worldBoxY := characterPos.Y + box.Y
 
 				if worldBoxX <= point.X && point.X <= worldBoxX+box.W &&
 					worldBoxY <= point.Y && point.Y <= worldBoxY+box.H {
-					// Return the index and box type when a box is found
 					return i, boxType
 				}
 			}
@@ -102,7 +95,6 @@ func (g *Game) boxIndexUnderMouse(worldX, worldY float64) (int, collision.BoxTyp
 	return -1, collision.Collision
 }
 
-// worldMousePosition converts screen mouse coordinates to world coordinates accounting for camera scaling
 func (g *Game) worldMousePosition(screenX, screenY float64) types.Vector2 {
 	if g.camera.Scaling != 0 && g.camera.Scaling != 1 {
 		centerX := g.camera.Viewport.W / 2
@@ -134,20 +126,16 @@ func (g *Game) drawMouseCrosshair(screen *ebiten.Image) {
 	crosshairThickness := float32(1)
 
 	mouseX, mouseY := ebiten.CursorPosition()
-
-	// Draw crosshair directly at mouse screen position (no coordinate conversion needed)
 	centerX := float32(mouseX)
 	centerY := float32(mouseY)
 
-	crosshairColor := color.RGBA{R: 0, G: 255, B: 255, A: 255} // Cyan
+	crosshairColor := color.RGBA{R: 0, G: 255, B: 255, A: 255}
 
-	// horizontal line
 	vector.FillRect(screen,
 		centerX-crosshairSize, centerY-crosshairThickness/2,
 		crosshairSize*2, crosshairThickness,
 		crosshairColor, false)
 
-	// vertical line
 	vector.FillRect(screen,
 		centerX-crosshairThickness/2, centerY-crosshairSize,
 		crosshairThickness, crosshairSize*2,
