@@ -23,7 +23,7 @@ func MakeGameplayScene() Scene {
 		panic(err)
 	}
 
-	playerTwo, err := character.LoadCharacter("roa", 2)
+	playerTwo, err := character.LoadCharacter("PlaceHolder", 2)
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,7 @@ func (g *GameplayScene) Draw(screen *ebiten.Image) {
 
 	g.drawDebugGuides(screen)
 
-	g.debugui.Draw(screen)
+	//g.debugui.Draw(screen)
 }
 
 func (g *GameplayScene) drawDebugGuides(screen *ebiten.Image) {

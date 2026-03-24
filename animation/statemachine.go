@@ -35,6 +35,10 @@ const (
 	Left  = true
 )
 
+type State struct {
+	Name string
+}
+
 func (sm *StateMachine) Update(inputs input.GameInput) {
 	if sm.ActiveAnim == nil {
 		return
@@ -90,18 +94,21 @@ func (sm *StateMachine) Update(inputs input.GameInput) {
 		// Play audio if specified there too
 		// audio.Play(frameData.CommonAudioID, frameData.UniqueAudioID)
 	}
+	sm.applyFrictionGravity(directionalInput)
 
+	sm.ActiveAnim.Update()
+}
+
+func (sm *StateMachine) applyFrictionGravity(directionalInput input.GameInput) {
 	if sm.Velocity.X > maxHorizontalSpeedX {
 		sm.Velocity.X = maxHorizontalSpeedX
 	} else if sm.Velocity.X < -maxHorizontalSpeedX {
 		sm.Velocity.X = -maxHorizontalSpeedX
 	}
 
-	if directionalInput != input.Left && directionalInput != input.Right {
-		sm.Velocity.X *= horizontalFriction
-		if math.Abs(sm.Velocity.X) < minHorizontalSpeed {
-			sm.Velocity.X = 0
-		}
+	sm.Velocity.X *= horizontalFriction
+	if math.Abs(sm.Velocity.X) < minHorizontalSpeed {
+		sm.Velocity.X = 0
 	}
 
 	// Apply simple gravity while in the air.
@@ -136,6 +143,4 @@ func (sm *StateMachine) Update(inputs input.GameInput) {
 		sm.Position.Y = constants.GroundLevelY
 		sm.Velocity.Y = 0
 	}
-
-	sm.ActiveAnim.Update()
 }

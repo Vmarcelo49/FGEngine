@@ -7,10 +7,10 @@ stateMachine:
         sprites:
           - imgPath: ../common/idle.png
             rect:
-              w: 100
-              h: 200
-            anchorX: 50
-            anchorY: 200
+              w: 256
+              h: 256
+            anchorX: 127
+            anchorY: 177
         framedata:
           - duration: 1
             spriteIndex: 0
@@ -19,10 +19,10 @@ stateMachine:
         sprites:
           - imgPath: ../common/walk.png
             rect:
-              w: 100
-              h: 200
-            anchorX: 50
-            anchorY: 200
+              w: 256
+              h: 256
+            anchorX: 127
+            anchorY: 177
         framedata:
           - duration: 1
             spriteIndex: 0
@@ -32,10 +32,10 @@ stateMachine:
         sprites:
           - imgPath: ../common/walk.png
             rect:
-              w: 100
-              h: 200
-            anchorX: 50
-            anchorY: 200
+              w: 256
+              h: 256
+            anchorX: 127
+            anchorY: 177
         framedata:
           - duration: 1
             spriteIndex: 0
@@ -45,10 +45,10 @@ stateMachine:
         sprites:
           - imgPath: ../common/jump.png
             rect:
-              w: 100
-              h: 200
-            anchorX: 50
-            anchorY: 200
+              w: 256
+              h: 256
+            anchorX: 127
+            anchorY: 177
         framedata:
           - duration: 1
             spriteIndex: 0
