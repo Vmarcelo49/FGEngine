@@ -35,10 +35,22 @@ const (
 	Left  = true
 )
 
+// Initial states should include: idle, walk, jump, attack, hitstun.
 type State struct {
-	Name string
+	Name    string
+	OnEnter func(sm *StateMachine)
+	OnExit  func(sm *StateMachine)
 }
 
+// Update follows the general flow of([X] means done):
+// 1. Update input history and check for special move commands. [X]
+// 2. Update the active animation based on current inputs and state.
+// 3. Apply velocity changes from the current animation frame data. [X]
+// 4. Apply friction and gravity to update the position and velocity of the character. [X]
+// Then it should do in the future:
+// 5. Check for state transitions based on the new position, velocity, and inputs.
+// 6. Handle hitboxes and collisions based on the current animation frame data.
+// 7. Play any audio associated with the current animation frame.
 func (sm *StateMachine) Update(inputs input.GameInput) {
 	if sm.ActiveAnim == nil {
 		return
