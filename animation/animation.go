@@ -6,7 +6,7 @@ import (
 )
 
 type Animation struct {
-	Name          string      `yaml:"name,omitempty"`
+	Name          string      `yaml:"-"`
 	Sprites       []*Sprite   `yaml:"sprites"`
 	FrameData     []FrameData `yaml:"framedata"`
 	TotalDuration int         `yaml:"-"`
@@ -16,9 +16,7 @@ type Sprite struct {
 	ImagePath string     `yaml:"imgPath"`
 	Rect      types.Rect `yaml:"rect"`
 
-	Anchor  types.Vector2 `yaml:"anchor,omitempty"`
-	AnchorX float64       `yaml:"anchorX,omitempty"`
-	AnchorY float64       `yaml:"anchorY,omitempty"`
+	Anchor types.Vector2 `yaml:"anchor,omitempty"`
 }
 
 type AnimationPlayer struct {
@@ -42,15 +40,28 @@ func (ap *AnimationPlayer) ActiveSprite() *Sprite {
 	return ap.ActiveAnimation.Sprites[frameData.SpriteIndex]
 }
 
-func (ap *AnimationPlayer) SetAnimation(name string, loop bool) {
+func (ap *AnimationPlayer) SetAnimation(name string) {
+	if name == "" {
+		return
+	}
+	if ap == nil || ap.Animations == nil {
+		fmt.Println("Animation player has no animations map")
+		return
+	}
+
 	anim, exists := ap.Animations[name]
-	if !exists {
+	if !exists || anim == nil {
+
 		fmt.Println(fmt.Sprintf("Animation '%s' not found", name))
 		return
 	}
+	anim.Name = name
 	ap.ActiveAnimation = anim
-	ap.ShouldLoop = loop
 	ap.FrameIndex = 0
+	if len(anim.FrameData) == 0 {
+		ap.FrameTimeLeft = 0
+		return
+	}
 	ap.FrameTimeLeft = anim.FrameData[0].Duration
 }
 
@@ -90,6 +101,24 @@ func (ap *AnimationPlayer) ActiveFrameData() *FrameData {
 		return nil
 	}
 	return &ap.ActiveAnimation.FrameData[ap.FrameIndex]
+}
+
+func (ap *AnimationPlayer) ActiveAnimationName() string {
+	if ap == nil || ap.ActiveAnimation == nil {
+		return "none"
+	}
+	if ap.ActiveAnimation.Name != "" {
+		return ap.ActiveAnimation.Name
+	}
+
+	for name, anim := range ap.Animations {
+		if anim == ap.ActiveAnimation {
+			ap.ActiveAnimation.Name = name
+			return name
+		}
+	}
+
+	return "none"
 }
 
 // IsFinished returns true if a non-looping animation has completed

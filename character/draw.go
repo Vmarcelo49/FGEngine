@@ -23,7 +23,7 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 	sprite := c.Sprite()
 	anchorOffset := types.Vector2{X: 25, Y: 100} // info for the placeholder sprite
 	if sprite != nil {
-		anchorOffset = types.Vector2{X: sprite.AnchorX, Y: sprite.AnchorY}
+		anchorOffset = types.Vector2{X: sprite.Anchor.X, Y: sprite.Anchor.Y}
 		if anchorOffset.X == 0 && anchorOffset.Y == 0 {
 			anchorOffset = sprite.Anchor
 		}
@@ -40,5 +40,9 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 	graphics.CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
 	screen.DrawImage(img, op)
 	// Debug info on top of the character
-	ebitenutil.DebugPrintAt(screen, c.StateMachine.ActiveAnim.ActiveAnimation.Name, int(screenPos.X), int(screenPos.Y))
+	animName := "none"
+	if c != nil && c.StateMachine != nil {
+		animName = c.StateMachine.ActiveAnim.ActiveAnimationName()
+	}
+	ebitenutil.DebugPrintAt(screen, animName, int(screenPos.X), int(screenPos.Y))
 }

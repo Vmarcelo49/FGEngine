@@ -186,8 +186,8 @@ func (g *GameplayScene) updateDebugUI() {
 				animName := "none"
 				frameIndex := -1
 				frameTimeLeft := 0
-				if sm.ActiveAnim != nil && sm.ActiveAnim.ActiveAnimation != nil {
-					animName = sm.ActiveAnim.ActiveAnimation.Name
+				if sm.ActiveAnim != nil {
+					animName = sm.ActiveAnim.ActiveAnimationName()
 					frameIndex = sm.ActiveAnim.FrameIndex
 					frameTimeLeft = sm.ActiveAnim.FrameTimeLeft
 				}

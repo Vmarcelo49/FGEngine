@@ -91,6 +91,7 @@ func DetectInputSequence(inputSeq InputSequence, inputs []GameInput) bool {
 	return true
 }
 
+// CheckSpecialMove checks the input history for any special move commands and returns the name of the detected command, or an empty string if none are detected.
 func CheckSpecialMove(inputs []GameInput) string {
 	for name, seq := range InputSequences {
 		if DetectInputSequence(seq, inputs) {

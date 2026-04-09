@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 
 	"gopkg.in/yaml.v3"
 )
@@ -46,8 +47,13 @@ func loadCharacterByName(name string) (*Character, error) {
 		return nil, fmt.Errorf("character file is missing stateMachine.activeAnim.animations")
 	}
 
-	// Resolve relative paths for all sprites in all animations
-	for _, anim := range character.StateMachine.ActiveAnim.Animations {
+	// Keep runtime animation names in sync with the map keys.
+	for animName, anim := range character.StateMachine.ActiveAnim.Animations {
+		if anim == nil {
+			continue
+		}
+		anim.Name = animName
+
 		for _, sprite := range anim.Sprites {
 			if sprite.ImagePath != "" {
 				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, filePath)
@@ -82,14 +88,26 @@ func (c *Character) initialize(playerSide int) {
 	c.StateMachine.IgnoreGravityFrames = 0
 	c.StateMachine.InputHistory = nil
 
-	switch {
-	case c.StateMachine.ActiveAnim.Animations["idle"] != nil:
-		c.StateMachine.ActiveAnim.SetAnimation("idle", true)
-	case c.StateMachine.ActiveAnim.Animations["6"] != nil:
-		c.StateMachine.ActiveAnim.SetAnimation("6", true)
-	case c.StateMachine.ActiveAnim.Animations["4"] != nil:
-		c.StateMachine.ActiveAnim.SetAnimation("4", true)
+	setInitialAnimation(c.StateMachine.ActiveAnim)
+
+}
+
+func setInitialAnimation(player *animation.AnimationPlayer) {
+	if player == nil || len(player.Animations) == 0 || player.ActiveAnimation != nil {
+		return
 	}
+
+	if _, ok := player.Animations["idle"]; ok {
+		player.SetAnimation("idle")
+		return
+	}
+
+	animNames := make([]string, 0, len(player.Animations))
+	for name := range player.Animations {
+		animNames = append(animNames, name)
+	}
+	slices.Sort(animNames)
+	player.SetAnimation(animNames[0])
 }
 
 // resolveRelativePath converts a relative path to an absolute path based on a reference path
