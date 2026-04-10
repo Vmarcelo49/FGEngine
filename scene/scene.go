@@ -26,13 +26,6 @@ type SceneManager struct {
 	waitNeutral  bool
 }
 
-func NewSceneManager() *SceneManager {
-	return &SceneManager{
-		currentScene: MakeControllerScene(),
-		waitNeutral:  true,
-	}
-}
-
 func (sm *SceneManager) Update() error {
 	polledInputs := input.UpdateGamepads()
 	activeInputs := polledInputs
@@ -67,4 +60,11 @@ func (sm *SceneManager) Draw(screen *ebiten.Image) {
 
 func (sm *SceneManager) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return int(constants.CameraWidth), int(constants.CameraHeight)
+}
+
+func NewSceneManager() *SceneManager {
+	return &SceneManager{
+		currentScene: MakeControllerScene(),
+		waitNeutral:  true,
+	}
 }

@@ -8,7 +8,7 @@ It complements README.MD with practical context for coding agents.
 FGEngine is a 2D fighting game engine written in Go, using Ebitengine for rendering and input.
 The project currently has two primary surfaces:
 - Game runtime (main executable)
-- In-engine editor (cmd/editor), currently in refactor and not fully compiling
+- Utility/test binary (cmd/test)
 
 Current status from README.MD: major rewrites are in progress.
 
@@ -19,9 +19,8 @@ Current status from README.MD: major rewrites are in progress.
 
 ### Core libraries
 - github.com/hajimehoshi/ebiten/v2 (game loop, rendering, input, gamepads)
-- github.com/ebitengine/debugui (editor debug UI)
+- github.com/ebitengine/debugui (runtime debug UI tooling)
 - gopkg.in/yaml.v3 (serialization for characters, language data)
-- github.com/sqweek/dialog (desktop file picker)
 
 ### Build targets and platform strategy
 - Desktop native target via regular Go build/test
@@ -35,7 +34,6 @@ Current status from README.MD: major rewrites are in progress.
 
 ### Runtime entrypoints
 - main.go -> config.InitGameConfig() -> ebiten.RunGame(scene.NewSceneManager())
-- cmd/editor/main.go -> editor.Run()
 - cmd/test/main.go -> language YAML loading smoke program
 
 ### Scene system
@@ -90,11 +88,11 @@ Current status from README.MD: major rewrites are in progress.
 - collision/: hit/hurt/collision box types and detection
 - config/: runtime window/layout/lang settings
 - constants/: world size, camera size, scene constants
-- editor/: in-game animation/box editor logic (currently refactoring)
 - gameplay/: game state update
 - graphics/: camera, cache, render queue abstractions
 - input/: keyboard/gamepad mapping, poll/update helpers, special input
 - language/: i18n YAML import model
+- rollback/: rollback/netcode experiments (currently empty placeholder)
 - scene/: scene manager and scene implementations
 - stage/: stage visuals and background generation
 - types/: shared types (vectors, rects)
@@ -125,38 +123,31 @@ Files:
 - assets/text/EN.yaml
 - assets/text/BR.yaml
 
-## 6) Commands and Validation (Observed on Linux, 2026-03-21)
+## 6) Commands and Validation (Observed on Linux, 2026-04-10)
 
 ### Works now
-- Validate core packages (excluding editor packages):
+- Validate core packages:
   - go test ./animation ./character ./collision ./config ./constants ./gameplay ./graphics ./input ./language ./scene ./stage ./types . ./cmd/test
-
-### Fails now
-- Full repository test:
+- Validate full repository:
   - go test ./...
-- Reason:
-  - editor/character.go imports fgengine/state, but that package was removed during a rewrite.
-- Affected packages:
-  - fgengine/editor
-  - fgengine/cmd/editor
 
 
 ## 7) Current Risks and Constraints for Agents
 
-1. Editor code is out of sync with current character model
-- editor/character.go references fields not present in character.Character (legacy shape).
-- Do not assume editor package is a reliable reference for runtime model.
-
-2. No stable automated test suite yet
+1. No stable automated test suite yet
 - Most packages return "[no test files]"; current validation is mostly compile-level.
 
-3. Refactor in progress
+2. Refactor in progress
 - README indicates active rewrites.
 - Prefer minimal, localized changes; avoid broad architectural rewrites unless requested.
 
-4. Scope is desktop-first for now
+3. Scope is desktop-first for now
 - Prioritize Linux/Windows desktop behavior in runtime and tooling.
 - Defer non-desktop targets unless explicitly requested.
+
+4. Rollback package is not wired in runtime flow yet
+- rollback/ exists but is currently empty in the workspace snapshot.
+- Treat rollback integration as future work unless explicitly requested.
 
 ## 8) Code Patterns and Conventions to Follow
 
@@ -184,12 +175,11 @@ Files:
 ## 9) Agent Workflow Checklist for This Repo
 
 When implementing a change:
-1. Identify surface: runtime game, shared systems, or editor.
-2. If touching editor, verify model compatibility first (do not trust legacy fields).
-3. Make smallest viable change and keep package boundaries.
-4. Run targeted go test commands for changed packages.
-5. If change is runtime-wide, run the validated core package command from section 6.
-6. Document any command failure and exact error in your final report.
+1. Identify surface: runtime game, shared systems, or utility binaries.
+2. Make smallest viable change and keep package boundaries.
+3. Run targeted go test commands for changed packages.
+4. If change is runtime-wide, run the validated core package command from section 6.
+5. Document any command failure and exact error in your final report.
 
 When adding features:
 1. Add/update YAML schema with backward compatibility in mind.
@@ -198,10 +188,10 @@ When adding features:
 
 ## 10) Suggested Next Stabilization Tasks (High Value)
 
-1. Reconcile editor model with character.Character and animation.StateMachine.
+1. Define rollback package integration points with scene/gameplay flow.
 2. Introduce at least smoke tests for YAML load paths and animation playback.
 3. Add a repo-native cross-platform build script for Linux/macOS/Windows desktop workflows.
-4. Document one canonical run command for desktop game and one for editor once editor compiles.
+4. Document one canonical run command for desktop game and one for utility/smoke binaries.
 
 ## 11) Why This AGENTS.md Is Structured This Way
 
