@@ -2,6 +2,7 @@ package character
 
 import (
 	"fgengine/animation"
+	"fgengine/collision"
 	"fgengine/types"
 	"fmt"
 	"os"
@@ -13,6 +14,34 @@ import (
 
 const jumpHeight = 4
 const jumpDistance = 4
+
+func makeAttack() *animation.Animation {
+	attackSprite := animation.Sprite{
+		ImagePath: "../assets/common/attack.png",
+		Rect:      types.Rect{W: 256, H: 256},
+		Anchor:    types.Vector2{X: 127, Y: 177},
+	}
+
+	fdAttack := animation.FrameData{
+		Duration:    6,
+		SpriteIndex: 0,
+		Boxes: map[collision.BoxType][]types.Rect{
+			collision.Hit:       {{X: 127, Y: 177 - 80, W: 80, H: 20}},
+			collision.Hurt:      {{X: 127 - 18, Y: 177 - 100, W: 36, H: 100}},
+			collision.Collision: {{X: 127 - 18, Y: 177 - 100, W: 36, H: 100}},
+		},
+		IncVelocityX: 1,
+		CancelTypes:  []string{},
+	}
+
+	attackAnim := &animation.Animation{
+		Name:      "A",
+		Sprites:   []*animation.Sprite{&attackSprite},
+		FrameData: []animation.FrameData{fdAttack},
+	}
+
+	return attackAnim
+}
 
 func TestMakeCharacter(t *testing.T) {
 	char := &Character{}
@@ -38,11 +67,19 @@ func TestMakeCharacter(t *testing.T) {
 	fdIdle := animation.FrameData{
 		Duration:    6,
 		SpriteIndex: 0,
+		Boxes: map[collision.BoxType][]types.Rect{
+			collision.Hurt:      {{X: 127 - 18, Y: 177 - 100, W: 36, H: 100}},
+			collision.Collision: {{X: 127 - 18, Y: 177 - 100, W: 36, H: 100}},
+		},
 		CancelTypes: []string{"any"},
 	}
 	fdWalk := animation.FrameData{
-		Duration:     6,
-		SpriteIndex:  0,
+		Duration:    6,
+		SpriteIndex: 0,
+		Boxes: map[collision.BoxType][]types.Rect{
+			collision.Hurt:      {{X: 127 - 18, Y: 177 - 100, W: 36, H: 100}},
+			collision.Collision: {{X: 127 - 18, Y: 177 - 100, W: 36, H: 100}},
+		},
 		IncVelocityX: 2,
 		CancelTypes:  []string{"any"},
 	}
@@ -121,7 +158,7 @@ func TestMakeCharacter(t *testing.T) {
 		Sprites:   []*animation.Sprite{&idleSprite},
 		FrameData: []animation.FrameData{fdLanding},
 	}
-
+	attackAnim := makeAttack()
 	char.StateMachine.ActiveAnim = &animation.AnimationPlayer{
 		Animations: map[string]*animation.Animation{
 			"idle":    idleAnim,
@@ -132,6 +169,7 @@ func TestMakeCharacter(t *testing.T) {
 			"9":       jumpForwardAnim,
 			"fall":    fallAnim,
 			"landing": landingAnim,
+			"A":       attackAnim,
 		},
 	}
 	char.StateMachine.ActiveAnim.SetAnimation("idle")

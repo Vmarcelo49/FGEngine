@@ -35,7 +35,6 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 
 	// Aplicar deslocamento para compensar o anchor point
 	screenPos.X -= anchorOffset.X
-
 	screenPos.Y -= anchorOffset.Y
 
 	// Handle horizontal flip when facing left

@@ -51,6 +51,10 @@ func (sm *SceneManager) Update() error {
 		sm.currentScene = MakeControllerScene()
 		sm.waitNeutral = true
 	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyEscape) {
+		return ebiten.Termination
+	}
 	return nil
 }
 

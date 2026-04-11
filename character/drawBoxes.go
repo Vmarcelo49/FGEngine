@@ -1,6 +1,7 @@
 package character
 
 import (
+	"fgengine/animation"
 	"fgengine/collision"
 	"fgengine/graphics"
 	"fgengine/types"
@@ -28,18 +29,29 @@ func initWhitePixel() {
 	})
 }
 
-func createBoxImageOptionsWithCamera(chara *Character, box types.Rect, boxType collision.BoxType, camera *graphics.Camera) *ebiten.DrawImageOptions {
+func (c *Character) newBoxOpts(box types.Rect, boxType collision.BoxType, camera *graphics.Camera) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
 	boxImgOptions.GeoM.Scale(box.W, box.H)
 
-	worldPos := chara.Position()
+	worldPos := c.Position()
+
 	boxWorldPos := types.Vector2{
 		X: worldPos.X + box.X,
 		Y: worldPos.Y + box.Y,
 	}
+	// If the character is facing left, it must be flipped horizontally
+	if c.StateMachine.Facing == animation.Left {
+		boxWorldPos.X = worldPos.X - box.X - box.W
+	}
 
 	screenPos := camera.WorldToScreen(boxWorldPos)
+	// Aplicar deslocamento para compensar o anchor point
+	screenPos.X -= c.Sprite().Anchor.X
+	if c.StateMachine.Facing == animation.Left {
+		screenPos.X += 2 * (c.Sprite().Anchor.X) // undo the anchor compensation if facing left and compensate in the opposite direction
+	}
+	screenPos.Y -= c.Sprite().Anchor.Y
 
 	graphics.CameraTransform(boxImgOptions, camera, types.Vector2{X: 1, Y: 1}, screenPos)
 
@@ -50,22 +62,16 @@ func createBoxImageOptionsWithCamera(chara *Character, box types.Rect, boxType c
 	return boxImgOptions
 }
 
-type BoxDrawable struct {
-	Character *Character
-}
-
-func (b *BoxDrawable) Draw(screen *ebiten.Image, camera *graphics.Camera) {
-	framedata := b.Character.StateMachine.ActiveAnim.ActiveFrameData()
+func (c *Character) DrawBoxes(screen *ebiten.Image, camera *graphics.Camera) {
+	framedata := c.StateMachine.ActiveAnim.ActiveFrameData()
 	if framedata == nil || len(framedata.Boxes) == 0 {
 		return
 	}
-
 	initWhitePixel()
-	boxImgOptions := &ebiten.DrawImageOptions{}
 	for boxType, boxes := range framedata.Boxes {
 		for _, box := range boxes {
-			boxImgOptions = createBoxImageOptionsWithCamera(b.Character, box, boxType, camera)
-			screen.DrawImage(whitePixel, boxImgOptions)
+			opts := c.newBoxOpts(box, boxType, camera)
+			screen.DrawImage(whitePixel, opts)
 		}
 	}
 }

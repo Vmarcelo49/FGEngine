@@ -65,6 +65,7 @@ func (g *GameplayScene) Draw(screen *ebiten.Image) {
 			continue
 		}
 		char.Draw(screen, g.camera)
+		char.DrawBoxes(screen, g.camera)
 	}
 
 	g.drawDebugGuides(screen)

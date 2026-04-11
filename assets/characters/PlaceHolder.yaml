@@ -15,6 +15,17 @@ stateMachine:
                     - changeXSpeed: -2
                       cancelTypes:
                         - any
+                      boxes:
+                        0:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
+                        2:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
                       duration: 6
             "6":
                 sprites:
@@ -29,6 +40,17 @@ stateMachine:
                     - changeXSpeed: 2
                       cancelTypes:
                         - any
+                      boxes:
+                        0:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
+                        2:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
                       duration: 6
             "7":
                 sprites:
@@ -68,6 +90,34 @@ stateMachine:
                     - changeXSpeed: 4
                       changeYSpeed: -4
                       duration: 6
+            A:
+                sprites:
+                    - imgPath: ../common/attack.png
+                      rect:
+                        w: 256
+                        h: 256
+                      anchor:
+                        x: 127
+                        "y": 177
+                framedata:
+                    - changeXSpeed: 1
+                      boxes:
+                        0:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
+                        1:
+                            - x: 127
+                              "y": 97
+                              w: 80
+                              h: 20
+                        2:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
+                      duration: 6
             fall:
                 sprites:
                     - imgPath: ../common/idle.png
@@ -91,6 +141,17 @@ stateMachine:
                 framedata:
                     - cancelTypes:
                         - any
+                      boxes:
+                        0:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
+                        2:
+                            - x: 109
+                              "y": 77
+                              w: 36
+                              h: 100
                       duration: 6
             landing:
                 sprites:
