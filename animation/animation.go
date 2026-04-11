@@ -51,7 +51,6 @@ func (ap *AnimationPlayer) SetAnimation(name string) {
 
 	anim, exists := ap.Animations[name]
 	if !exists || anim == nil {
-
 		fmt.Println(fmt.Sprintf("Animation '%s' not found", name))
 		return
 	}

@@ -1,6 +1,7 @@
 package character
 
 import (
+	"fgengine/animation"
 	"fgengine/graphics"
 
 	"fgengine/types"
@@ -37,12 +38,20 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 
 	screenPos.Y -= anchorOffset.Y
 
+	// Handle horizontal flip when facing left
+	if c.StateMachine.Facing == animation.Left {
+		op.GeoM.Scale(-1, 1) // Flip horizontal
+		// Compensate for the flip by translating by 2x the anchor point
+		op.GeoM.Translate(2*anchorOffset.X, 0)
+	}
+
 	graphics.CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
 	screen.DrawImage(img, op)
+
 	// Debug info on top of the character
 	animName := "none"
 	if c != nil && c.StateMachine != nil {
 		animName = c.StateMachine.ActiveAnim.ActiveAnimationName()
 	}
-	ebitenutil.DebugPrintAt(screen, animName, int(screenPos.X), int(screenPos.Y))
+	ebitenutil.DebugPrintAt(screen, animName, int(screenPos.X)+int(anchorOffset.X), int(screenPos.Y))
 }

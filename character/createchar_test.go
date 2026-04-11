@@ -11,6 +11,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const jumpHeight = 4
+const jumpDistance = 5
+
 func TestMakeCharacter(t *testing.T) {
 	char := &Character{}
 
@@ -60,11 +63,75 @@ func TestMakeCharacter(t *testing.T) {
 		Sprites:   []*animation.Sprite{&walkSprite},
 		FrameData: []animation.FrameData{fdWalkBack},
 	}
+
+	// Jump animations using idle sprite
+	fdJumpBack := animation.FrameData{
+		Duration:     6,
+		SpriteIndex:  0,
+		IncVelocityX: -jumpDistance,
+		IncVelocityY: -jumpHeight,
+		CancelTypes:  []string{},
+	}
+	fdJumpNeutral := animation.FrameData{
+		Duration:     6,
+		SpriteIndex:  0,
+		IncVelocityY: -jumpHeight,
+		CancelTypes:  []string{},
+	}
+	fdJumpForward := animation.FrameData{
+		Duration:     6,
+		SpriteIndex:  0,
+		IncVelocityX: jumpDistance,
+		IncVelocityY: -jumpHeight,
+		CancelTypes:  []string{},
+	}
+	fdFall := animation.FrameData{
+		Duration:    6,
+		SpriteIndex: 0,
+		CancelTypes: []string{},
+	}
+	fdLanding := animation.FrameData{
+		Duration:    4,
+		SpriteIndex: 0,
+		CancelTypes: []string{},
+	}
+
+	jumpBackAnim := &animation.Animation{
+		Name:      "7",
+		Sprites:   []*animation.Sprite{&idleSprite},
+		FrameData: []animation.FrameData{fdJumpBack},
+	}
+	jumpNeutralAnim := &animation.Animation{
+		Name:      "8",
+		Sprites:   []*animation.Sprite{&idleSprite},
+		FrameData: []animation.FrameData{fdJumpNeutral},
+	}
+	jumpForwardAnim := &animation.Animation{
+		Name:      "9",
+		Sprites:   []*animation.Sprite{&idleSprite},
+		FrameData: []animation.FrameData{fdJumpForward},
+	}
+	fallAnim := &animation.Animation{
+		Name:      "fall",
+		Sprites:   []*animation.Sprite{&idleSprite},
+		FrameData: []animation.FrameData{fdFall},
+	}
+	landingAnim := &animation.Animation{
+		Name:      "landing",
+		Sprites:   []*animation.Sprite{&idleSprite},
+		FrameData: []animation.FrameData{fdLanding},
+	}
+
 	char.StateMachine.ActiveAnim = &animation.AnimationPlayer{
 		Animations: map[string]*animation.Animation{
-			"idle": idleAnim,
-			"6":    walkAnim,
-			"4":    walkBackAnim,
+			"idle":    idleAnim,
+			"6":       walkAnim,
+			"4":       walkBackAnim,
+			"7":       jumpBackAnim,
+			"8":       jumpNeutralAnim,
+			"9":       jumpForwardAnim,
+			"fall":    fallAnim,
+			"landing": landingAnim,
 		},
 	}
 	char.StateMachine.ActiveAnim.SetAnimation("idle")

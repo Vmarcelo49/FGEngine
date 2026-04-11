@@ -30,9 +30,58 @@ stateMachine:
                       cancelTypes:
                         - any
                       duration: 6
+            "7":
+                sprites:
+                    - imgPath: ../../../../../../common/idle.png
+                      rect:
+                        w: 256
+                        h: 256
+                      anchor:
+                        x: 127
+                        "y": 177
+                framedata:
+                    - changeXSpeed: -5
+                      changeYSpeed: -4
+                      duration: 6
+            "8":
+                sprites:
+                    - imgPath: ../../../../../../common/idle.png
+                      rect:
+                        w: 256
+                        h: 256
+                      anchor:
+                        x: 127
+                        "y": 177
+                framedata:
+                    - changeYSpeed: -4
+                      duration: 6
+            "9":
+                sprites:
+                    - imgPath: ../../../../../../common/idle.png
+                      rect:
+                        w: 256
+                        h: 256
+                      anchor:
+                        x: 127
+                        "y": 177
+                framedata:
+                    - changeXSpeed: 5
+                      changeYSpeed: -4
+                      duration: 6
+            fall:
+                sprites:
+                    - imgPath: ../../../../../../common/idle.png
+                      rect:
+                        w: 256
+                        h: 256
+                      anchor:
+                        x: 127
+                        "y": 177
+                framedata:
+                    - duration: 6
             idle:
                 sprites:
-                    - imgPath: ../common/idle.png
+                    - imgPath: ../../../../../../common/idle.png
                       rect:
                         w: 256
                         h: 256
@@ -43,3 +92,14 @@ stateMachine:
                     - cancelTypes:
                         - any
                       duration: 6
+            landing:
+                sprites:
+                    - imgPath: ../../../../../../common/idle.png
+                      rect:
+                        w: 256
+                        h: 256
+                      anchor:
+                        x: 127
+                        "y": 177
+                framedata:
+                    - duration: 4

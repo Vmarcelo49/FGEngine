@@ -1,7 +1,6 @@
 package graphics
 
 import (
-	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/types"
 
@@ -81,7 +80,7 @@ func (c *Camera) ScreenToWorld(screenPos types.Vector2) types.Vector2 {
 }
 
 func layoutMatchesCamSize(camera *Camera) bool {
-	return (float64(config.LayoutSizeW) == camera.Viewport.W && float64(config.LayoutSizeH) == camera.Viewport.H)
+	return (float64(constants.Camera.W) == camera.Viewport.W && float64(constants.Camera.H) == camera.Viewport.H)
 }
 
 func CameraTransform(options *ebiten.DrawImageOptions, camera *Camera, entityScale types.Vector2, screenPos types.Vector2) {

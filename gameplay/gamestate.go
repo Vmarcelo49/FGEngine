@@ -10,8 +10,8 @@ type GameState struct {
 }
 
 func (g *GameState) Update(inputs [2]input.GameInput) {
-	g.Characters[0].StateMachine.Update(inputs[0])
-	g.Characters[1].StateMachine.Update(inputs[1])
+	g.Characters[0].StateMachine.Update(inputs[0], g.Characters[1].StateMachine)
+	g.Characters[1].StateMachine.Update(inputs[1], g.Characters[0].StateMachine)
 }
 
 /*

@@ -23,16 +23,16 @@ func (gi GameInput) String() string {
 	}
 	str := ""
 	if gi&Up != 0 {
-		str += "Up "
+		str += "8 "
 	}
 	if gi&Down != 0 {
-		str += "Down "
+		str += "2 "
 	}
 	if gi&Left != 0 {
-		str += "Left "
+		str += "4 "
 	}
 	if gi&Right != 0 {
-		str += "Right "
+		str += "6 "
 	}
 	if gi&A != 0 {
 		str += "A "

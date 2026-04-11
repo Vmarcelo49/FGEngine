@@ -10,7 +10,7 @@ import (
 const (
 	horizontalFriction  = 0.80
 	minHorizontalSpeed  = 0.05
-	maxHorizontalSpeedX = 6.0
+	maxHorizontalSpeedX = 999
 
 	maxVerticalSpeedY = 10.0
 )
@@ -42,6 +42,10 @@ type State struct {
 	OnExit  func(sm *StateMachine)
 }
 
+func (sm *StateMachine) IsAirborne() bool {
+	return sm.Position.Y < constants.GroundLevelY
+}
+
 // Update follows the general flow of([X] means done):
 // 1. Update input history and check for special move commands. [X]
 // 2. Update the active animation based on current inputs and state.
@@ -51,81 +55,107 @@ type State struct {
 // 5. Check for state transitions based on the new position, velocity, and inputs.
 // 6. Handle hitboxes and collisions based on the current animation frame data.
 // 7. Play any audio associated with the current animation frame.
-func (sm *StateMachine) Update(inputs input.GameInput) {
+func (sm *StateMachine) Update(inputs input.GameInput, otherCharacter *StateMachine) {
 	if sm.ActiveAnim == nil {
 		return
 	}
-
 	// Update input history
 	sm.InputHistory = append(sm.InputHistory, inputs)
 	if len(sm.InputHistory) > constants.MaxInputHistory {
 		sm.InputHistory = sm.InputHistory[1:] // remove oldest input
 	}
+	correctedInput := []input.GameInput{}
+	if sm.Position.X > otherCharacter.Position.X {
+		sm.Facing = Left
+	} else {
+		sm.Facing = Right
+	}
+	if sm.Facing == Left {
+		// Flip directional inputs
+		for _, gInput := range sm.InputHistory {
+			if gInput&input.Left != 0 {
+				gInput = (gInput &^ input.Left) | input.Right
+			} else if gInput&input.Right != 0 {
+				gInput = (gInput &^ input.Right) | input.Left
+			}
+			correctedInput = append(correctedInput, gInput)
+		}
 
-	detectedAnimations := []string{}
+	} else {
+		correctedInput = sm.InputHistory
+	}
 	// Check special moves
-	specialCommand := input.CheckSpecialMove(sm.InputHistory)
+	animationToPlay := input.CheckInputSequences(correctedInput)
+	wasAirborne := sm.IsAirborne()
 	// if sm.IsActable(){}
-	if specialCommand != "" {
-		detectedAnimations = append(detectedAnimations, specialCommand)
-	}
-
-	directionalInput := inputs & 0b1111 // first 4 bits are directional inputs
-	switch directionalInput {
-	case input.Left:
-		if sm.Facing == Right {
-			detectedAnimations = append(detectedAnimations, "4")
-		} else {
-			detectedAnimations = append(detectedAnimations, "6")
-		}
-	case input.Right:
-		if sm.Facing == Left {
-			detectedAnimations = append(detectedAnimations, "4")
-		} else {
-			detectedAnimations = append(detectedAnimations, "6")
-		}
-	case input.Up:
-		detectedAnimations = append(detectedAnimations, "jump")
-	}
 
 	// get stuff from the animation frame data and apply it to the state machine (e.g. velocity changes, hitboxes, etc.)
 	frameData := sm.ActiveAnim.ActiveFrameData()
 	if frameData != nil {
 		// apply velocity changes from frame data
-		sm.Velocity.X += frameData.IncVelocityX
+		incVelX := frameData.IncVelocityX
+		if sm.Facing == Left {
+			incVelX = -incVelX // Invert velocity when facing left
+		}
+		sm.Velocity.X += incVelX
 		sm.Velocity.Y += frameData.IncVelocityY
 
 		// Process cancel routes declared by the active frame.
-		if len(detectedAnimations) > 0 {
-			frameData.switchToAnim(detectedAnimations, sm)
+		if animationToPlay != "" {
+			frameData.switchToAnim(animationToPlay, sm)
 		}
 
 		// Play audio if specified there too
 		// audio.Play(frameData.CommonAudioID, frameData.UniqueAudioID)
 	}
 
-	// Return to idle if nothing detected and current animation is finished.
-	if len(detectedAnimations) == 0 && sm.ActiveAnim.IsFinished() {
-		sm.ActiveAnim.SetAnimation("idle")
+	sm.applyFrictionGravity()
+	isAirborne := sm.IsAirborne()
+	landedThisFrame := wasAirborne && !isAirborne
+
+	if landedThisFrame {
+		if _, hasLanding := sm.ActiveAnim.Animations["landing"]; hasLanding && sm.ActiveAnim.ActiveAnimationName() != "landing" {
+			sm.ActiveAnim.SetAnimation("landing")
+		}
 	}
 
-	sm.applyFrictionGravity(directionalInput)
+	// Resolve animation after movement/landing state.
+	if sm.ActiveAnim.IsFinished() {
+		currentAnim := sm.ActiveAnim.ActiveAnimationName()
+
+		if isAirborne {
+			if _, hasFall := sm.ActiveAnim.Animations["fall"]; hasFall && currentAnim != "fall" {
+				sm.ActiveAnim.SetAnimation("fall")
+			}
+		} else {
+			if currentAnim == "landing" || currentAnim == "fall" {
+				if animationToPlay != "" && currentAnim != animationToPlay {
+					sm.ActiveAnim.SetAnimation(animationToPlay)
+				} else if currentAnim != "idle" {
+					sm.ActiveAnim.SetAnimation("idle")
+				}
+			} else if animationToPlay == "" && currentAnim != "idle" {
+				sm.ActiveAnim.SetAnimation("idle")
+			}
+		}
+	}
 
 	sm.ActiveAnim.Update()
 }
 
-func (sm *StateMachine) applyFrictionGravity(directionalInput input.GameInput) {
-	if sm.Velocity.X > maxHorizontalSpeedX {
-		sm.Velocity.X = maxHorizontalSpeedX
-	} else if sm.Velocity.X < -maxHorizontalSpeedX {
-		sm.Velocity.X = -maxHorizontalSpeedX
-	}
+func (sm *StateMachine) applyFrictionGravity() {
+	if !sm.IsAirborne() {
+		if sm.Velocity.X > maxHorizontalSpeedX {
+			sm.Velocity.X = maxHorizontalSpeedX
+		} else if sm.Velocity.X < -maxHorizontalSpeedX {
+			sm.Velocity.X = -maxHorizontalSpeedX
+		}
 
-	sm.Velocity.X *= horizontalFriction
-	if math.Abs(sm.Velocity.X) < minHorizontalSpeed {
-		sm.Velocity.X = 0
+		sm.Velocity.X *= horizontalFriction
+		if math.Abs(sm.Velocity.X) < minHorizontalSpeed {
+			sm.Velocity.X = 0
+		}
 	}
-
 	// Apply simple gravity while in the air.
 	if sm.IgnoreGravityFrames > 0 {
 		sm.IgnoreGravityFrames--

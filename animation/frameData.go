@@ -42,29 +42,34 @@ type FrameData struct {
 	HasArmor     bool `yaml:"hasArmor,omitempty"`
 }
 
-func (fd *FrameData) switchToAnim(detectedAnimations []string, sm *StateMachine) {
+func (fd *FrameData) switchToAnim(detectedAnimations string, sm *StateMachine) {
+	if detectedAnimations == "" {
+		return
+	}
+
+	if sm.ActiveAnim != nil && sm.ActiveAnim.ActiveAnimationName() == detectedAnimations {
+		return
+	}
+
 	if len(fd.CancelTypes) == 0 {
 		return
 	}
-	if fd.CancelTypes[0] == "any" {
-		anim := filterAnimations(detectedAnimations)
-		sm.ActiveAnim.SetAnimation(anim)
+
+	// Prevent jump-start animations while already airborne.
+	if (detectedAnimations == "7" || detectedAnimations == "8" || detectedAnimations == "9") && sm.IsAirborne() {
+		return
 	}
+
+	if fd.CancelTypes[0] == "any" {
+		sm.ActiveAnim.SetAnimation(detectedAnimations)
+		return
+	}
+
 	for _, cancelType := range fd.CancelTypes {
-		for _, detectedAnim := range detectedAnimations {
-			if cancelType == detectedAnim {
-				sm.ActiveAnim.SetAnimation(detectedAnim)
-				return
-			}
+		if cancelType == detectedAnimations {
+			sm.ActiveAnim.SetAnimation(detectedAnimations)
+			return
 		}
 	}
 	// it would be better to each animation having its own identifier instead of relying on the name
-}
-
-// placeholder that returns the last detected animation, we have to make a priority system later
-func filterAnimations(detectedAnimations []string) string {
-	if len(detectedAnimations) == 0 {
-		return ""
-	}
-	return detectedAnimations[len(detectedAnimations)-1]
 }

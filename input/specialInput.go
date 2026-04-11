@@ -1,14 +1,9 @@
 package input
 
-import (
-	"slices"
-)
-
 type InputSequence struct {
-	baseInput    []GameInput // the main input sequence
-	buffer       int         // tolerance for buffering inputs
-	cancelInputs []GameInput // inputs that can cancel the sequence
-	//alias []GameInput
+	baseInput []GameInput // the main input sequence
+	buffer    int         // tolerance for buffering inputs
+	//alias []GameInput // simplified inputs
 }
 
 // isNonDirectionalInput checks if the input is a non-directional input (A, B, C, D)
@@ -23,9 +18,6 @@ var InputSequences = map[string]InputSequence{ // instead of strings, this shoul
 			Right, NoInput, Right, // instead of NoInput, this could be an "any non-directional input" placeholder that matches any of A, B, C, D
 		},
 		buffer: 10,
-		cancelInputs: []GameInput{
-			Left, Down, Up, // maybe i will remove down
-		},
 	},
 	"236A": {
 		baseInput: []GameInput{
@@ -60,11 +52,6 @@ func DetectInputSequence(inputSeq InputSequence, inputs []GameInput) bool {
 		for bufferUsed <= buffer && inputPos >= 0 {
 			currentInput := inputs[inputPos]
 
-			// Check for cancel inputs (except NoInput)
-			if currentInput != NoInput && slices.Contains(inputSeq.cancelInputs, currentInput) {
-				return false
-			}
-
 			// for NoInput in the sequence, match any non-directional input
 			if (expectedInput == NoInput && isNonDirectionalInput(currentInput)) ||
 				currentInput == expectedInput ||
@@ -91,12 +78,63 @@ func DetectInputSequence(inputSeq InputSequence, inputs []GameInput) bool {
 	return true
 }
 
-// CheckSpecialMove checks the input history for any special move commands and returns the name of the detected command, or an empty string if none are detected.
-func CheckSpecialMove(inputs []GameInput) string {
+func CheckInputSequences(inputs []GameInput) string {
+	detected := []string{}
 	for name, seq := range InputSequences {
 		if DetectInputSequence(seq, inputs) {
-			return name
+			detected = append(detected, name)
 		}
 	}
+	// Priority order first is higher:
+	// 1, Supers and Specials
+	// 2, normals
+	// 3, movements, walks and jumps
+
+	// if no special move was detected, check for single inputs to trigger normals and movements
+	if len(detected) == 0 {
+		return CheckSingleInput(inputs[len(inputs)-1])
+	}
+	return detected[len(detected)-1] // last one probably is the correct one...
+}
+
+func CheckSingleInput(inputs GameInput) string {
+	// with priority order
+	if inputs.IsPressed(D) {
+		return "D"
+	}
+	if inputs.IsPressed(C) {
+		return "C"
+	}
+	if inputs.IsPressed(B) {
+		return "B"
+	}
+	if inputs.IsPressed(A) {
+		return "A"
+	}
+	if inputs.IsPressed(Up) && inputs.IsPressed(Right) {
+		return "9"
+	}
+	if inputs.IsPressed(Up) && inputs.IsPressed(Left) {
+		return "7"
+	}
+	if inputs.IsPressed(Down) && inputs.IsPressed(Right) {
+		return "3"
+	}
+	if inputs.IsPressed(Down) && inputs.IsPressed(Left) {
+		return "1"
+	}
+	if inputs.IsPressed(Up) {
+		return "8"
+	}
+	if inputs.IsPressed(Down) {
+		return "2"
+	}
+	if inputs.IsPressed(Left) {
+		return "4"
+	}
+	if inputs.IsPressed(Right) {
+		return "6"
+	}
+
 	return ""
 }
