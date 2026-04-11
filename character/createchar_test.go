@@ -12,7 +12,7 @@ import (
 )
 
 const jumpHeight = 4
-const jumpDistance = 5
+const jumpDistance = 4
 
 func TestMakeCharacter(t *testing.T) {
 	char := &Character{}
@@ -166,6 +166,10 @@ func exportCharacterToYAML(c *Character) error {
 	for _, anim := range animations {
 		for _, sprite := range anim.Sprites {
 			if sprite.ImagePath != "" {
+				if _, alreadyConverted := originalPaths[sprite]; alreadyConverted {
+					continue
+				}
+
 				originalPaths[sprite] = sprite.ImagePath
 				sprite.ImagePath = makeRelativePath(sprite.ImagePath, path)
 			}

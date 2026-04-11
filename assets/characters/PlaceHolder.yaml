@@ -4,7 +4,7 @@ stateMachine:
         animations:
             "4":
                 sprites:
-                    - imgPath: ../../common/walk.png
+                    - imgPath: ../common/walk.png
                       rect:
                         w: 256
                         h: 256
@@ -18,7 +18,7 @@ stateMachine:
                       duration: 6
             "6":
                 sprites:
-                    - imgPath: ../../common/walk.png
+                    - imgPath: ../common/walk.png
                       rect:
                         w: 256
                         h: 256
@@ -32,7 +32,7 @@ stateMachine:
                       duration: 6
             "7":
                 sprites:
-                    - imgPath: ../../../../../../common/idle.png
+                    - imgPath: ../common/idle.png
                       rect:
                         w: 256
                         h: 256
@@ -40,12 +40,12 @@ stateMachine:
                         x: 127
                         "y": 177
                 framedata:
-                    - changeXSpeed: -5
+                    - changeXSpeed: -4
                       changeYSpeed: -4
                       duration: 6
             "8":
                 sprites:
-                    - imgPath: ../../../../../../common/idle.png
+                    - imgPath: ../common/idle.png
                       rect:
                         w: 256
                         h: 256
@@ -57,7 +57,7 @@ stateMachine:
                       duration: 6
             "9":
                 sprites:
-                    - imgPath: ../../../../../../common/idle.png
+                    - imgPath: ../common/idle.png
                       rect:
                         w: 256
                         h: 256
@@ -65,12 +65,12 @@ stateMachine:
                         x: 127
                         "y": 177
                 framedata:
-                    - changeXSpeed: 5
+                    - changeXSpeed: 4
                       changeYSpeed: -4
                       duration: 6
             fall:
                 sprites:
-                    - imgPath: ../../../../../../common/idle.png
+                    - imgPath: ../common/idle.png
                       rect:
                         w: 256
                         h: 256
@@ -81,7 +81,7 @@ stateMachine:
                     - duration: 6
             idle:
                 sprites:
-                    - imgPath: ../../../../../../common/idle.png
+                    - imgPath: ../common/idle.png
                       rect:
                         w: 256
                         h: 256
@@ -94,7 +94,7 @@ stateMachine:
                       duration: 6
             landing:
                 sprites:
-                    - imgPath: ../../../../../../common/idle.png
+                    - imgPath: ../common/idle.png
                       rect:
                         w: 256
                         h: 256
