@@ -86,7 +86,6 @@ func (c *Character) initialize(playerSide int) {
 	c.StateMachine.Facing = facing
 	c.StateMachine.Velocity = types.Vector2{}
 	c.StateMachine.IgnoreGravityFrames = 0
-	c.StateMachine.InputHistory = nil
 
 	setInitialAnimation(c.StateMachine.ActiveAnim)
 

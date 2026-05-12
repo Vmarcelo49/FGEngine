@@ -4,7 +4,10 @@ go 1.25.0
 
 require (
 	github.com/ebitengine/debugui v0.2.0
+	github.com/gabstv/cimgui-go v0.0.0-20231031221758-68bd718f94cc
+	github.com/gabstv/ebiten-imgui/v3 v3.0.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
+	golang.org/x/image v0.39.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -16,11 +19,9 @@ require (
 	github.com/hajimehoshi/bitmapfont/v4 v4.1.0 // indirect
 	github.com/jezek/xgb v1.3.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.26 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
-	golang.org/x/image v0.39.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect

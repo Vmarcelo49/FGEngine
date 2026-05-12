@@ -16,7 +16,7 @@ type Camera struct {
 // Makes a camera centered in the world
 func NewCamera() *Camera {
 	viewport := constants.Camera // Start with camera dimensions
-	viewport.AlignCenter(constants.World)
+	viewport.CenterWithin(constants.World)
 	// Position camera at bottom of world instead of center vertically
 	viewport.Y = constants.World.Bottom() - constants.Camera.H
 

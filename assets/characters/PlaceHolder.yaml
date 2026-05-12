@@ -1,166 +1,917 @@
-name: PlaceHolder
+name: NewCharacter
 stateMachine:
     activeAnim:
         animations:
             "4":
                 sprites:
-                    - imgPath: ../common/walk.png
+                    - imgPath: ../../../../Downloads/roa/roa2700.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2701.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2702.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2703.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2704.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2705.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2706.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2707.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2708.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2709.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2710.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2711.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2712.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2713.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2714.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2715.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
                 framedata:
-                    - changeXSpeed: -2
-                      cancelTypes:
-                        - any
-                      boxes:
-                        0:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
-                        2:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
+                    - changeXSpeed: -1
                       duration: 6
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 1
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 2
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 3
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 4
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 5
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 6
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 7
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 8
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 9
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 10
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 11
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 12
+                    - changeXSpeed: -1
+                      duration: 6
+                      spriteIndex: 13
+                    - duration: 6
+                      spriteIndex: 14
+                    - duration: 6
+                      spriteIndex: 15
             "6":
                 sprites:
-                    - imgPath: ../common/walk.png
+                    - imgPath: ../../../../Downloads/roa/roa2600.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
-                framedata:
-                    - changeXSpeed: 2
-                      cancelTypes:
-                        - any
-                      boxes:
-                        0:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
-                        2:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
-                      duration: 6
-            "7":
-                sprites:
-                    - imgPath: ../common/idle.png
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2601.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
-                framedata:
-                    - changeXSpeed: -4
-                      changeYSpeed: -4
-                      duration: 6
-            "8":
-                sprites:
-                    - imgPath: ../common/idle.png
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2602.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
-                framedata:
-                    - changeYSpeed: -4
-                      duration: 6
-            "9":
-                sprites:
-                    - imgPath: ../common/idle.png
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2603.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
-                framedata:
-                    - changeXSpeed: 4
-                      changeYSpeed: -4
-                      duration: 6
-            A:
-                sprites:
-                    - imgPath: ../common/attack.png
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2604.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2605.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2606.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2607.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2608.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2609.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2610.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2611.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2612.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2613.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2614.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa2615.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
                 framedata:
                     - changeXSpeed: 1
-                      boxes:
-                        0:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
-                        1:
-                            - x: 127
-                              "y": 97
-                              w: 80
-                              h: 20
-                        2:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
                       duration: 6
-            fall:
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 1
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 2
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 3
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 4
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 5
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 6
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 7
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 8
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 9
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 10
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 11
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 12
+                    - changeXSpeed: 1
+                      duration: 6
+                      spriteIndex: 13
+                    - duration: 6
+                      spriteIndex: 14
+                    - duration: 6
+                      spriteIndex: 15
+            "66":
                 sprites:
-                    - imgPath: ../common/idle.png
+                    - imgPath: ../../../../Downloads/roa/roa1300.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1301.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1302.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1303.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1304.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1305.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1306.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1307.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa1308.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                framedata:
+                    - changeXSpeed: 1
+                      duration: 6
+                    - changeXSpeed: 2
+                      duration: 6
+                      spriteIndex: 1
+                    - changeXSpeed: 3
+                      duration: 6
+                      spriteIndex: 2
+                    - changeXSpeed: 3
+                      duration: 6
+                      spriteIndex: 3
+                    - duration: 6
+                      spriteIndex: 4
+                    - duration: 6
+                      spriteIndex: 5
+                    - duration: 6
+                      spriteIndex: 6
+                    - duration: 6
+                      spriteIndex: 7
+                    - duration: 6
+                      spriteIndex: 8
+            A:
+                sprites:
+                    - imgPath: ../../../../Downloads/roa/roa0100.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0101.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0102.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0103.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0104.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0105.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0106.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                framedata:
+                    - duration: 2
+                    - duration: 2
+                      spriteIndex: 1
+                    - duration: 1
+                      spriteIndex: 2
+                    - cancelTypes:
+                        - A
+                      duration: 4
+                      spriteIndex: 3
+                    - cancelTypes:
+                        - A
+                      duration: 1
+                      spriteIndex: 4
+                    - cancelTypes:
+                        - A
+                      duration: 4
+                      spriteIndex: 5
+                    - duration: 3
+                      spriteIndex: 6
+            B:
+                sprites:
+                    - imgPath: ../../../../Downloads/roa/roa0200.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0201.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0202.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0203.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0204.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0205.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0206.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
                 framedata:
                     - duration: 6
+                    - duration: 6
+                      spriteIndex: 1
+                    - duration: 6
+                      spriteIndex: 2
+                    - duration: 6
+                      spriteIndex: 3
+                    - duration: 6
+                      spriteIndex: 4
+                    - duration: 6
+                      spriteIndex: 5
+                    - duration: 6
+                      spriteIndex: 6
+            C:
+                sprites:
+                    - imgPath: ../../../../Downloads/roa/roa0300.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0301.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0302.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0303.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0304.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0305.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0306.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0307.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0308.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0309.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0310.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0311.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0312.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0313.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0314.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 120
+                        "y": 220
+                framedata:
+                    - duration: 6
+                    - duration: 6
+                      spriteIndex: 1
+                    - duration: 6
+                      spriteIndex: 2
+                    - duration: 6
+                      spriteIndex: 3
+                    - duration: 6
+                      spriteIndex: 4
+                    - duration: 6
+                      spriteIndex: 5
+                    - duration: 6
+                      spriteIndex: 6
+                    - duration: 6
+                      spriteIndex: 7
+                    - duration: 6
+                      spriteIndex: 8
+                    - duration: 6
+                      spriteIndex: 9
+                    - duration: 6
+                      spriteIndex: 10
+                    - duration: 6
+                      spriteIndex: 11
+                    - duration: 6
+                      spriteIndex: 12
+                    - duration: 6
+                      spriteIndex: 13
+                    - duration: 6
+                      spriteIndex: 14
             idle:
                 sprites:
-                    - imgPath: ../common/idle.png
+                    - imgPath: ../../../../Downloads/roa/roa0000.png
                       rect:
-                        w: 256
-                        h: 256
+                        w: 0
+                        h: 0
                       anchor:
-                        x: 127
-                        "y": 177
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0001.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0002.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0003.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0004.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0005.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0006.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0007.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0008.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0009.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0010.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0011.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0012.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0013.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0014.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0015.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0016.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0017.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0018.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0019.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
+                    - imgPath: ../../../../Downloads/roa/roa0020.png
+                      rect:
+                        w: 0
+                        h: 0
+                      anchor:
+                        x: 128
+                        "y": 220
                 framedata:
                     - cancelTypes:
                         - any
-                      boxes:
-                        0:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
-                        2:
-                            - x: 109
-                              "y": 77
-                              w: 36
-                              h: 100
                       duration: 6
-            landing:
-                sprites:
-                    - imgPath: ../common/idle.png
-                      rect:
-                        w: 256
-                        h: 256
-                      anchor:
-                        x: 127
-                        "y": 177
-                framedata:
-                    - duration: 4
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 1
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 2
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 3
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 4
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 5
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 6
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 7
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 8
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 9
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 10
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 11
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 12
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 13
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 14
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 15
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 16
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 17
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 18
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 19
+                    - cancelTypes:
+                        - any
+                      duration: 6
+                      spriteIndex: 20

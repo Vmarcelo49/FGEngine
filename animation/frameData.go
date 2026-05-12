@@ -1,7 +1,6 @@
 package animation
 
 import (
-	"fgengine/collision"
 	"fgengine/types"
 )
 
@@ -13,11 +12,15 @@ type FrameData struct {
 
 	CancelTypes []string `yaml:"cancelTypes,omitempty"` // list of cancel types that can be used during this frame, e.g. "jump", "attack", "dash", etc.
 
+	Boxes    map[types.BoxType][]types.Rect `yaml:"boxes,omitempty"`
+	Duration int                            `yaml:"duration"`
+
+	SpriteIndex int `yaml:"spriteIndex,omitempty"` // index of the sprite to display for this frame
 	// unused stuff that will be used later
-	Boxes           map[collision.BoxType][]types.Rect `yaml:"boxes,omitempty"`
-	Duration        int                                `yaml:"duration"`
-	SpriteIndex     int                                `yaml:"spriteIndex,omitempty"`     // index of the sprite to display for this frame
-	AnimationSwitch string                             `yaml:"animationSwitch,omitempty"` // switch to this animation after this frame ends
+	IsRecovery bool `yaml:"isRecovery,omitempty"` // whether this frame is a recovery frame (can't cancel out of it)
+	IsHoldable bool `yaml:"isHoldable,omitempty"` // whether this frame can be held by holding the input
+
+	AnimationSwitch string `yaml:"animationSwitch,omitempty"` // switch to this animation after this frame ends
 	//State            State                              `yaml:"state,omitempty"`
 	//CancelType       state.AttackCancelType `yaml:"cancelType,omitempty"`
 	//MoveType         MoveType       `yaml:"moveType,omitempty"`
@@ -40,36 +43,4 @@ type FrameData struct {
 
 	IsInvincible bool `yaml:"isInvincible,omitempty"`
 	HasArmor     bool `yaml:"hasArmor,omitempty"`
-}
-
-func (fd *FrameData) switchToAnim(detectedAnimations string, sm *StateMachine) {
-	if detectedAnimations == "" {
-		return
-	}
-
-	if sm.ActiveAnim != nil && sm.ActiveAnim.ActiveAnimationName() == detectedAnimations {
-		return
-	}
-
-	if len(fd.CancelTypes) == 0 {
-		return
-	}
-
-	// Prevent jump-start animations while already airborne.
-	if (detectedAnimations == "7" || detectedAnimations == "8" || detectedAnimations == "9") && sm.IsAirborne() {
-		return
-	}
-
-	if fd.CancelTypes[0] == "any" {
-		sm.ActiveAnim.SetAnimation(detectedAnimations)
-		return
-	}
-
-	for _, cancelType := range fd.CancelTypes {
-		if cancelType == detectedAnimations {
-			sm.ActiveAnim.SetAnimation(detectedAnimations)
-			return
-		}
-	}
-	// it would be better to each animation having its own identifier instead of relying on the name
 }

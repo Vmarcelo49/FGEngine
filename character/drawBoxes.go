@@ -2,7 +2,7 @@ package character
 
 import (
 	"fgengine/animation"
-	"fgengine/collision"
+
 	"fgengine/graphics"
 	"fgengine/types"
 	"image/color"
@@ -14,10 +14,10 @@ import (
 var (
 	whitePixel *ebiten.Image
 	once       sync.Once
-	boxColors  = map[collision.BoxType]color.RGBA{
-		collision.Collision: {R: 80, G: 80, B: 80, A: 32},
-		collision.Hit:       {R: 100, G: 40, B: 40, A: 32},
-		collision.Hurt:      {R: 40, G: 100, B: 40, A: 32},
+	boxColors  = map[types.BoxType]color.RGBA{
+		types.Collision: {R: 80, G: 80, B: 80, A: 32},
+		types.Hit:       {R: 100, G: 40, B: 40, A: 32},
+		types.Hurt:      {R: 40, G: 100, B: 40, A: 32},
 	}
 )
 
@@ -29,7 +29,7 @@ func initWhitePixel() {
 	})
 }
 
-func (c *Character) newBoxOpts(box types.Rect, boxType collision.BoxType, camera *graphics.Camera) *ebiten.DrawImageOptions {
+func (c *Character) newBoxOpts(box types.Rect, boxType types.BoxType, camera *graphics.Camera) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
 	boxImgOptions.GeoM.Scale(box.W, box.H)

@@ -97,6 +97,35 @@ func CheckInputSequences(inputs []GameInput) string {
 	return detected[len(detected)-1] // last one probably is the correct one...
 }
 
+// CheckInputIntent returns a frame intent while preventing repeated triggers
+// for discrete button-based actions (normals/specials) held in input history.
+func CheckInputIntent(inputs []GameInput) string {
+	if len(inputs) == 0 {
+		return ""
+	}
+
+	current := CheckInputSequences(inputs)
+	if current == "" || !isDiscreteIntent(current) || len(inputs) == 1 {
+		return current
+	}
+
+	previous := CheckInputSequences(inputs[:len(inputs)-1])
+	if previous == current {
+		return ""
+	}
+
+	return current
+}
+
+func isDiscreteIntent(intent string) bool {
+	for _, r := range intent {
+		if r == 'A' || r == 'B' || r == 'C' || r == 'D' {
+			return true
+		}
+	}
+	return false
+}
+
 func CheckSingleInput(inputs GameInput) string {
 	// with priority order
 	if inputs.IsPressed(D) {
