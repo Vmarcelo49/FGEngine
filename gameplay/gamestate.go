@@ -5,6 +5,7 @@ import (
 	"fgengine/character"
 	"fgengine/constants"
 	"fgengine/input"
+	"slices"
 )
 
 type GameState struct {
@@ -198,13 +199,7 @@ func canCancelTo(frameData *animation.FrameData, sm *animation.StateMachine, int
 		return true
 	}
 
-	for _, cancelType := range frameData.CancelTypes {
-		if cancelType == intentAnimation {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(frameData.CancelTypes, intentAnimation)
 }
 
 /*

@@ -1,6 +1,6 @@
 module fgengine
 
-go 1.25.0
+go 1.26.3
 
 require (
 	github.com/ebitengine/debugui v0.2.0
