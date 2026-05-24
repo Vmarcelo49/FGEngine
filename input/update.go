@@ -34,19 +34,21 @@ func UpdateGamepads() [2]GameInput {
 	}
 	GlobalInputs = syncedInputs
 
-	p1IDs := make([]ebiten.GamepadID, 0, len(GlobalInputs))
-	p2IDs := make([]ebiten.GamepadID, 0, len(GlobalInputs))
+	// Poll each device once and store per-device results. Then build
+	// player aggregates from those stored results to avoid duplicate polling.
 	for _, i := range GlobalInputs {
 		i.PrevButtons = i.ActiveButtons
 		i.ActiveButtons = PollGamepads([]ebiten.GamepadID{i.ID})
+	}
+
+	inputs := [2]GameInput{NoInput, NoInput}
+	for _, i := range GlobalInputs {
 		if i.Owner == P1Side {
-			p1IDs = append(p1IDs, i.ID)
-		}
-		if i.Owner == P2Side {
-			p2IDs = append(p2IDs, i.ID)
+			inputs[0] |= i.ActiveButtons
+		} else if i.Owner == P2Side {
+			inputs[1] |= i.ActiveButtons
 		}
 	}
-	inputs := [2]GameInput{PollGamepads(p1IDs), PollGamepads(p2IDs)}
 	return inputs
 }
 

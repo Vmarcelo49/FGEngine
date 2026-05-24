@@ -32,11 +32,11 @@ func loadDefaultConfig() Config {
 
 func InitGameConfig() {
 	ActiveConfig = LoadConfigFile()
-	ebiten.SetWindowSize(ActiveConfig.WindowWidth, ActiveConfig.WindowWidth)
+	ebiten.SetWindowSize(ActiveConfig.WindowWidth, ActiveConfig.WindowHeight)
 	ebiten.SetWindowTitle("FG Engine")
 }
 
-// LoadConfigFile tries to load the config file found in the same path as the executable, if its not found one is created from the default config
+// LoadConfigFile tries to load the config file found in the same path as where the project was ran, if its not found one is created from the default config
 func LoadConfigFile() Config {
 	var config Config
 	data, err := os.ReadFile(configFilePath)
@@ -62,7 +62,7 @@ func LoadConfigFile() Config {
 			log.Fatal(err)
 		}
 	}
-	err = yaml.Unmarshal(data, config)
+	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		log.Fatalf("error loading config file: %s", err.Error())
 	}

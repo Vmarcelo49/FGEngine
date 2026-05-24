@@ -29,7 +29,7 @@ func MakeGameplayScene() Scene {
 	}
 
 	camera := graphics.NewCamera()
-	camera.LockWorldBounds = true
+	camera.WorldBoundsLock = true
 
 	return &GameplayScene{
 		camera: camera,
@@ -207,7 +207,7 @@ func (g *GameplayScene) updateDebugUI() {
 					g.camera.Viewport.W,
 					g.camera.Viewport.H,
 				))
-				ctx.Text(fmt.Sprintf("scaling=%.2f lockWorld=%v", g.camera.Scaling, g.camera.LockWorldBounds))
+				ctx.Text(fmt.Sprintf("scaling=%.2f lockWorld=%v", g.camera.Scaling, g.camera.WorldBoundsLock))
 			}
 		})
 		return nil

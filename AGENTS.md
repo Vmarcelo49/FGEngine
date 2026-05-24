@@ -16,7 +16,7 @@ Current project state from README.MD: major rewrites are in progress.
 ## 2) Tech Stack
 
 ### Language and runtime
-- Go 1.25.0 (`go.mod`)
+- Go 1.26.3 (`go.mod`) latest one!
 
 ### Core libraries
 - `github.com/hajimehoshi/ebiten/v2` (game loop, rendering, input)
