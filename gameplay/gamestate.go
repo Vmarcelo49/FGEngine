@@ -31,7 +31,7 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 
 		frame[i] = playerFrameContext{
 			stateMachine:    sm,
-			intentAnimation: input.CheckInputIntent(correctInputByFacing(g.inputHist[i], sm.Facing)),
+			intentAnimation: input.CheckInputIntent(correctInputByFacing(g.inputHist[i], sm.IsFacingLeft)),
 			wasAirborne:     sm.IsAirborne(),
 		}
 	}
@@ -63,19 +63,19 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 func (g *GameState) resolveFacing(p1, p2 *animation.StateMachine) {
 	if p1.Position.X > p2.Position.X {
 		if !p1.IsAirborne() {
-			p1.Facing = animation.Left
+			p1.IsFacingLeft = animation.Left
 		}
 		if !p2.IsAirborne() {
-			p2.Facing = animation.Right
+			p2.IsFacingLeft = animation.Right
 		}
 		return
 	}
 
 	if !p1.IsAirborne() {
-		p1.Facing = animation.Right
+		p1.IsFacingLeft = animation.Right
 	}
 	if !p2.IsAirborne() {
-		p2.Facing = animation.Left
+		p2.IsFacingLeft = animation.Left
 	}
 }
 

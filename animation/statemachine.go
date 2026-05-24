@@ -21,7 +21,7 @@ type StateMachine struct {
 	Position            types.Vector2 `yaml:"-"`
 	Velocity            types.Vector2 `yaml:"-"`
 	IgnoreGravityFrames int           `yaml:"-"`
-	Facing              Orientation   `yaml:"-"`
+	IsFacingLeft        Orientation   `yaml:"-"`
 
 	ActiveAnim *AnimationPlayer `yaml:"activeAnim"`
 }
@@ -48,7 +48,7 @@ func (sm *StateMachine) IsAirborne() bool {
 func (sm *StateMachine) ApplyVelocity() {
 	frameData := sm.ActiveAnim.ActiveFrameData()
 	incVelX := frameData.IncVelocityX
-	if sm.Facing == Left {
+	if sm.IsFacingLeft {
 		incVelX = -incVelX
 	}
 	sm.Velocity.X += incVelX

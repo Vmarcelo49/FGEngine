@@ -58,21 +58,23 @@ func (ed *CharacterEditor) drawImportImagesAsAnimationWindow() {
 	}
 }
 
-func (ed *CharacterEditor) drawNotificationWindow(message string) {
-	imgui.SetNextWindowPosV(imgui.Vec2{X: float32(ed.width) / 2, Y: float32(ed.height) / 2}, imgui.CondAppearing, imgui.Vec2{X: 0.5, Y: 0.5})
-	flags := imgui.WindowFlags(imgui.WindowFlagsAlwaysAutoResize | imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove | imgui.WindowFlagsNoSavedSettings)
-	if !imgui.BeginV("Notification", nil, flags) {
-		imgui.End()
-		return
-	}
-	defer imgui.End()
+/*
+	func (ed *CharacterEditor) drawNotificationWindow(message string) {
+		imgui.SetNextWindowPosV(imgui.Vec2{X: float32(ed.width) / 2, Y: float32(ed.height) / 2}, imgui.CondAppearing, imgui.Vec2{X: 0.5, Y: 0.5})
+		flags := imgui.WindowFlags(imgui.WindowFlagsAlwaysAutoResize | imgui.WindowFlagsNoCollapse | imgui.WindowFlagsNoMove | imgui.WindowFlagsNoSavedSettings)
+		if !imgui.BeginV("Notification", nil, flags) {
+			imgui.End()
+			return
+		}
+		defer imgui.End()
 
-	imgui.Text(message)
-	if imgui.Button("OK") {
-		// Just close the window on OK
+		imgui.Text(message)
+		if imgui.Button("OK") {
+			// Just close the window on OK
+			return
+		}
 	}
-}
-
+*/
 func (ed *CharacterEditor) drawUnsavedChangesWindow() {
 	if !ed.showExitWindow {
 		return

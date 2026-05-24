@@ -23,7 +23,8 @@ const (
 
 type SceneManager struct {
 	currentScene Scene
-	waitNeutral  bool
+	// helper var to not trigger commands in scenes other than the active one
+	waitNeutral bool
 }
 
 func (sm *SceneManager) Update() error {

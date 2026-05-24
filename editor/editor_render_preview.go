@@ -64,7 +64,7 @@ func (ed *CharacterEditor) drawCharacterPreview(screen *ebiten.Image) {
 
 	op := &ebiten.DrawImageOptions{}
 	topLeftY := centerY - anchorY*scale
-	if ed.char.StateMachine != nil && ed.char.StateMachine.Facing == animation.Left {
+	if ed.char.StateMachine != nil && ed.char.StateMachine.IsFacingLeft == animation.Left {
 		topLeftX := centerX - (float64(imgW)-anchorX)*scale
 		op.GeoM.Scale(-scale, scale)
 		op.GeoM.Translate(float64(imgW)*scale+topLeftX, topLeftY)
@@ -87,7 +87,7 @@ func (ed *CharacterEditor) drawCharacterPreviewBoxes(screen *ebiten.Image, cente
 
 	initEditorWhitePixel()
 
-	facingLeft := ed.char != nil && ed.char.StateMachine != nil && ed.char.StateMachine.Facing == animation.Left
+	facingLeft := ed.char != nil && ed.char.StateMachine != nil && ed.char.StateMachine.IsFacingLeft == animation.Left
 
 	for boxType, boxes := range frameData.Boxes {
 		for _, box := range boxes {

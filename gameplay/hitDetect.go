@@ -55,7 +55,7 @@ func boxInWorldCoordinates(box types.Rect, sm *animation.StateMachine) (types.Re
 	}
 
 	worldX := sm.Position.X + box.X - anchor.X
-	if sm.Facing == animation.Left {
+	if sm.IsFacingLeft == animation.Left {
 		worldX = sm.Position.X - box.X - box.W + anchor.X
 	}
 

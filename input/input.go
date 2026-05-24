@@ -76,17 +76,17 @@ func PollGamepads(ids []ebiten.GamepadID) GameInput {
 		if axisCount >= 2 {
 			// Left stick X axis (axis 0)
 			xValue := ebiten.GamepadAxisValue(gamepadID, 0)
-			if xValue > config.ControllerDeadzone {
+			if xValue > config.ActiveConfig.ControllerDeadzone {
 				localInputs |= Right
-			} else if xValue < -config.ControllerDeadzone {
+			} else if xValue < -config.ActiveConfig.ControllerDeadzone {
 				localInputs |= Left
 			}
 
 			// Left stick Y axis (axis 1)
 			yValue := ebiten.GamepadAxisValue(gamepadID, 1)
-			if yValue > config.ControllerDeadzone {
+			if yValue > config.ActiveConfig.ControllerDeadzone {
 				localInputs |= Down
-			} else if yValue < -config.ControllerDeadzone {
+			} else if yValue < -config.ActiveConfig.ControllerDeadzone {
 				localInputs |= Up
 			}
 		}

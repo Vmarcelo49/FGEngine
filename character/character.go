@@ -73,17 +73,18 @@ func (c *Character) initialize(playerSide int) {
 
 	var initialX float64
 	var facing animation.Orientation
-	if playerSide == 1 {
+	switch playerSide {
+	case 1:
 		initialX = constants.WorldWidth / 4
 		facing = animation.Right
-	} else if playerSide == 2 {
+	case 2:
 		initialX = 3 * constants.WorldWidth / 4
 		facing = animation.Left
 	}
 
 	c.StateMachine.HP = 10000
 	c.StateMachine.Position = types.Vector2{X: initialX, Y: constants.WorldHeight / 2}
-	c.StateMachine.Facing = facing
+	c.StateMachine.IsFacingLeft = facing
 	c.StateMachine.Velocity = types.Vector2{}
 	c.StateMachine.IgnoreGravityFrames = 0
 

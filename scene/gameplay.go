@@ -195,7 +195,7 @@ func (g *GameplayScene) updateDebugUI() {
 
 				ctx.Text(fmt.Sprintf("P%d pos=(%.2f, %.2f)", i+1, sm.Position.X, sm.Position.Y))
 				ctx.Text(fmt.Sprintf("P%d vel=(%.2f, %.2f)", i+1, sm.Velocity.X, sm.Velocity.Y))
-				ctx.Text(fmt.Sprintf("P%d facing=%v", i+1, sm.Facing))
+				ctx.Text(fmt.Sprintf("P%d facing=%v", i+1, sm.IsFacingLeft))
 				ctx.Text(fmt.Sprintf("P%d anim=%s frame=%d t=%d", i+1, animName, frameIndex, frameTimeLeft))
 			}
 

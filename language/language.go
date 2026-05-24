@@ -8,7 +8,7 @@ import (
 
 type Language struct {
 	Lang     Lang              `yaml:"lang"`
-	GameText map[string]string `yaml:"game_text"`
+	GameText map[string]string `yaml:"game_text,omitempty"`
 }
 
 type Lang string
@@ -29,13 +29,14 @@ func LoadLang(configStr Lang) (*Language, error) {
 	return lang, nil
 }
 
+/*
 func (lang *Language) exportYAML(filename string) error {
 	data, err := yaml.Marshal(lang)
 	if err != nil {
 		return err
 	}
 	return os.WriteFile(filename, data, 0644)
-}
+}*/
 
 func ImportYAML(filename string) (*Language, error) {
 	data, err := os.ReadFile(filename)

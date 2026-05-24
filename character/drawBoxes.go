@@ -41,14 +41,14 @@ func (c *Character) newBoxOpts(box types.Rect, boxType types.BoxType, camera *gr
 		Y: worldPos.Y + box.Y,
 	}
 	// If the character is facing left, it must be flipped horizontally
-	if c.StateMachine.Facing == animation.Left {
+	if c.StateMachine.IsFacingLeft == animation.Left {
 		boxWorldPos.X = worldPos.X - box.X - box.W
 	}
 
 	screenPos := camera.WorldToScreen(boxWorldPos)
 	// Aplicar deslocamento para compensar o anchor point
 	screenPos.X -= c.Sprite().Anchor.X
-	if c.StateMachine.Facing == animation.Left {
+	if c.StateMachine.IsFacingLeft == animation.Left {
 		screenPos.X += 2 * (c.Sprite().Anchor.X) // undo the anchor compensation if facing left and compensate in the opposite direction
 	}
 	screenPos.Y -= c.Sprite().Anchor.Y

@@ -11,17 +11,16 @@ import (
 )
 
 func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
-	img := &ebiten.Image{}
-	if c.Sprite() == nil {
+	var img *ebiten.Image
+	sprite := c.Sprite()
+	if sprite == nil {
 		img = graphics.LoadImage("") // loads a placeholder image
 	} else {
-		img = graphics.LoadImage(c.Sprite().ImagePath)
+		img = graphics.LoadImage(sprite.ImagePath)
 	}
 
 	op := &ebiten.DrawImageOptions{}
 
-	// Obter dados do sprite atual
-	sprite := c.Sprite()
 	anchorOffset := types.Vector2{X: 25, Y: 100} // info for the placeholder sprite
 	if sprite != nil {
 		anchorOffset = types.Vector2{X: sprite.Anchor.X, Y: sprite.Anchor.Y}
@@ -31,26 +30,31 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 	}
 
 	// Calcular posição na tela (posição real do personagem)
-	screenPos := camera.WorldToScreen(c.StateMachine.Position)
-
-	// Aplicar deslocamento para compensar o anchor point
-	screenPos.X -= anchorOffset.X
-	screenPos.Y -= anchorOffset.Y
-
-	// Handle horizontal flip when facing left
-	if c.StateMachine.Facing == animation.Left {
-		op.GeoM.Scale(-1, 1) // Flip horizontal
-		// Compensate for the flip by translating by 2x the anchor point
-		op.GeoM.Translate(2*anchorOffset.X, 0)
-	}
-
-	graphics.CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
-	screen.DrawImage(img, op)
-
-	// Debug info on top of the character
+	var screenPos types.Vector2
+	state := c.StateMachine
 	animName := "none"
-	if c != nil && c.StateMachine != nil {
-		animName = c.StateMachine.ActiveAnim.ActiveAnimationName()
+
+	if state != nil {
+		if camera != nil {
+			screenPos = camera.WorldToScreen(state.Position)
+		}
+
+		// Aplicar deslocamento para compensar o anchor point
+		screenPos.X -= anchorOffset.X
+		screenPos.Y -= anchorOffset.Y
+
+		// Handle horizontal flip when facing left
+		if state.IsFacingLeft == animation.Left {
+			op.GeoM.Scale(-1, 1) // Flip horizontal
+			// Compensate for the flip by translating by 2x the anchor point
+			op.GeoM.Translate(2*anchorOffset.X, 0)
+		}
+
+		graphics.CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
+		screen.DrawImage(img, op)
+
+		// Debug info on top of the character
+		animName = state.ActiveAnim.ActiveAnimationName()
 	}
 	ebitenutil.DebugPrintAt(screen, animName, int(screenPos.X)+int(anchorOffset.X), int(screenPos.Y))
 }
