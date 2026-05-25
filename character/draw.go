@@ -54,7 +54,7 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 		screen.DrawImage(img, op)
 
 		// Debug info on top of the character
-		animName = state.ActiveAnim.ActiveAnimationName()
+		animName = state.AnimPlayer.ActiveAnimationName()
 	}
 	ebitenutil.DebugPrintAt(screen, animName, int(screenPos.X)+int(anchorOffset.X), int(screenPos.Y))
 }

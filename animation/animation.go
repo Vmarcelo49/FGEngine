@@ -19,6 +19,45 @@ type LoopFrame struct {
 	End   int `yaml:"end"`
 }
 
+func (ap *AnimationPlayer) Update(intentAnimation string) {
+	ap.FrameTimeLeft--
+	if ap.FrameTimeLeft > 0 {
+		return
+	}
+
+	ap.FrameIndex++
+
+	// end of animation reached, stop at the last frame, should never happen because there is a fallback to idle, also helps not to put wrong values into the frameindex and point to nil frames.
+	if ap.FrameIndex >= len(ap.ActiveAnimation.FrameData) {
+		ap.FrameIndex = len(ap.ActiveAnimation.FrameData) - 1
+		ap.FrameTimeLeft = 0
+		return
+	}
+
+	loopFrames := ap.ActiveAnimation.LoopFrames
+
+	if loopFrames != nil && loopFrames.Start != loopFrames.End {
+		holding := ap.ActiveAnimation.Name == "idle" ||
+			ap.ActiveAnimation.Name == intentAnimation
+
+		if holding {
+			// loop
+			if ap.FrameIndex > loopFrames.End {
+				ap.FrameIndex = loopFrames.Start
+			}
+		} else {
+			// soltou o botão durante o loop
+			if ap.FrameIndex >= loopFrames.Start &&
+				ap.FrameIndex <= loopFrames.End {
+
+				ap.FrameIndex = loopFrames.End + 1
+			}
+		}
+	}
+
+	ap.FrameTimeLeft = ap.ActiveAnimation.FrameData[ap.FrameIndex].Duration
+}
+
 type Sprite struct {
 	ImagePath string     `yaml:"imgPath"`
 	Rect      types.Rect `yaml:"rect"`
@@ -71,41 +110,6 @@ func (ap *AnimationPlayer) SetAnimation(name string) {
 		return
 	}
 	ap.FrameTimeLeft = anim.FrameData[0].Duration
-}
-
-func (ap *AnimationPlayer) Update(intentAnimation string) {
-	if ap.ActiveAnimation == nil {
-		return
-	}
-
-	ap.FrameTimeLeft--
-	if ap.FrameTimeLeft > 0 {
-		return
-	}
-
-	ap.FrameIndex++
-
-	// end of animation reached, stop at the last frame, should never happen because there is a fallback to idle, but we dont want to underflow the index.
-	if ap.FrameIndex >= len(ap.ActiveAnimation.FrameData) {
-		ap.FrameIndex = len(ap.ActiveAnimation.FrameData) - 1
-		ap.FrameTimeLeft = 0
-		return
-	}
-
-	// loopframes[0] is the index to loop back to, loopframes[1] is the last frame of the loop (inclusive)
-	if ap.ActiveAnimation.LoopFrames != nil { // basically if the animation has loop frames
-		// and is idle or the same animation as the intent animation, loop
-		if ap.ActiveAnimation.Name == "idle" || ap.ActiveAnimation.Name == intentAnimation {
-			if ap.FrameIndex > ap.ActiveAnimation.LoopFrames.End {
-				ap.FrameIndex = ap.ActiveAnimation.LoopFrames.Start
-			}
-		}
-		if ap.ActiveAnimation.Name != "idle" && ap.ActiveAnimation.Name != intentAnimation {
-			ap.FrameIndex = ap.ActiveAnimation.LoopFrames.End // try to switch to recovery frames
-		}
-	}
-
-	ap.FrameTimeLeft = ap.ActiveAnimation.FrameData[ap.FrameIndex].Duration
 }
 
 func (ap *AnimationPlayer) ActiveFrameData() *FrameData {

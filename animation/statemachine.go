@@ -23,7 +23,7 @@ type StateMachine struct {
 	IgnoreGravityFrames int           `yaml:"-"`
 	IsFacingLeft        Orientation   `yaml:"-"`
 
-	ActiveAnim *AnimationPlayer `yaml:"activeAnim"`
+	AnimPlayer *AnimationPlayer `yaml:"activeAnim"`
 }
 
 type Orientation bool
@@ -33,20 +33,13 @@ const (
 	Left  = true
 )
 
-// Initial states should include: idle, walk, jump, attack, hitstun.
-type State struct {
-	Name    string
-	OnEnter func(sm *StateMachine)
-	OnExit  func(sm *StateMachine)
-}
-
 func (sm *StateMachine) IsAirborne() bool {
 	return sm.Position.Y < constants.GroundLevelY
 }
 
 // ApplyVelocity applies movement deltas from the current frame data.
 func (sm *StateMachine) ApplyVelocity() {
-	frameData := sm.ActiveAnim.ActiveFrameData()
+	frameData := sm.AnimPlayer.ActiveFrameData()
 	incVelX := frameData.IncVelocityX
 	if sm.IsFacingLeft {
 		incVelX = -incVelX

@@ -15,7 +15,7 @@ func (ed *CharacterEditor) player() *animation.AnimationPlayer {
 	if ed.char == nil || ed.char.StateMachine == nil {
 		return nil
 	}
-	return ed.char.StateMachine.ActiveAnim
+	return ed.char.StateMachine.AnimPlayer
 }
 
 func (ed *CharacterEditor) activeAnimation() *animation.Animation {

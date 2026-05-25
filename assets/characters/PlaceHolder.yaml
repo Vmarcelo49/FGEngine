@@ -118,50 +118,85 @@ stateMachine:
                         "y": 220
                 framedata:
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 1
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 2
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 3
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 4
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 5
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 6
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 7
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 8
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 9
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 10
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 11
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 12
                     - changeXSpeed: -1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 13
-                    - duration: 6
+                    - cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 14
-                    - duration: 6
+                    - cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 15
+                loopFrames:
+                    start: 2
+                    end: 13
             "6":
                 sprites:
                     - imgPath: ../../../../Downloads/roa/roa2600.png
@@ -278,50 +313,85 @@ stateMachine:
                         "y": 220
                 framedata:
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 1
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 2
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 3
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 4
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 5
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 6
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 7
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 8
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 9
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 10
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 11
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 12
                     - changeXSpeed: 1
-                      duration: 6
+                      cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 13
-                    - duration: 6
+                    - cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 14
-                    - duration: 6
+                    - cancelTypes:
+                        - any
+                      duration: 4
                       spriteIndex: 15
+                loopFrames:
+                    start: 2
+                    end: 13
             "66":
                 sprites:
                     - imgPath: ../../../../Downloads/roa/roa1300.png
@@ -461,7 +531,10 @@ stateMachine:
                         x: 128
                         "y": 220
                 framedata:
-                    - duration: 2
+                    - cancelTypes:
+                        - B
+                        - C
+                      duration: 2
                     - duration: 2
                       spriteIndex: 1
                     - duration: 1
@@ -532,18 +605,32 @@ stateMachine:
                         x: 128
                         "y": 220
                 framedata:
-                    - duration: 6
-                    - duration: 6
+                    - cancelTypes:
+                        - C
+                      duration: 6
+                    - cancelTypes:
+                        - C
+                      duration: 6
                       spriteIndex: 1
-                    - duration: 6
+                    - cancelTypes:
+                        - C
+                      duration: 6
                       spriteIndex: 2
-                    - duration: 6
+                    - cancelTypes:
+                        - C
+                      duration: 6
                       spriteIndex: 3
-                    - duration: 6
+                    - cancelTypes:
+                        - C
+                      duration: 6
                       spriteIndex: 4
-                    - duration: 6
+                    - cancelTypes:
+                        - C
+                      duration: 6
                       spriteIndex: 5
-                    - duration: 6
+                    - cancelTypes:
+                        - C
+                      duration: 6
                       spriteIndex: 6
             C:
                 sprites:

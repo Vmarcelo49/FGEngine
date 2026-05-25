@@ -63,7 +63,7 @@ func (c *Character) newBoxOpts(box types.Rect, boxType types.BoxType, camera *gr
 }
 
 func (c *Character) DrawBoxes(screen *ebiten.Image, camera *graphics.Camera) {
-	framedata := c.StateMachine.ActiveAnim.ActiveFrameData()
+	framedata := c.StateMachine.AnimPlayer.ActiveFrameData()
 	if framedata == nil || len(framedata.Boxes) == 0 {
 		return
 	}

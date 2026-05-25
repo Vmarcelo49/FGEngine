@@ -61,11 +61,11 @@ func ResolveBodyCollision(p1, p2 *animation.StateMachine) {
 }
 
 func firstCollisionBoxInWorld(sm *animation.StateMachine) (types.Rect, bool) {
-	if sm == nil || sm.ActiveAnim == nil {
+	if sm == nil || sm.AnimPlayer == nil {
 		return types.Rect{}, false
 	}
 
-	frameData := sm.ActiveAnim.ActiveFrameData()
+	frameData := sm.AnimPlayer.ActiveFrameData()
 	if frameData == nil {
 		return types.Rect{}, false
 	}

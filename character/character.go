@@ -40,15 +40,15 @@ func loadCharacterByName(name string) (*Character, error) {
 		return nil, fmt.Errorf("failed to unmarshal character data: %w", err)
 	}
 
-	if character.StateMachine == nil || character.StateMachine.ActiveAnim == nil {
+	if character.StateMachine == nil || character.StateMachine.AnimPlayer == nil {
 		return nil, fmt.Errorf("character file is missing stateMachine.activeAnim")
 	}
-	if character.StateMachine.ActiveAnim.Animations == nil {
+	if character.StateMachine.AnimPlayer.Animations == nil {
 		return nil, fmt.Errorf("character file is missing stateMachine.activeAnim.animations")
 	}
 
 	// Keep runtime animation names in sync with the map keys.
-	for animName, anim := range character.StateMachine.ActiveAnim.Animations {
+	for animName, anim := range character.StateMachine.AnimPlayer.Animations {
 		if anim == nil {
 			continue
 		}
@@ -65,10 +65,10 @@ func loadCharacterByName(name string) (*Character, error) {
 
 func (c *Character) initialize(playerSide int) {
 	if c.StateMachine == nil {
-		c.StateMachine = &animation.StateMachine{}
+		c.StateMachine = new(animation.StateMachine{})
 	}
-	if c.StateMachine.ActiveAnim == nil {
-		c.StateMachine.ActiveAnim = &animation.AnimationPlayer{}
+	if c.StateMachine.AnimPlayer == nil {
+		c.StateMachine.AnimPlayer = new(animation.AnimationPlayer{})
 	}
 
 	var initialX float64
@@ -88,7 +88,7 @@ func (c *Character) initialize(playerSide int) {
 	c.StateMachine.Velocity = types.Vector2{}
 	c.StateMachine.IgnoreGravityFrames = 0
 
-	setInitialAnimation(c.StateMachine.ActiveAnim)
+	setInitialAnimation(c.StateMachine.AnimPlayer)
 
 }
 
@@ -124,5 +124,5 @@ func (c *Character) Position() types.Vector2 {
 }
 
 func (c *Character) Sprite() *animation.Sprite {
-	return c.StateMachine.ActiveAnim.ActiveSprite()
+	return c.StateMachine.AnimPlayer.ActiveSprite()
 }

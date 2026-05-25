@@ -60,25 +60,6 @@ type CharacterEditor struct {
 	exitEditor bool
 }
 
-func NewCharacterEditor() *CharacterEditor {
-	ed := &CharacterEditor{
-		width:             defaultEditorWidth,
-		height:            defaultEditorHeight,
-		newCharacterName:  "NewCharacter",
-		renameCharacterTo: "NewCharacter",
-		newAnimationName:  "new_animation",
-		selectedBoxType:   types.Collision,
-		targetBoxType:     types.Hit,
-		paused:            true,
-		previewScale:      3,
-		imagePreviewCache: make(map[string]*imagePreview),
-	}
-	ebiten.SetWindowClosingHandled(true)
-	ed.createNewCharacter("NewCharacter")
-	ed.clearDirty()
-	return ed
-}
-
 func (ed *CharacterEditor) Update() error {
 	if ebiten.IsWindowBeingClosed() {
 		if !ed.ignoreWindowClose {
@@ -137,4 +118,24 @@ func (ed *CharacterEditor) Layout(outsideWidth, outsideHeight int) (int, int) {
 	}
 	ebimgui.SetDisplaySize(float32(ed.width), float32(ed.height))
 	return ed.width, ed.height
+}
+
+// Entrypoint
+func NewCharacterEditor() *CharacterEditor {
+	ed := &CharacterEditor{
+		width:             defaultEditorWidth,
+		height:            defaultEditorHeight,
+		newCharacterName:  "NewCharacter",
+		renameCharacterTo: "NewCharacter",
+		newAnimationName:  "new_animation",
+		selectedBoxType:   types.Collision,
+		targetBoxType:     types.Hit,
+		paused:            true,
+		previewScale:      3,
+		imagePreviewCache: make(map[string]*imagePreview),
+	}
+	ebiten.SetWindowClosingHandled(true)
+	ed.createNewCharacter("NewCharacter")
+	ed.clearDirty()
+	return ed
 }

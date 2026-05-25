@@ -56,7 +56,7 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 		g.applyAnimationPostPhysics(ctx)
 
 		// some animations may need info on the input to check some logic
-		ctx.stateMachine.ActiveAnim.Update(ctx.intentAnimation)
+		ctx.stateMachine.AnimPlayer.Update(ctx.intentAnimation)
 	}
 }
 
@@ -108,7 +108,7 @@ func correctInputByFacing(history []input.GameInput, facing animation.Orientatio
 
 func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {
 	sm := ctx.stateMachine
-	if sm == nil || sm.ActiveAnim == nil {
+	if sm == nil || sm.AnimPlayer == nil {
 		return
 	}
 
@@ -116,46 +116,46 @@ func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {
 	landedThisFrame := ctx.wasAirborne && !isAirborne
 
 	if landedThisFrame {
-		if _, hasLanding := sm.ActiveAnim.Animations["landing"]; hasLanding && sm.ActiveAnim.ActiveAnimationName() != "landing" {
-			sm.ActiveAnim.SetAnimation("landing")
+		if _, hasLanding := sm.AnimPlayer.Animations["landing"]; hasLanding && sm.AnimPlayer.ActiveAnimationName() != "landing" {
+			sm.AnimPlayer.SetAnimation("landing")
 		}
 	}
 
-	if !sm.ActiveAnim.IsFinished() {
+	if !sm.AnimPlayer.IsFinished() {
 		return
 	}
 
-	currentAnim := sm.ActiveAnim.ActiveAnimationName()
+	currentAnim := sm.AnimPlayer.ActiveAnimationName()
 	if isAirborne {
-		if _, hasFall := sm.ActiveAnim.Animations["fall"]; hasFall && currentAnim != "fall" {
-			sm.ActiveAnim.SetAnimation("fall")
+		if _, hasFall := sm.AnimPlayer.Animations["fall"]; hasFall && currentAnim != "fall" {
+			sm.AnimPlayer.SetAnimation("fall")
 		}
 		return
 	}
 
 	if currentAnim == "landing" || currentAnim == "fall" {
 		if ctx.intentAnimation != "" && currentAnim != ctx.intentAnimation {
-			sm.ActiveAnim.SetAnimation(ctx.intentAnimation)
+			sm.AnimPlayer.SetAnimation(ctx.intentAnimation)
 		} else if currentAnim != "idle" {
-			sm.ActiveAnim.SetAnimation("idle")
+			sm.AnimPlayer.SetAnimation("idle")
 		}
 		return
 	}
 
 	if ctx.intentAnimation != "" {
 		if currentAnim != ctx.intentAnimation {
-			sm.ActiveAnim.SetAnimation(ctx.intentAnimation)
+			sm.AnimPlayer.SetAnimation(ctx.intentAnimation)
 		}
 		return
 	}
 
 	if currentAnim == "idle" {
-		sm.ActiveAnim.SetAnimation("idle")
+		sm.AnimPlayer.SetAnimation("idle")
 		return
 	}
 
 	if currentAnim != "idle" {
-		sm.ActiveAnim.SetAnimation("idle")
+		sm.AnimPlayer.SetAnimation("idle")
 	}
 }
 
@@ -165,7 +165,7 @@ func (g *GameState) checkCancelAnim(ctx playerFrameContext) {
 		return
 	}
 
-	frameData := sm.ActiveAnim.ActiveFrameData()
+	frameData := sm.AnimPlayer.ActiveFrameData()
 	if frameData == nil {
 		return
 	}
@@ -174,7 +174,7 @@ func (g *GameState) checkCancelAnim(ctx playerFrameContext) {
 		return
 	}
 
-	sm.ActiveAnim.SetAnimation(ctx.intentAnimation)
+	sm.AnimPlayer.SetAnimation(ctx.intentAnimation)
 }
 
 func canCancelTo(frameData *animation.FrameData, sm *animation.StateMachine, intentAnimation string) bool {
@@ -182,7 +182,7 @@ func canCancelTo(frameData *animation.FrameData, sm *animation.StateMachine, int
 		return false
 	}
 
-	if sm.ActiveAnim.ActiveAnimationName() == intentAnimation {
+	if sm.AnimPlayer.ActiveAnimationName() == intentAnimation {
 		return false
 	}
 

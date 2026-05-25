@@ -41,7 +41,7 @@ func (ed *CharacterEditor) createNewCharacter(name string) {
 	ed.char = &character.Character{
 		Name: name,
 		StateMachine: &animation.StateMachine{
-			ActiveAnim: player,
+			AnimPlayer: player,
 		},
 	}
 
@@ -71,11 +71,11 @@ func (ed *CharacterEditor) loadCharacterFromPath(path string) error {
 		return fmt.Errorf("yaml parse failed: %w", err)
 	}
 
-	if loaded.StateMachine == nil || loaded.StateMachine.ActiveAnim == nil || loaded.StateMachine.ActiveAnim.Animations == nil {
+	if loaded.StateMachine == nil || loaded.StateMachine.AnimPlayer == nil || loaded.StateMachine.AnimPlayer.Animations == nil {
 		return fmt.Errorf("missing stateMachine.activeAnim.animations")
 	}
 
-	for name, anim := range loaded.StateMachine.ActiveAnim.Animations {
+	for name, anim := range loaded.StateMachine.AnimPlayer.Animations {
 		if anim == nil {
 			continue
 		}
@@ -93,7 +93,7 @@ func (ed *CharacterEditor) loadCharacterFromPath(path string) error {
 	}
 
 	ed.char = loaded
-	if _, ok := loaded.StateMachine.ActiveAnim.Animations["idle"]; ok {
+	if _, ok := loaded.StateMachine.AnimPlayer.Animations["idle"]; ok {
 		ed.setActiveAnimation("idle")
 	} else {
 		names := ed.animationNames()
@@ -118,6 +118,9 @@ func (ed *CharacterEditor) saveCharacterToPath(path string) error {
 	if ed.char == nil {
 		return fmt.Errorf("there is no character to save")
 	}
+	if ed.char.StateMachine == nil || ed.char.StateMachine.AnimPlayer == nil || ed.char.StateMachine.AnimPlayer.Animations == nil {
+		return fmt.Errorf("character is missing stateMachine.activeAnim.animations")
+	}
 	if strings.TrimSpace(path) == "" {
 		return fmt.Errorf("path cannot be empty")
 	}
@@ -126,20 +129,29 @@ func (ed *CharacterEditor) saveCharacterToPath(path string) error {
 		return fmt.Errorf("failed creating directories: %w", err)
 	}
 	// make loopframes nil if invalid or empty
-	for i, anim := range ed.char.StateMachine.ActiveAnim.Animations {
-		if anim.LoopFrames != nil {
-			if anim.LoopFrames.Start == anim.LoopFrames.End || (anim.LoopFrames.Start == 0 && anim.LoopFrames.End == 0) {
-				ed.char.StateMachine.ActiveAnim.Animations[i].LoopFrames = nil
-			}
-			if anim.LoopFrames.Start > anim.TotalDuration || anim.LoopFrames.End > anim.TotalDuration {
-				ed.char.StateMachine.ActiveAnim.Animations[i].LoopFrames = nil
-				ed.statusLine = fmt.Sprintf("Warning: animation '%s' has invalid loop frames and they were removed", anim.Name)
-			}
+	for i, anim := range ed.char.StateMachine.AnimPlayer.Animations {
+		if anim == nil {
+			continue
+		}
+		loopFrames := anim.LoopFrames
+		if loopFrames == nil {
+			continue
+		}
+
+		totalDuration := ed.totalAnimationDuration(anim)
+		invalidLoop := loopFrames.Start == loopFrames.End || (loopFrames.Start == 0 && loopFrames.End == 0)
+		if !invalidLoop && (loopFrames.Start > totalDuration || loopFrames.End > totalDuration) {
+			invalidLoop = true
+			ed.statusLine = fmt.Sprintf("Warning: animation '%s' has invalid loop frames and they were removed", anim.Name)
+		}
+
+		if invalidLoop {
+			ed.char.StateMachine.AnimPlayer.Animations[i].LoopFrames = nil
 		}
 	}
 
 	originalPaths := make(map[*animation.Sprite]string)
-	for _, anim := range ed.char.StateMachine.ActiveAnim.Animations {
+	for _, anim := range ed.char.StateMachine.AnimPlayer.Animations {
 		if anim == nil {
 			continue
 		}

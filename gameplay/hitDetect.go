@@ -11,12 +11,12 @@ func CheckHits(p1, p2 *animation.StateMachine) {
 }
 
 func checkhit(thisPlayer, otherPlayer *animation.StateMachine) bool {
-	if thisPlayer == nil || otherPlayer == nil || thisPlayer.ActiveAnim == nil || otherPlayer.ActiveAnim == nil {
+	if thisPlayer == nil || otherPlayer == nil || thisPlayer.AnimPlayer == nil || otherPlayer.AnimPlayer == nil {
 		return false
 	}
 
-	thisFrameData := thisPlayer.ActiveAnim.ActiveFrameData()
-	otherFrameData := otherPlayer.ActiveAnim.ActiveFrameData()
+	thisFrameData := thisPlayer.AnimPlayer.ActiveFrameData()
+	otherFrameData := otherPlayer.AnimPlayer.ActiveFrameData()
 	if thisFrameData == nil || otherFrameData == nil {
 		return false
 	}
@@ -44,11 +44,11 @@ func checkhit(thisPlayer, otherPlayer *animation.StateMachine) bool {
 }
 
 func boxInWorldCoordinates(box types.Rect, sm *animation.StateMachine) (types.Rect, bool) {
-	if sm == nil || sm.ActiveAnim == nil {
+	if sm == nil || sm.AnimPlayer == nil {
 		return types.Rect{}, false
 	}
 
-	sprite := sm.ActiveAnim.ActiveSprite()
+	sprite := sm.AnimPlayer.ActiveSprite()
 	anchor := types.Vector2{}
 	if sprite != nil {
 		anchor = sprite.Anchor

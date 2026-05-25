@@ -187,10 +187,10 @@ func (g *GameplayScene) updateDebugUI() {
 				animName := "none"
 				frameIndex := -1
 				frameTimeLeft := 0
-				if sm.ActiveAnim != nil {
-					animName = sm.ActiveAnim.ActiveAnimationName()
-					frameIndex = sm.ActiveAnim.FrameIndex
-					frameTimeLeft = sm.ActiveAnim.FrameTimeLeft
+				if sm.AnimPlayer != nil {
+					animName = sm.AnimPlayer.ActiveAnimationName()
+					frameIndex = sm.AnimPlayer.FrameIndex
+					frameTimeLeft = sm.AnimPlayer.FrameTimeLeft
 				}
 
 				ctx.Text(fmt.Sprintf("P%d pos=(%.2f, %.2f)", i+1, sm.Position.X, sm.Position.Y))
