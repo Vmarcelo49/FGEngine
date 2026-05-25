@@ -307,8 +307,11 @@ func (ed *CharacterEditor) copyCurrentFrameDataToFollowingFrames() {
 		return
 	}
 
+	source := cloneFrameData(*fd)
 	for i := ed.selectedFrame + 1; i < len(anim.FrameData); i++ {
-		anim.FrameData[i] = cloneFrameData(*fd)
+		targetSpriteIndex := anim.FrameData[i].SpriteIndex
+		anim.FrameData[i] = source
+		anim.FrameData[i].SpriteIndex = targetSpriteIndex
 	}
 
 	ed.statusLine = "Current framedata copied to following frames"

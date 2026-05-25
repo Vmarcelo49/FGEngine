@@ -46,7 +46,7 @@ func (ap *AnimationPlayer) Update(intentAnimation string) {
 				ap.FrameIndex = loopFrames.Start
 			}
 		} else {
-			// soltou o botão durante o loop
+			// released the button
 			if ap.FrameIndex >= loopFrames.Start &&
 				ap.FrameIndex <= loopFrames.End {
 
