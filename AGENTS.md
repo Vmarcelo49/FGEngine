@@ -3,12 +3,19 @@
 This file is the agent-focused onboarding and execution guide for this repository.
 It complements README.MD with practical context for coding agents.
 
+> **Behavior source of truth:** `SPEC.md` (repo root) is normative for all
+> engine behavior — determinism contract, frame pipeline, input model,
+> character data contract, combat rules, physics, and the F0–F7 roadmap.
+> When this file and `SPEC.md` disagree, `SPEC.md` wins. Read the relevant
+> `SPEC.md` sections before changing behavior, and update `SPEC.md` in the
+> same PR when behavior changes (SPEC §11.6).
+
 ## 1) Repository Purpose
 
 FGEngine is a 2D fighting game engine written in Go, using Ebitengine for rendering/input.
 The repository currently has three active surfaces:
 - Runtime game executable (`main.go`)
-- Character editor executable (`cmd/editor-imgui`)
+- Character editor executable (`cmd/editor`)
 - Utility/test executable (`cmd/test`)
 
 Current project state from README.MD: major rewrites are in progress.
@@ -41,7 +48,7 @@ Current project state from README.MD: major rewrites are in progress.
 - `main.go` -> `config.InitGameConfig()` -> `ebiten.RunGame(scene.NewSceneManager())`
 
 ### Character editor
-- `cmd/editor-imgui/main.go` -> `ebiten.RunGame(editor.NewCharacterEditor())`
+- `cmd/editor/main.go` -> `ebiten.RunGame(editor.NewCharacterEditor())`
 - Window defaults to 1920x1080 and resizing enabled.
 
 ### Utility binary
@@ -68,7 +75,7 @@ Current project state from README.MD: major rewrites are in progress.
 
 ### Character and animation model
 - `character.Character` stores `Name` and `StateMachine`.
-- `animation.StateMachine` stores runtime combat state (position/velocity/facing) plus `ActiveAnim`.
+- `animation.StateMachine` stores runtime combat state (position/velocity/facing) plus `AnimPlayer`.
 - `animation.AnimationPlayer` manages active animation, frame stepping, loop behavior, and frame data access.
 
 ### Rendering and debug model
@@ -90,7 +97,7 @@ Current project state from README.MD: major rewrites are in progress.
 
 - `animation/`: animation playback, frame data, state machine
 - `character/`: character loading, drawing, box rendering
-- `cmd/editor-imgui/`: editor executable entrypoint
+- `cmd/editor/`: editor executable entrypoint
 - `cmd/test/`: utility/smoke executable
 - `config/`: runtime window/layout/lang settings
 - `constants/`: world/camera/input constants
@@ -107,12 +114,16 @@ Note: there is no top-level `collision/` package in the current workspace.
 
 ## 6) Data Contracts (Important)
 
-### Character YAML contract
-Loader/editor flows expect:
+The authoritative contracts live in `SPEC.md` §6 (character files, frame
+data, boxes, canonical states, strict validation). What follows is
+current-state orientation only — on conflict, `SPEC.md` wins.
+
+### Character files (current: YAML, target: TOML per SPEC §6.1)
+Loader/editor flows currently expect YAML with:
 - `name`
 - `stateMachine.activeAnim.animations` map
 
-Minimal animation expectations:
+Minimal animation expectations today:
 - each animation has `sprites` and `framedata`
 - framedata includes `duration`
 - `spriteIndex` is used to select visual frame
@@ -139,7 +150,7 @@ Reference files:
 - Build runtime:
   - `go build .`
 - Build editor binary:
-  - `go build ./cmd/editor-imgui`
+  - `go build ./cmd/editor`
 - Build utility binary:
   - `go build ./cmd/test`
 - Validate all packages:
@@ -183,6 +194,7 @@ Reference files:
 - `editor`: content authoring workflow
 
 3. Preserve deterministic frame behavior
+- `SPEC.md` §3 (determinism contract) and §4 (frame pipeline order) are normative — do not reorder, parallelize, or introduce map iteration / wall-clock / unseeded RNG into the simulation path.
 - Maintain update ordering assumptions in `gameplay.GameState.Update`.
 - Keep scene transition input-neutral gating behavior intact unless intentionally changed.
 
@@ -196,12 +208,14 @@ Reference files:
 
 When implementing a change:
 1. Identify the surface first: runtime, editor, shared systems, or utility binary.
-2. Make the smallest viable change and keep package boundaries.
-3. Run `go test` for changed packages; run `go test ./...` for cross-cutting changes.
-4. If touching editor GTK integration, validate on Linux with cgo enabled.
-5. Document any command failures with exact errors.
+2. Read the governing `SPEC.md` sections before changing behavior (determinism §3, pipeline §4, data §6, combat §7 as applicable).
+3. Make the smallest viable change and keep package boundaries.
+4. Run `go test` for changed packages; run `go test ./...` for cross-cutting changes.
+5. If touching editor GTK integration, validate on Linux with cgo enabled.
+6. Document any command failures with exact errors.
+7. Update `SPEC.md` in the same PR when behavior changes (SPEC §11.6).
 
-When changing YAML/data flow:
+When changing character/data flow (YAML today, TOML per SPEC §6.1):
 1. Update loaders and save/export paths together.
 2. Preserve backward compatibility when practical.
 3. Keep sprite path handling consistent (relative vs absolute behavior).
@@ -209,7 +223,7 @@ When changing YAML/data flow:
 ## 11) Suggested Next Stabilization Tasks
 
 1. Fix `cmd/test` to use a stable asset path (for example under `assets/text`).
-2. Add smoke tests for character YAML load/save and animation playback edge cases.
+2. Test coverage per SPEC §11.5 and F0: replay determinism test with golden hash, character file round-trip test, input intent/sequence tests (TOML-aware after the F0 migration).
 3. Replace stale command snippets in docs that reference removed packages.
 4. Decide policy for checked-in binary artifacts like root `editor-imgui`.
 
@@ -217,3 +231,4 @@ When changing YAML/data flow:
 
 Treat this file as living documentation.
 Whenever build commands, architecture, or known breakages change, update AGENTS.md in the same PR.
+Behavior changes update `SPEC.md` in the same PR instead (SPEC §11.6) — this file tracks build/architecture/breakage facts only.
