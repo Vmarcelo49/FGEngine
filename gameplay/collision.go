@@ -7,20 +7,22 @@ import (
 )
 
 // ResolveBodyCollision checks for collisions on the collision boxes, then moves the players out of each other if they overlap.
+// All collision boxes of both frames participate; the first overlapping
+// pair in slice order (P1 outer, P2 inner) wins (SPEC §6.6, §8.4).
 func ResolveBodyCollision(p1, p2 *animation.StateMachine) {
-	p1CollisionBox, ok := firstCollisionBoxInWorld(p1)
-	if !ok {
-		return
+	p1Boxes := collisionBoxesInWorld(p1)
+	p2Boxes := collisionBoxesInWorld(p2)
+	for _, p1CollisionBox := range p1Boxes {
+		for _, p2CollisionBox := range p2Boxes {
+			if p1CollisionBox.IsOverlapping(p2CollisionBox) {
+				resolvePair(p1, p2, p1CollisionBox, p2CollisionBox)
+				return
+			}
+		}
 	}
+}
 
-	p2CollisionBox, ok := firstCollisionBoxInWorld(p2)
-	if !ok {
-		return
-	}
-
-	if !p1CollisionBox.IsOverlapping(p2CollisionBox) {
-		return
-	}
+func resolvePair(p1, p2 *animation.StateMachine, p1CollisionBox, p2CollisionBox types.Rect) {
 
 	// center of the collision box
 	ax, ay := p1CollisionBox.Center()
@@ -60,22 +62,26 @@ func ResolveBodyCollision(p1, p2 *animation.StateMachine) {
 	}
 }
 
-func firstCollisionBoxInWorld(sm *animation.StateMachine) (types.Rect, bool) {
+// collisionBoxesInWorld returns all collision boxes of the active frame in
+// world coordinates, in slice order (SPEC §6.6).
+func collisionBoxesInWorld(sm *animation.StateMachine) []types.Rect {
 	if sm == nil || sm.AnimPlayer == nil {
-		return types.Rect{}, false
+		return nil
 	}
 
 	frameData := sm.AnimPlayer.ActiveFrameData()
 	if frameData == nil {
-		return types.Rect{}, false
+		return nil
 	}
 
 	boxes := frameData.Boxes[types.Collision]
-	if len(boxes) == 0 {
-		return types.Rect{}, false
+	out := make([]types.Rect, 0, len(boxes))
+	for _, box := range boxes {
+		if world, ok := boxInWorldCoordinates(box, sm); ok {
+			out = append(out, world)
+		}
 	}
-
-	return boxInWorldCoordinates(boxes[0], sm)
+	return out
 }
 
 func resolveWithVelocity(a, b *animation.StateMachine, separationValue types.Vector2, isX bool) {
