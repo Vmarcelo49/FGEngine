@@ -97,15 +97,16 @@ Current project state from README.MD: major rewrites are in progress.
 ## 5) Project Layout Map (Where to Change What)
 
 - `animation/`: animation playback, frame data, state machine
-- `character/`: character loading, drawing, box rendering
+- `character/`: character loading and validation
 - `cmd/editor/`: editor executable entrypoint
 - `cmd/test/`: utility/smoke executable
 - `config/`: runtime window/layout/lang settings
 - `constants/`: world/camera/input constants
+- `device/`: gamepad/keyboard polling, mappings, device ownership
 - `editor/`: imgui-based character editor
 - `gameplay/`: game update loop, collision, hit detection
-- `graphics/`: camera and image cache
-- `input/`: keyboard/gamepad mapping, polling, input intent helpers
+- `graphics/`: camera, image cache, character sprite/box rendering
+- `input/`: input intents, sequences, SOCD (ebiten-free)
 - `language/`: i18n YAML import model
 - `scene/`: scene manager and scene implementations
 - `stage/`: stage rendering/backdrop generation
@@ -188,10 +189,11 @@ Reference files:
 - Preserve `yaml:"-"` runtime-only tags in gameplay state fields.
 
 2. Respect package ownership
-- `input`: polling and normalization
+- `input`: intent extraction and normalization (ebiten-free)
+- `device`: hardware polling and mapping
 - `scene`: scene transitions and gating
 - `gameplay`: frame simulation coordination
-- `character`/`animation`: per-character behavior and assets
+- `character`/`animation`: per-character data and behavior
 - `editor`: content authoring workflow
 
 3. Preserve deterministic frame behavior

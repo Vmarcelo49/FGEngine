@@ -61,12 +61,14 @@ func JustReleased(current, previous, button GameInput) bool {
 	return !current.IsPressed(button) && previous.IsPressed(button)
 }
 
-func checkSOCD(input *GameInput) {
-	if input.IsPressed(Left) && input.IsPressed(Right) {
-		*input &^= (Left | Right)
+// ApplySOCD clears simultaneous opposing directions to neutral (SPEC §5.2).
+func ApplySOCD(g GameInput) GameInput {
+	if g.IsPressed(Left) && g.IsPressed(Right) {
+		g &^= (Left | Right)
 	}
 
-	if input.IsPressed(Up) && input.IsPressed(Down) {
-		*input &^= (Up | Down)
+	if g.IsPressed(Up) && g.IsPressed(Down) {
+		g &^= (Up | Down)
 	}
+	return g
 }

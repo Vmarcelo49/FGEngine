@@ -2,6 +2,7 @@ package scene
 
 import (
 	"fgengine/constants"
+	"fgengine/device"
 	"fgengine/graphics"
 	"fgengine/input"
 
@@ -21,7 +22,7 @@ func MakeControllerScene() Scene {
 	cScene := &ControllerScene{
 		controllerIMGs: make([]controllerEntry, 0, 2),
 	}
-	for _, id := range input.GamepadIDs {
+	for _, id := range device.GamepadIDs {
 		cScene.controllerIMGs = append(cScene.controllerIMGs, controllerEntry{ID: id, Img: graphics.LoadImage("assets/common/gamepad.png")})
 	}
 	cScene.controllerIMGs = append(cScene.controllerIMGs, controllerEntry{ID: ebiten.GamepadID(-1), Img: graphics.LoadImage("assets/common/keyboard.png")})
@@ -30,7 +31,7 @@ func MakeControllerScene() Scene {
 
 func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
 	// Check for new gamepads and add them to the list if they aren't already there
-	for _, id := range input.GamepadIDs {
+	for _, id := range device.GamepadIDs {
 		found := false
 		for _, entry := range c.controllerIMGs {
 			if entry.ID == id {
@@ -44,33 +45,33 @@ func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
 		}
 	}
 	// Assign gamepads to players based on input
-	for _, singleInput := range input.GlobalInputs {
+	for _, singleInput := range device.GlobalInputs {
 		cur := singleInput.ActiveButtons
 		prev := singleInput.PrevButtons
-		if singleInput.Owner == input.P1Side {
+		if singleInput.Owner == device.P1Side {
 			if input.JustPressed(cur, prev, input.Right) {
-				singleInput.Owner = input.UnAssigned
+				singleInput.Owner = device.UnAssigned
 				continue
 			}
 			if input.JustPressed(cur, prev, input.A) {
 				return Scene1
 			}
 		}
-		if singleInput.Owner == input.P2Side {
+		if singleInput.Owner == device.P2Side {
 			if input.JustPressed(cur, prev, input.Left) {
-				singleInput.Owner = input.UnAssigned
+				singleInput.Owner = device.UnAssigned
 				continue
 			}
 			if input.JustPressed(cur, prev, input.A) {
 				return Scene1
 			}
 		}
-		if singleInput.Owner == input.UnAssigned {
+		if singleInput.Owner == device.UnAssigned {
 			if input.JustPressed(cur, prev, input.Left) {
-				singleInput.Owner = input.P1Side
+				singleInput.Owner = device.P1Side
 			}
 			if input.JustPressed(cur, prev, input.Right) {
-				singleInput.Owner = input.P2Side
+				singleInput.Owner = device.P2Side
 			}
 		}
 	}
@@ -83,8 +84,8 @@ func (c *ControllerScene) Draw(screen *ebiten.Image) {
 	for _, entry := range c.controllerIMGs {
 		op := &ebiten.DrawImageOptions{}
 		img := entry.Img
-		pos := input.UnAssigned
-		for _, singleInput := range input.GlobalInputs {
+		pos := device.UnAssigned
+		for _, singleInput := range device.GlobalInputs {
 			if singleInput.ID == entry.ID {
 				pos = singleInput.Owner
 				break
@@ -93,11 +94,11 @@ func (c *ControllerScene) Draw(screen *ebiten.Image) {
 		imgH := float64(img.Bounds().Dy())
 		spacing := imgH + 10
 		switch pos {
-		case input.P1Side:
+		case device.P1Side:
 			leftSidePos := constants.CameraWidth/2 - float64(img.Bounds().Dx())/2 - 150
 			op.GeoM.Translate(leftSidePos, 100+spacing*float64(p1Count))
 			p1Count++
-		case input.P2Side:
+		case device.P2Side:
 			rightSidePos := constants.CameraWidth/2 - float64(img.Bounds().Dx())/2 + 150
 			op.GeoM.Translate(rightSidePos, 100+spacing*float64(p2Count))
 			p2Count++

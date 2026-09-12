@@ -1,8 +1,8 @@
-package character
+package graphics
 
 import (
 	"fgengine/animation"
-	"fgengine/graphics"
+	"fgengine/character"
 
 	"fgengine/types"
 
@@ -10,13 +10,13 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
+func DrawCharacter(screen *ebiten.Image, c *character.Character, camera *Camera) {
 	var img *ebiten.Image
 	sprite := c.Sprite()
 	if sprite == nil {
-		img = graphics.LoadImage("") // loads a placeholder image
+		img = LoadImage("") // loads a placeholder image
 	} else {
-		img = graphics.LoadImage(sprite.ImagePath)
+		img = LoadImage(sprite.ImagePath)
 	}
 
 	op := &ebiten.DrawImageOptions{}
@@ -50,7 +50,7 @@ func (c *Character) Draw(screen *ebiten.Image, camera *graphics.Camera) {
 			op.GeoM.Translate(2*anchorOffset.X, 0)
 		}
 
-		graphics.CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
+		CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
 		screen.DrawImage(img, op)
 
 		// Debug info on top of the character

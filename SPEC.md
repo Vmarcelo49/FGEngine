@@ -66,11 +66,12 @@ netplay in the future.
 | Package | Responsibility |
 |---|---|
 | `animation` | Animation playback, frame data, per-character runtime state machine |
-| `character` | Character loading, drawing, box rendering |
+| `character` | Character loading and validation (drawing lives in `graphics`) |
 | `gameplay` | Frame simulation: pipeline order, physics, hit detection, body collision |
-| `input` | Polling, mapping, input history, intent/sequence detection |
+| `input` | Input intents, sequences, SOCD — pure logic, no ebiten (testable headless) |
+| `device` | Gamepad/keyboard polling, mappings, device ownership |
 | `scene` | Scene manager, scene implementations, input-neutral gating between scenes |
-| `graphics` | Camera/world-screen transforms, image cache |
+| `graphics` | Camera/world-screen transforms, image cache, character sprite/box rendering |
 | `stage` | Stage rendering |
 | `language` | i18n text (EN/BR) |
 | `config` | User config (window, deadzone, language) |

@@ -1,9 +1,9 @@
-package character
+package graphics
 
 import (
 	"fgengine/animation"
+	"fgengine/character"
 
-	"fgengine/graphics"
 	"fgengine/types"
 	"image/color"
 	"sync"
@@ -29,7 +29,7 @@ func initWhitePixel() {
 	})
 }
 
-func (c *Character) newBoxOpts(box types.Rect, boxType types.BoxType, camera *graphics.Camera) *ebiten.DrawImageOptions {
+func newBoxOpts(c *character.Character, box types.Rect, boxType types.BoxType, camera *Camera) *ebiten.DrawImageOptions {
 	boxImgOptions := &ebiten.DrawImageOptions{}
 
 	boxImgOptions.GeoM.Scale(box.W, box.H)
@@ -53,7 +53,7 @@ func (c *Character) newBoxOpts(box types.Rect, boxType types.BoxType, camera *gr
 	}
 	screenPos.Y -= c.Sprite().Anchor.Y
 
-	graphics.CameraTransform(boxImgOptions, camera, types.Vector2{X: 1, Y: 1}, screenPos)
+	CameraTransform(boxImgOptions, camera, types.Vector2{X: 1, Y: 1}, screenPos)
 
 	if color, exists := boxColors[boxType]; exists {
 		boxImgOptions.ColorScale.ScaleWithColor(color)
@@ -62,7 +62,7 @@ func (c *Character) newBoxOpts(box types.Rect, boxType types.BoxType, camera *gr
 	return boxImgOptions
 }
 
-func (c *Character) DrawBoxes(screen *ebiten.Image, camera *graphics.Camera) {
+func DrawCharacterBoxes(screen *ebiten.Image, c *character.Character, camera *Camera) {
 	framedata := c.StateMachine.AnimPlayer.ActiveFrameData()
 	if framedata == nil || len(framedata.Boxes) == 0 {
 		return
@@ -70,7 +70,7 @@ func (c *Character) DrawBoxes(screen *ebiten.Image, camera *graphics.Camera) {
 	initWhitePixel()
 	for boxType, boxes := range framedata.Boxes {
 		for _, box := range boxes {
-			opts := c.newBoxOpts(box, boxType, camera)
+			opts := newBoxOpts(c, box, boxType, camera)
 			screen.DrawImage(whitePixel, opts)
 		}
 	}

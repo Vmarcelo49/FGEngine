@@ -1,6 +1,7 @@
-package input
+package device
 
 import (
+	"fgengine/input"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,7 +13,7 @@ var GamepadIDs []ebiten.GamepadID // all connected gamepads, updated by UpdateGa
 var GlobalInputs []*Input
 
 // UpdateGamepads checks for newly connected or disconnected gamepads and updates the GamepadIDs slice accordingly. It also logs these events.
-func UpdateGamepads() [2]GameInput {
+func UpdateGamepads() [2]input.GameInput {
 	checkGamepadConnections()
 	// Rebuild GlobalInputs by device ID to preserve owners while keeping
 	// device list in sync with the latest connected IDs.
@@ -41,7 +42,7 @@ func UpdateGamepads() [2]GameInput {
 		i.ActiveButtons = PollGamepads([]ebiten.GamepadID{i.ID})
 	}
 
-	inputs := [2]GameInput{NoInput, NoInput}
+	inputs := [2]input.GameInput{input.NoInput, input.NoInput}
 	for _, i := range GlobalInputs {
 		if i.Owner == P1Side {
 			inputs[0] |= i.ActiveButtons
@@ -49,6 +50,9 @@ func UpdateGamepads() [2]GameInput {
 			inputs[1] |= i.ActiveButtons
 		}
 	}
+	// SOCD filtering applies once, after the per-player merge (SPEC §5.2).
+	inputs[0] = input.ApplySOCD(inputs[0])
+	inputs[1] = input.ApplySOCD(inputs[1])
 	return inputs
 }
 

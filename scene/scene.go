@@ -2,6 +2,7 @@ package scene
 
 import (
 	"fgengine/constants"
+	"fgengine/device"
 	"fgengine/input"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -28,7 +29,7 @@ type SceneManager struct {
 }
 
 func (sm *SceneManager) Update() error {
-	polledInputs := input.UpdateGamepads()
+	polledInputs := device.UpdateGamepads()
 	activeInputs := polledInputs
 
 	// Prevent button carry-over between scenes by waiting for full release.
