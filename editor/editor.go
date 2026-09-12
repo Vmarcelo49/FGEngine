@@ -76,7 +76,7 @@ func (ed *CharacterEditor) Update() error {
 	if ed.char != nil && !ed.paused {
 		player := ed.player()
 		if player != nil && player.ActiveAnimation != nil {
-			player.Update(ed.activeAnimationName) // may cause issues, TODO verify
+			player.Update(ed.activeAnimationName, 0) // preview is never stunned; may cause issues, TODO verify
 			ed.selectedFrame = player.FrameIndex
 		}
 	}

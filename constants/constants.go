@@ -15,6 +15,10 @@ const (
 	Gravity         float64 = 1
 	MaxInputHistory int     = 30
 
+	// RoundTimerFrames is the round timer in simulation steps (99s at 60 TPS).
+	// Displayed seconds are ceiling: (TimerFrames + 59) / 60 (SPEC §7.7).
+	RoundTimerFrames int = 99 * 60
+
 	GroundLevelY float64 = WorldHeight - 50
 )
 

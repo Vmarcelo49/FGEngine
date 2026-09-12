@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"time"
 
 	"github.com/ebitengine/debugui"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -32,13 +33,9 @@ func MakeGameplayScene() Scene {
 	camera.WorldBoundsLock = true
 
 	return &GameplayScene{
-		camera: camera,
-		stage:  stage.NewSolidColorStage(constants.StageColor),
-		gamestate: gameplay.GameState{
-			Characters: [2]*character.Character{
-				playerOne,
-				playerTwo,
-			}}}
+		camera:    camera,
+		stage:     stage.NewSolidColorStage(constants.StageColor),
+		gamestate: gameplay.NewGameState(playerOne, playerTwo, uint64(time.Now().UnixNano()))}
 }
 
 type GameplayScene struct {

@@ -11,6 +11,27 @@ import (
 type GameState struct {
 	Characters [2]*character.Character
 	inputHist  [2][]input.GameInput
+	// Rollback/determinism substrate (SPEC §3.4, §3.5, §7.1, §7.7).
+	// Phase transitions land in F5; F0 only ticks the timer.
+	RNG          SplitMix64
+	Connects     []ConnectKey
+	TimerFrames  int
+	Round        int
+	Wins         [2]int
+	Phase        MatchPhase
+	FreezeFrames int
+}
+
+// NewGameState builds a match-ready GameState. The seed fixes all future
+// simulation randomness (SPEC §3.4): versus play passes a time-based seed
+// at match creation (outside the sim path), tests pass fixed seeds.
+func NewGameState(p1, p2 *character.Character, seed uint64) GameState {
+	return GameState{
+		Characters:  [2]*character.Character{p1, p2},
+		RNG:         SplitMix64{State: seed},
+		TimerFrames: constants.RoundTimerFrames,
+		Phase:       PhaseFight,
+	}
 }
 
 type playerFrameContext struct {
@@ -20,6 +41,13 @@ type playerFrameContext struct {
 }
 
 func (g *GameState) Update(inputs [2]input.GameInput) {
+	g.pruneConnects()
+
+	// Round timer ticks during the fight phase (transitions land in F5).
+	if g.Phase == PhaseFight && g.TimerFrames > 0 {
+		g.TimerFrames--
+	}
+
 	p1 := g.Characters[0].StateMachine
 	p2 := g.Characters[1].StateMachine
 
@@ -27,6 +55,11 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 
 	frame := [2]playerFrameContext{}
 	for i, sm := range []*animation.StateMachine{p1, p2} {
+		// Stun countdowns tick before anything else can set them this
+		// frame (SPEC §4.1 step 2, §7.6).
+		if sm.StunFrames > 0 {
+			sm.StunFrames--
+		}
 		g.pushInputToHistory(i, inputs[i])
 
 		frame[i] = playerFrameContext{
@@ -56,7 +89,7 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 		g.applyAnimationPostPhysics(ctx)
 
 		// some animations may need info on the input to check some logic
-		ctx.stateMachine.AnimPlayer.Update(ctx.intentAnimation)
+		ctx.stateMachine.AnimPlayer.Update(ctx.intentAnimation, ctx.stateMachine.StunFrames)
 	}
 }
 

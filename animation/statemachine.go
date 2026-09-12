@@ -22,6 +22,9 @@ type StateMachine struct {
 	Velocity            types.Vector2 `yaml:"-"`
 	IgnoreGravityFrames int           `yaml:"-"`
 	IsFacingLeft        Orientation   `yaml:"-"`
+	// StunFrames counts down hitstun/blockstun, loaded from the attack's
+	// hitstun/blockstun value itself (SPEC §7.6). Ticked in §4.1 intake.
+	StunFrames int `yaml:"-"`
 
 	AnimPlayer *AnimationPlayer `yaml:"activeAnim"`
 }

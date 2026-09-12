@@ -209,6 +209,8 @@ everything it calls), it is forbidden to:
       (velocity → position), world-bound clamping (§8).
 4. **Hit detection** — `checkhit(P1→P2)` then `checkhit(P2→P1)`
    (§7.1). Both directions on the same frame is a **trade** (§7.3).
+   The connect ledger is pruned at the start of every `Update`, before
+   hit detection.
 5. **Body collision** — pushbox overlap resolution, once, after both players
    have integrated (§8.4).
 6. **Post-physics animation decisions** (P1, then P2): landing / fall /

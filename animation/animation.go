@@ -19,7 +19,47 @@ type LoopFrame struct {
 	End   int `yaml:"end"`
 }
 
-func (ap *AnimationPlayer) Update(intentAnimation string) {
+func (ap *AnimationPlayer) Update(intentAnimation string, stunFrames int) {
+	if ap.ActiveAnimation == nil || len(ap.ActiveAnimation.FrameData) == 0 {
+		return
+	}
+
+	// Stun hold (SPEC §7.6): while stunned, hold within the active
+	// animation's loopFrames range and never advance past it. start==end
+	// holds a single frame. Without loopFrames, fall through to the
+	// normal update below.
+	if stunFrames > 0 {
+		if lf := ap.ActiveAnimation.LoopFrames; lf != nil {
+			last := len(ap.ActiveAnimation.FrameData) - 1
+			start, end := lf.Start, lf.End
+			if start < 0 {
+				start = 0
+			}
+			if end > last {
+				end = last
+			}
+			if start > end {
+				start = end
+			}
+			ap.FrameTimeLeft--
+			if ap.FrameTimeLeft > 0 {
+				return
+			}
+			if ap.FrameIndex < start {
+				ap.FrameIndex = start
+			} else if ap.FrameIndex >= end {
+				ap.FrameIndex = start
+			} else {
+				ap.FrameIndex++
+				if ap.FrameIndex > end {
+					ap.FrameIndex = start
+				}
+			}
+			ap.FrameTimeLeft = ap.ActiveAnimation.FrameData[ap.FrameIndex].Duration
+			return
+		}
+	}
+
 	ap.FrameTimeLeft--
 	if ap.FrameTimeLeft > 0 {
 		return
