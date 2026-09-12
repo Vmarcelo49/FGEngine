@@ -3,6 +3,7 @@ package editor
 import (
 	"fmt"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"fgengine/animation"
@@ -335,9 +336,12 @@ func (ed *CharacterEditor) drawBoxEditorWindow() {
 	}
 
 	boxTypeNames := []string{"Collision", "Hit", "Hurt"}
-	typeIndex := int32(ed.selectedBoxType)
+	typeIndex := int32(slices.Index(types.BoxTypes, ed.selectedBoxType))
+	if typeIndex < 0 {
+		typeIndex = 0
+	}
 	if imgui.ComboStrarrV("Box Type", &typeIndex, boxTypeNames, int32(len(boxTypeNames)), -1) {
-		ed.selectedBoxType = types.BoxType(typeIndex)
+		ed.selectedBoxType = types.BoxTypes[typeIndex]
 		ed.selectedBoxIndex = 0
 	}
 
@@ -398,9 +402,12 @@ func (ed *CharacterEditor) drawBoxEditorWindow() {
 	}
 
 	imgui.SeparatorText("Move To Type")
-	targetTypeIndex := int32(ed.targetBoxType)
+	targetTypeIndex := int32(slices.Index(types.BoxTypes, ed.targetBoxType))
+	if targetTypeIndex < 0 {
+		targetTypeIndex = 0
+	}
 	if imgui.ComboStrarrV("Target Type", &targetTypeIndex, boxTypeNames, int32(len(boxTypeNames)), -1) {
-		ed.targetBoxType = types.BoxType(targetTypeIndex)
+		ed.targetBoxType = types.BoxTypes[targetTypeIndex]
 	}
 
 	if imgui.Button("Change Current Box Type") {

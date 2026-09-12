@@ -39,7 +39,7 @@ Current project state from README.MD: major rewrites are in progress.
   - `#cgo LDFLAGS: -lX11`
 
 ### Data and assets
-- Character definitions: YAML under `assets/characters`
+- Character definitions: TOML under `assets/characters` (fixture art in `assets/characters/placeholder/`)
 - Localized text: YAML under `assets/text`
 - Shared/stage art: `assets/common`, `assets/stages`
 
@@ -120,22 +120,22 @@ The authoritative contracts live in `SPEC.md` §6 (character files, frame
 data, boxes, canonical states, strict validation). What follows is
 current-state orientation only — on conflict, `SPEC.md` wins.
 
-### Character files (current: YAML, target: TOML per SPEC §6.1)
-Loader/editor flows currently expect YAML with:
-- `name`
-- `stateMachine.activeAnim.animations` map
+### Character files (TOML per SPEC §6.1)
+Loader/editor flows expect the flat SPEC §6.2 layout:
+- `name` + `[properties]`
+- `[animations."<name>"]` tables with `sprites`/`framedata` arrays
 
-Minimal animation expectations today:
+Minimal animation expectations:
 - each animation has `sprites` and `framedata`
 - framedata includes `duration`
 - `spriteIndex` is used to select visual frame
 
 Path behavior:
-- Loader resolves relative sprite paths against character YAML file location.
+- Loader resolves relative sprite paths against the character file location.
 - Editor save may rewrite absolute sprite paths to relative paths against save destination.
 
 Reference file:
-- `assets/characters/PlaceHolder.yaml`
+- `assets/characters/PlaceHolder.toml` (fixture art in `assets/characters/placeholder/`)
 
 ### Language YAML contract
 - `language.Language` fields:

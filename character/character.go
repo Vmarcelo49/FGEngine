@@ -1,17 +1,13 @@
 package character
 
 import (
-	"bytes"
 	"errors"
 	"fgengine/animation"
 	"fgengine/constants"
 	"fgengine/types"
 	"fmt"
-	"os"
 	"path/filepath"
 	"slices"
-
-	"gopkg.in/yaml.v3"
 )
 
 type Character struct {
@@ -36,42 +32,21 @@ func LoadCharacter(name string, playerSide int) (*Character, error) {
 }
 
 func loadCharacterByName(name string) (*Character, error) {
-	filePath := "./assets/characters/" + name + ".yaml"
-	data, err := os.ReadFile(filePath)
+	filePath := "./assets/characters/" + name + ".toml"
+	character, err := DecodeCharacterFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read character file: %w", err)
-	}
-
-	character := &Character{
-		Name: name,
-	}
-	decoder := yaml.NewDecoder(bytes.NewReader(data))
-	decoder.KnownFields(true)
-	if err := decoder.Decode(character); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal character data: %w", err)
+		return nil, err
 	}
 
 	if character.StateMachine == nil || character.StateMachine.AnimPlayer == nil {
-		return nil, fmt.Errorf("character file is missing stateMachine.activeAnim")
+		return nil, fmt.Errorf("character file is missing animations")
 	}
 	if character.StateMachine.AnimPlayer.Animations == nil {
-		return nil, fmt.Errorf("character file is missing stateMachine.activeAnim.animations")
+		return nil, fmt.Errorf("character file is missing animations")
 	}
 
-	// Keep runtime animation names in sync with the map keys.
-	for animName, anim := range character.StateMachine.AnimPlayer.Animations {
-		if anim == nil {
-			continue
-		}
-		anim.Name = animName
-
-		for _, sprite := range anim.Sprites {
-			if sprite.ImagePath != "" {
-				sprite.ImagePath = resolveRelativePath(sprite.ImagePath, filePath)
-			}
-		}
-	}
-	// Sprite paths are resolved above, so Validate checks them on disk.
+	// Sprite paths are resolved by DecodeCharacterFile, so Validate checks
+	// them on disk.
 	if errs := character.Validate(); len(errs) > 0 {
 		return nil, fmt.Errorf("invalid character file %s: %w", filePath, errors.Join(errs...))
 	}
@@ -98,7 +73,7 @@ func (c *Character) initialize(playerSide int) {
 	}
 
 	c.StateMachine.HP = c.Properties.MaxHP
-	c.StateMachine.Position = types.Vector2{X: initialX, Y: constants.WorldHeight / 2}
+	c.StateMachine.Position = types.Vector2{X: initialX, Y: constants.GroundLevelY}
 	c.StateMachine.IsFacingLeft = facing
 	c.StateMachine.Velocity = types.Vector2{}
 	c.StateMachine.IgnoreGravityFrames = 0

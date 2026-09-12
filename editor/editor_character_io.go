@@ -9,8 +9,6 @@ import (
 	"fgengine/animation"
 	"fgengine/character"
 	"fgengine/types"
-
-	"gopkg.in/yaml.v3"
 )
 
 func (ed *CharacterEditor) createNewCharacter(name string) {
@@ -61,34 +59,17 @@ func (ed *CharacterEditor) loadCharacterFromPath(path string) error {
 		return fmt.Errorf("path cannot be empty")
 	}
 
-	data, err := os.ReadFile(path)
+	// Decode without validation: the editor opens work-in-progress files.
+	loaded, err := character.DecodeCharacterFile(path)
 	if err != nil {
-		return fmt.Errorf("read failed: %w", err)
-	}
-
-	loaded := &character.Character{}
-	if err := yaml.Unmarshal(data, loaded); err != nil {
-		return fmt.Errorf("yaml parse failed: %w", err)
+		return fmt.Errorf("load failed: %w", err)
 	}
 
 	if loaded.StateMachine == nil || loaded.StateMachine.AnimPlayer == nil || loaded.StateMachine.AnimPlayer.Animations == nil {
-		return fmt.Errorf("missing stateMachine.activeAnim.animations")
+		return fmt.Errorf("missing animations")
 	}
 
-	for name, anim := range loaded.StateMachine.AnimPlayer.Animations {
-		if anim == nil {
-			continue
-		}
-		anim.Name = name
-		for _, spr := range anim.Sprites {
-			if spr == nil || spr.ImagePath == "" {
-				continue
-			}
-			if filepath.IsAbs(spr.ImagePath) {
-				continue
-			}
-			spr.ImagePath = filepath.Clean(filepath.Join(filepath.Dir(path), spr.ImagePath))
-		}
+	for _, anim := range loaded.StateMachine.AnimPlayer.Animations {
 		ed.normalizeAnimationSprites(anim)
 	}
 
@@ -128,7 +109,8 @@ func (ed *CharacterEditor) saveCharacterToPath(path string) error {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		return fmt.Errorf("failed creating directories: %w", err)
 	}
-	// make loopframes nil if invalid or empty
+	// make loopframes nil if invalid. SPEC §6.8 rule 6: indexes into
+	// framedata; start == end (single-frame hold) is legal.
 	for i, anim := range ed.char.StateMachine.AnimPlayer.Animations {
 		if anim == nil {
 			continue
@@ -138,14 +120,8 @@ func (ed *CharacterEditor) saveCharacterToPath(path string) error {
 			continue
 		}
 
-		totalDuration := ed.totalAnimationDuration(anim)
-		invalidLoop := loopFrames.Start == loopFrames.End || (loopFrames.Start == 0 && loopFrames.End == 0)
-		if !invalidLoop && (loopFrames.Start > totalDuration || loopFrames.End > totalDuration) {
-			invalidLoop = true
+		if loopFrames.Start < 0 || loopFrames.End >= len(anim.FrameData) || loopFrames.Start > loopFrames.End {
 			ed.statusLine = fmt.Sprintf("Warning: animation '%s' has invalid loop frames and they were removed", anim.Name)
-		}
-
-		if invalidLoop {
 			ed.char.StateMachine.AnimPlayer.Animations[i].LoopFrames = nil
 		}
 	}
@@ -178,9 +154,9 @@ func (ed *CharacterEditor) saveCharacterToPath(path string) error {
 		}
 	}()
 
-	out, err := yaml.Marshal(ed.char)
+	out, err := character.EncodeTOML(ed.char)
 	if err != nil {
-		return fmt.Errorf("yaml marshal failed: %w", err)
+		return fmt.Errorf("toml marshal failed: %w", err)
 	}
 
 	if err := os.WriteFile(path, out, 0o644); err != nil {

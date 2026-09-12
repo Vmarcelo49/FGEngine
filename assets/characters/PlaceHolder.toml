@@ -1,0 +1,425 @@
+# F0 placeholder character: full SPEC §6.7 required set plus one special
+# (236A). Minimal 1-2 frame data everywhere; real content replaces it.
+# Sprites are 128x128 fixture PNGs, anchor bottom-center (64, 120).
+# Boxes are authored in sprite-pixel space; the runtime subtracts the
+# anchor (§6.6).
+
+name = "PlaceHolder"
+
+[properties]
+maxHP = 10000
+
+[animations.idle]
+[[animations.idle.sprites]]
+imgPath = "placeholder/idle.png"
+anchor = { x = 64, y = 120 }
+[[animations.idle.framedata]]
+duration = 6
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.idle.framedata]]
+duration = 6
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations.idle.loopFrames]
+start = 0
+end = 1
+
+[animations."1"]
+[[animations."1".sprites]]
+imgPath = "placeholder/1.png"
+anchor = { x = 64, y = 120 }
+[[animations."1".framedata]]
+duration = 4
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[animations."1".loopFrames]
+start = 0
+end = 0
+
+[animations."2"]
+[[animations."2".sprites]]
+imgPath = "placeholder/2.png"
+anchor = { x = 64, y = 120 }
+[[animations."2".framedata]]
+duration = 4
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[animations."2".loopFrames]
+start = 0
+end = 0
+
+[animations."3"]
+[[animations."3".sprites]]
+imgPath = "placeholder/3.png"
+anchor = { x = 64, y = 120 }
+[[animations."3".framedata]]
+duration = 4
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[animations."3".loopFrames]
+start = 0
+end = 0
+
+[animations."4"]
+[[animations."4".sprites]]
+imgPath = "placeholder/4.png"
+anchor = { x = 64, y = 120 }
+[[animations."4".framedata]]
+duration = 4
+changeXSpeed = -1
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."4".framedata]]
+duration = 4
+changeXSpeed = -1
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations."4".loopFrames]
+start = 0
+end = 1
+
+[animations."6"]
+[[animations."6".sprites]]
+imgPath = "placeholder/6.png"
+anchor = { x = 64, y = 120 }
+[[animations."6".framedata]]
+duration = 4
+changeXSpeed = 1
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."6".framedata]]
+duration = 4
+changeXSpeed = 1
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations."6".loopFrames]
+start = 0
+end = 1
+
+[animations."44"]
+[[animations."44".sprites]]
+imgPath = "placeholder/44.png"
+anchor = { x = 64, y = 120 }
+[[animations."44".framedata]]
+duration = 4
+changeXSpeed = -3
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."44".framedata]]
+duration = 4
+changeXSpeed = -2
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."44".framedata]]
+duration = 6
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations."66"]
+[[animations."66".sprites]]
+imgPath = "placeholder/66.png"
+anchor = { x = 64, y = 120 }
+[[animations."66".framedata]]
+duration = 4
+changeXSpeed = 3
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."66".framedata]]
+duration = 4
+changeXSpeed = 2
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."66".framedata]]
+duration = 6
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations."7"]
+[[animations."7".sprites]]
+imgPath = "placeholder/7.png"
+anchor = { x = 64, y = 120 }
+[[animations."7".framedata]]
+duration = 4
+changeXSpeed = -2
+changeYSpeed = -8
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."7".framedata]]
+duration = 4
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations."8"]
+[[animations."8".sprites]]
+imgPath = "placeholder/8.png"
+anchor = { x = 64, y = 120 }
+[[animations."8".framedata]]
+duration = 4
+changeYSpeed = -8
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."8".framedata]]
+duration = 4
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations."9"]
+[[animations."9".sprites]]
+imgPath = "placeholder/9.png"
+anchor = { x = 64, y = 120 }
+[[animations."9".framedata]]
+duration = 4
+changeXSpeed = 2
+changeYSpeed = -8
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."9".framedata]]
+duration = 4
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations.A]
+[[animations.A.sprites]]
+imgPath = "placeholder/A.png"
+anchor = { x = 64, y = 120 }
+[[animations.A.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.A.framedata]]
+duration = 2
+damage = 100
+hitstun = 12
+knockback = 2
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
+[[animations.A.framedata]]
+duration = 6
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations.B]
+[[animations.B.sprites]]
+imgPath = "placeholder/B.png"
+anchor = { x = 64, y = 120 }
+[[animations.B.framedata]]
+duration = 4
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.B.framedata]]
+duration = 2
+damage = 150
+hitstun = 14
+knockback = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
+[[animations.B.framedata]]
+duration = 8
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations.C]
+[[animations.C.sprites]]
+imgPath = "placeholder/C.png"
+anchor = { x = 64, y = 120 }
+[[animations.C.framedata]]
+duration = 6
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.C.framedata]]
+duration = 3
+damage = 200
+hitstun = 16
+knockback = 4
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
+[[animations.C.framedata]]
+duration = 10
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations.D]
+[[animations.D.sprites]]
+imgPath = "placeholder/D.png"
+anchor = { x = 64, y = 120 }
+[[animations.D.framedata]]
+duration = 5
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.D.framedata]]
+duration = 3
+damage = 120
+hitstun = 18
+knockback = 2
+knockup = 4
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
+[[animations.D.framedata]]
+duration = 8
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations."236A"]
+[[animations."236A".sprites]]
+imgPath = "placeholder/236A.png"
+anchor = { x = 64, y = 120 }
+[[animations."236A".framedata]]
+duration = 4
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations."236A".framedata]]
+duration = 3
+damage = 300
+hitstun = 20
+knockback = 4
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
+[[animations."236A".framedata]]
+duration = 8
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+
+[animations.hurt]
+[[animations.hurt.sprites]]
+imgPath = "placeholder/hurt.png"
+anchor = { x = 64, y = 120 }
+[[animations.hurt.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.hurt.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations.hurt.loopFrames]
+start = 0
+end = 1
+
+[animations.crouchHurt]
+[[animations.crouchHurt.sprites]]
+imgPath = "placeholder/crouchHurt.png"
+anchor = { x = 64, y = 120 }
+[[animations.crouchHurt.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[[animations.crouchHurt.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[animations.crouchHurt.loopFrames]
+start = 0
+end = 1
+
+[animations.airHurt]
+[[animations.airHurt.sprites]]
+imgPath = "placeholder/airHurt.png"
+anchor = { x = 64, y = 120 }
+[[animations.airHurt.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.airHurt.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations.airHurt.loopFrames]
+start = 0
+end = 1
+
+[animations.blockHit]
+[[animations.blockHit.sprites]]
+imgPath = "placeholder/blockHit.png"
+anchor = { x = 64, y = 120 }
+[[animations.blockHit.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.blockHit.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations.blockHit.loopFrames]
+start = 0
+end = 1
+
+[animations.crouchBlock]
+[[animations.crouchBlock.sprites]]
+imgPath = "placeholder/crouchBlock.png"
+anchor = { x = 64, y = 120 }
+[[animations.crouchBlock.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[[animations.crouchBlock.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[animations.crouchBlock.loopFrames]
+start = 0
+end = 1
+
+[animations.airBlock]
+[[animations.airBlock.sprites]]
+imgPath = "placeholder/airBlock.png"
+anchor = { x = 64, y = 120 }
+[[animations.airBlock.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.airBlock.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations.airBlock.loopFrames]
+start = 0
+end = 1
+
+[animations.fall]
+[[animations.fall.sprites]]
+imgPath = "placeholder/fall.png"
+anchor = { x = 64, y = 120 }
+[[animations.fall.framedata]]
+duration = 4
+cancelTypes = ["any"]
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations.fall.loopFrames]
+start = 0
+end = 0
+
+[animations.landing]
+[[animations.landing.sprites]]
+imgPath = "placeholder/landing.png"
+anchor = { x = 64, y = 120 }
+[[animations.landing.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[[animations.landing.framedata]]
+duration = 3
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+
+[animations.knockdown]
+[[animations.knockdown.sprites]]
+imgPath = "placeholder/knockdown.png"
+anchor = { x = 64, y = 120 }
+[[animations.knockdown.framedata]]
+duration = 6
+boxes = { collision = [{ x = 16, y = 96, w = 96, h = 24 }], hurt = [{ x = 16, y = 96, w = 96, h = 24 }] }
+[[animations.knockdown.framedata]]
+duration = 6
+boxes = { collision = [{ x = 16, y = 96, w = 96, h = 24 }], hurt = [{ x = 16, y = 96, w = 96, h = 24 }] }
+[[animations.knockdown.framedata]]
+duration = 6
+boxes = { collision = [{ x = 16, y = 96, w = 96, h = 24 }], hurt = [{ x = 16, y = 96, w = 96, h = 24 }] }
+
+[animations.getup]
+[[animations.getup.sprites]]
+imgPath = "placeholder/getup.png"
+anchor = { x = 64, y = 120 }
+[[animations.getup.framedata]]
+duration = 4
+isInvincible = true
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+[[animations.getup.framedata]]
+duration = 4
+isInvincible = true
+boxes = { collision = [{ x = 32, y = 70, w = 64, h = 50 }], hurt = [{ x = 32, y = 70, w = 64, h = 50 }] }
+
+[animations.ko]
+[[animations.ko.sprites]]
+imgPath = "placeholder/ko.png"
+anchor = { x = 64, y = 120 }
+[[animations.ko.framedata]]
+duration = 8
+boxes = { collision = [{ x = 16, y = 96, w = 96, h = 24 }], hurt = [{ x = 16, y = 96, w = 96, h = 24 }] }
+[[animations.ko.framedata]]
+duration = 8
+boxes = { collision = [{ x = 16, y = 96, w = 96, h = 24 }], hurt = [{ x = 16, y = 96, w = 96, h = 24 }] }
+
+[animations.win]
+[[animations.win.sprites]]
+imgPath = "placeholder/win.png"
+anchor = { x = 64, y = 120 }
+[[animations.win.framedata]]
+duration = 8
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[[animations.win.framedata]]
+duration = 8
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
+[animations.win.loopFrames]
+start = 0
+end = 1

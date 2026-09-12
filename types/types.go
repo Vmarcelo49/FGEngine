@@ -14,13 +14,18 @@ type Vector2 struct {
 	Y float64 `yaml:"y,omitempty" toml:"y,omitempty"`
 }
 
-type BoxType uint8
+// BoxType is a string-kind enum so box map keys encode as their SPEC §6.5
+// names (collision/hit/hurt) in every format with no custom codecs.
+type BoxType string
 
 const (
-	Collision BoxType = iota
-	Hit
-	Hurt
+	Collision BoxType = "collision"
+	Hit       BoxType = "hit"
+	Hurt      BoxType = "hurt"
 )
+
+// BoxTypes lists all valid box types in stable order.
+var BoxTypes = []BoxType{Collision, Hit, Hurt}
 
 func (b BoxType) String() string {
 	switch b {

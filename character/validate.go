@@ -1,6 +1,7 @@
 package character
 
 import (
+	"fgengine/types"
 	"fmt"
 	"os"
 	"slices"
@@ -106,6 +107,11 @@ func (c *Character) Validate() []error {
 			}
 			if fd.AnimationSwitch != "" && anims[fd.AnimationSwitch] == nil {
 				fail("animations.%s.framedata[%d]: animationSwitch references unknown animation %q", name, i, fd.AnimationSwitch)
+			}
+			for boxType := range fd.Boxes {
+				if !slices.Contains(types.BoxTypes, boxType) {
+					fail("animations.%s.framedata[%d]: unknown box type %q", name, i, string(boxType))
+				}
 			}
 			if isReaction && len(fd.CancelTypes) > 0 {
 				fail("animations.%s.framedata[%d]: reaction states must not carry cancelTypes", name, i)

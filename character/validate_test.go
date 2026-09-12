@@ -2,6 +2,7 @@ package character
 
 import (
 	"fgengine/animation"
+	"fgengine/types"
 	"os"
 	"path/filepath"
 	"strings"
@@ -129,6 +130,14 @@ func TestValidateRejects(t *testing.T) {
 			},
 			wantSub: "must not carry cancelTypes",
 		},
+		"unknown box type": {
+			mutate: func(t *testing.T, c *Character) {
+				c.StateMachine.AnimPlayer.Animations["A"].FrameData[0].Boxes = map[types.BoxType][]types.Rect{
+					"pushbox": {{W: 1, H: 1}},
+				}
+			},
+			wantSub: "unknown box type",
+		},
 	}
 
 	for name, tc := range cases {
@@ -176,13 +185,12 @@ func TestIsSpecialMotion(t *testing.T) {
 // Strict decoding must reject unknown fields at load.
 func TestLoadRejectsUnknownFields(t *testing.T) {
 	dir := t.TempDir()
-	img := writeTempImg(t)
-	content := "name: Strict\nproperties:\n  maxHP: 100\nstateMachine:\n  activeAnim:\n    animations:\n      idle:\n        sprites:\n        - imgPath: " + img + "\n        framedata:\n        - duration: 2\ntypo_field: 1\n"
+	content := "name = \"Strict\"\ntypo_field = 1\n\n[properties]\nmaxHP = 100\n"
 	charDir := filepath.Join(dir, "assets", "characters")
 	if err := os.MkdirAll(charDir, 0755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(charDir, "Strict.yaml"), []byte(content), 0644); err != nil {
+	if err := os.WriteFile(filepath.Join(charDir, "Strict.toml"), []byte(content), 0644); err != nil {
 		t.Fatal(err)
 	}
 	t.Chdir(dir)

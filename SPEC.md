@@ -346,8 +346,6 @@ Character
 TOML mapping: `[properties]` table; each animation is `[animations."<name>"]`
 with `[[animations."<name>".sprites]]` and
 `[[animations."<name>".framedata]]` arrays (document order preserved).
-Provisional until F0 lands the TOML loader — YAML files are the working
-format meanwhile.
 
 ### 6.3 Character properties
 
@@ -391,7 +389,7 @@ phase (§12) · `[reserved]` parsed and stored, no runtime effect yet.
 | `changeXSpeed` | float | Velocity increment X, **facing-relative** (+ = forward) | `[active]` |
 | `changeYSpeed` | float | Velocity increment Y (− = up) | `[active]` |
 | `cancelTypes` | [string] | Animations cancellable *into* during this frame. Empty = no cancels. `"any"` = everything | `[active]` |
-| `boxes` | map[BoxType → [Rect]] | `collision` / `hit` / `hurt` boxes, anchor-relative (§6.6) | `[active]` |
+| `boxes` | map[BoxType → [Rect]] | `collision` / `hit` / `hurt` boxes, anchor-relative (§6.6). BoxType is a string-kind enum; unknown keys are a load error (§6.8 rule 10) | `[active]` |
 | `damage` | int | HP removed on hit | `[F2]` |
 | `hitstun` | int | Stun duration: value loaded into the defender's `StunFrames` in the selected hitstun state (§7.2, §7.6) | `[F2]` |
 | `pushback` | int | Horizontal position push applied on hit | `[F2]` |
@@ -531,6 +529,8 @@ A character file is rejected if:
 8. A reaction-state frame carrying `cancelTypes` (reaction states are
    never cancellable, §7.6).
 9. Unknown fields/keys present (§6.1 strict mode).
+10. A `boxes` entry keyed by anything other than `collision` / `hit` /
+    `hurt`.
 
 ### 6.9 Path resolution
 
