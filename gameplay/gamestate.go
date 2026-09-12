@@ -80,8 +80,9 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 		ctx.stateMachine.ApplyPhysics()
 	}
 
-	// Resolve player pushbox overlap once after both players have integrated physics.
-	CheckHits(p1, p2)
+	// Resolve hits (F1 subset of §7.2), then player pushbox overlap, once
+	// after both players have integrated physics.
+	g.ResolveHits()
 	ResolveBodyCollision(p1, p2)
 
 	for _, ctx := range frame {
