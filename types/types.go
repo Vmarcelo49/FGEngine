@@ -3,15 +3,15 @@ package types
 import "math"
 
 type Rect struct {
-	X float64 `yaml:"x,omitempty"`
-	Y float64 `yaml:"y,omitempty"`
-	W float64 `yaml:"w"`
-	H float64 `yaml:"h"`
+	X float64 `yaml:"x,omitempty" toml:"x,omitempty"`
+	Y float64 `yaml:"y,omitempty" toml:"y,omitempty"`
+	W float64 `yaml:"w" toml:"w"`
+	H float64 `yaml:"h" toml:"h"`
 }
 
 type Vector2 struct {
-	X float64 `yaml:"x,omitempty"`
-	Y float64 `yaml:"y,omitempty"`
+	X float64 `yaml:"x,omitempty" toml:"x,omitempty"`
+	Y float64 `yaml:"y,omitempty" toml:"y,omitempty"`
 }
 
 type BoxType uint8

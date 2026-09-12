@@ -17,16 +17,16 @@ const (
 type StateMachine struct {
 	//ActiveState         State
 	//PreviousState       State
-	HP                  int           `yaml:"-"`
-	Position            types.Vector2 `yaml:"-"`
-	Velocity            types.Vector2 `yaml:"-"`
-	IgnoreGravityFrames int           `yaml:"-"`
-	IsFacingLeft        Orientation   `yaml:"-"`
+	HP                  int           `yaml:"-" toml:"-"`
+	Position            types.Vector2 `yaml:"-" toml:"-"`
+	Velocity            types.Vector2 `yaml:"-" toml:"-"`
+	IgnoreGravityFrames int           `yaml:"-" toml:"-"`
+	IsFacingLeft        Orientation   `yaml:"-" toml:"-"`
 	// StunFrames counts down hitstun/blockstun, loaded from the attack's
 	// hitstun/blockstun value itself (SPEC §7.6). Ticked in §4.1 intake.
-	StunFrames int `yaml:"-"`
+	StunFrames int `yaml:"-" toml:"-"`
 
-	AnimPlayer *AnimationPlayer `yaml:"activeAnim"`
+	AnimPlayer *AnimationPlayer `yaml:"activeAnim" toml:"-"`
 }
 
 type Orientation bool

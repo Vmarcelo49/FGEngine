@@ -6,17 +6,17 @@ import (
 )
 
 type Animation struct {
-	Name          string      `yaml:"-"`
-	Sprites       []*Sprite   `yaml:"sprites"`
-	FrameData     []FrameData `yaml:"framedata"`
-	TotalDuration int         `yaml:"-"`
+	Name          string      `yaml:"-" toml:"-"`
+	Sprites       []*Sprite   `yaml:"sprites" toml:"sprites"`
+	FrameData     []FrameData `yaml:"framedata" toml:"framedata"`
+	TotalDuration int         `yaml:"-" toml:"-"`
 
-	LoopFrames *LoopFrame `yaml:"loopFrames,omitempty"`
+	LoopFrames *LoopFrame `yaml:"loopFrames,omitempty" toml:"loopFrames,omitempty"`
 }
 
 type LoopFrame struct {
-	Start int `yaml:"start"`
-	End   int `yaml:"end"`
+	Start int `yaml:"start" toml:"start"`
+	End   int `yaml:"end" toml:"end"`
 }
 
 func (ap *AnimationPlayer) Update(intentAnimation string, stunFrames int) {
@@ -99,19 +99,19 @@ func (ap *AnimationPlayer) Update(intentAnimation string, stunFrames int) {
 }
 
 type Sprite struct {
-	ImagePath string     `yaml:"imgPath"`
-	Rect      types.Rect `yaml:"rect"`
+	ImagePath string     `yaml:"imgPath" toml:"imgPath"`
+	Rect      types.Rect `yaml:"rect" toml:"rect"`
 
-	Anchor types.Vector2 `yaml:"anchor,omitempty"`
+	Anchor types.Vector2 `yaml:"anchor,omitempty" toml:"anchor,omitempty"`
 }
 
 type AnimationPlayer struct {
-	ActiveAnimation *Animation            `yaml:"-"`
-	Animations      map[string]*Animation `yaml:"animations"`
-	FrameIndex      int                   `yaml:"-"`
-	AnimationQueue  []string              `yaml:"-"` // names are probably smaller than full Animation structs
+	ActiveAnimation *Animation            `yaml:"-" toml:"-"`
+	Animations      map[string]*Animation `yaml:"animations" toml:"-"`
+	FrameIndex      int                   `yaml:"-" toml:"-"`
+	AnimationQueue  []string              `yaml:"-" toml:"-"` // names are probably smaller than full Animation structs
 
-	FrameTimeLeft int `yaml:"-"`
+	FrameTimeLeft int `yaml:"-" toml:"-"`
 }
 
 func (ap *AnimationPlayer) ActiveSprite() *Sprite {

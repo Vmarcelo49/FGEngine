@@ -1,6 +1,8 @@
 package character
 
 import (
+	"bytes"
+	"errors"
 	"fgengine/animation"
 	"fgengine/constants"
 	"fgengine/types"
@@ -13,8 +15,15 @@ import (
 )
 
 type Character struct {
-	Name         string                  `yaml:"name"`
-	StateMachine *animation.StateMachine `yaml:"stateMachine"`
+	Name         string                  `yaml:"name" toml:"name"`
+	Properties   CharacterProperties     `yaml:"properties" toml:"properties"`
+	StateMachine *animation.StateMachine `yaml:"stateMachine" toml:"-"`
+}
+
+// CharacterProperties holds per-character tuning (SPEC §6.3). It is the
+// only place character constants may live — never Go code (P2).
+type CharacterProperties struct {
+	MaxHP int `yaml:"maxHP,omitempty" toml:"maxHP,omitempty"`
 }
 
 func LoadCharacter(name string, playerSide int) (*Character, error) {
@@ -36,7 +45,9 @@ func loadCharacterByName(name string) (*Character, error) {
 	character := &Character{
 		Name: name,
 	}
-	if err := yaml.Unmarshal(data, character); err != nil {
+	decoder := yaml.NewDecoder(bytes.NewReader(data))
+	decoder.KnownFields(true)
+	if err := decoder.Decode(character); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal character data: %w", err)
 	}
 
@@ -60,6 +71,10 @@ func loadCharacterByName(name string) (*Character, error) {
 			}
 		}
 	}
+	// Sprite paths are resolved above, so Validate checks them on disk.
+	if errs := character.Validate(); len(errs) > 0 {
+		return nil, fmt.Errorf("invalid character file %s: %w", filePath, errors.Join(errs...))
+	}
 	return character, nil
 }
 
@@ -82,7 +97,7 @@ func (c *Character) initialize(playerSide int) {
 		facing = animation.Left
 	}
 
-	c.StateMachine.HP = 10000
+	c.StateMachine.HP = c.Properties.MaxHP
 	c.StateMachine.Position = types.Vector2{X: initialX, Y: constants.WorldHeight / 2}
 	c.StateMachine.IsFacingLeft = facing
 	c.StateMachine.Velocity = types.Vector2{}

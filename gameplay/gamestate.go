@@ -228,7 +228,8 @@ func canCancelTo(frameData *animation.FrameData, sm *animation.StateMachine, int
 		return false
 	}
 
-	if frameData.CancelTypes[0] == "any" {
+	// "any" anywhere in the list matches everything (SPEC §6.5).
+	if slices.Contains(frameData.CancelTypes, "any") {
 		return true
 	}
 
