@@ -29,7 +29,8 @@ Current project state from README.MD: major rewrites are in progress.
 - `github.com/hajimehoshi/ebiten/v2` (game loop, rendering, input)
 - `github.com/ebitengine/debugui` (runtime debug overlay)
 - `github.com/gabstv/ebiten-imgui/v3` and `github.com/gabstv/cimgui-go` (editor UI)
-- `gopkg.in/yaml.v3` (character and language serialization)
+- `gopkg.in/yaml.v3` (language serialization)
+- `github.com/pelletier/go-toml/v2` (config and character serialization — SPEC §6.1)
 
 ### Platform and tooling notes
 - Desktop native target via regular Go build/test.

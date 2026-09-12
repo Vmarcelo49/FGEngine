@@ -837,8 +837,8 @@ to this section — on conflict, §12 wins.)
    the map outright (including the non-standard `426A` entry); SOCD
    filtering applies after the per-player device merge (§5.2).
 - **Acceptance:** replay test green; `PlaceHolder.toml` loads, validates,
-  plays; no YAML character/data assets remain (`config.yaml` and
-  `assets/text/*.yaml` stay YAML by design).
+  plays; `config.toml` replaces `config.yaml`; `assets/text/*.yaml`
+  stay YAML (language files). No other YAML remains.
 - **Note:** the game relies on ebiten's default 60 TPS; no tick-rate
   pinning is required (§3.1).
 

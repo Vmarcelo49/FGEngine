@@ -19,6 +19,7 @@ require (
 	github.com/hajimehoshi/bitmapfont/v4 v4.1.0 // indirect
 	github.com/jezek/xgb v1.3.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
+	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.26 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
