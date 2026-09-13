@@ -155,7 +155,11 @@ func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {
 	landedThisFrame := ctx.wasAirborne && !isAirborne
 
 	if landedThisFrame {
-		if _, hasLanding := sm.AnimPlayer.Animations["landing"]; hasLanding && sm.AnimPlayer.ActiveAnimationName() != "landing" {
+		if sm.AnimPlayer.ActiveAnimationName() == "airBlock" && sm.StunFrames > 0 {
+			// Landing converts remaining air blockstun to blockHit,
+			// counter preserved (§7.4).
+			sm.AnimPlayer.SetAnimation("blockHit")
+		} else if _, hasLanding := sm.AnimPlayer.Animations["landing"]; hasLanding && sm.AnimPlayer.ActiveAnimationName() != "landing" {
 			sm.AnimPlayer.SetAnimation("landing")
 		}
 	}

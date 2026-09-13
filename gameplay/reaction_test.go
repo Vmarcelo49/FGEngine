@@ -17,15 +17,24 @@ func poseState(x, y float64, animName string) *animation.StateMachine {
 		types.Hurt: {{X: -32, Y: -40, W: 64, H: 40}},
 	}
 	idleFD := []animation.FrameData{{Duration: 100, Boxes: hurtBox}}
-	hold2 := []animation.FrameData{{Duration: 3}, {Duration: 3}}
+	// Reaction frames carry hurtboxes: stunned defenders can be re-hit
+	// (hitstun chaining) and re-blocked (re-guard).
+	hold2 := []animation.FrameData{
+		{Duration: 3, Boxes: hurtBox},
+		{Duration: 3, Boxes: hurtBox},
+	}
 	loop01 := &animation.LoopFrame{Start: 0, End: 1}
 	ap := &animation.AnimationPlayer{Animations: map[string]*animation.Animation{
-		"idle":       {FrameData: idleFD},
-		"2":          {FrameData: idleFD},
-		"hurt":       {FrameData: hold2, LoopFrames: loop01},
-		"crouchHurt": {FrameData: hold2, LoopFrames: loop01},
-		"airHurt":    {FrameData: hold2, LoopFrames: loop01},
-		"ko":         {FrameData: []animation.FrameData{{Duration: 8}, {Duration: 8}}},
+		"idle":        {FrameData: idleFD},
+		"2":           {FrameData: idleFD},
+		"fall":        {FrameData: idleFD},
+		"hurt":        {FrameData: hold2, LoopFrames: loop01},
+		"crouchHurt":  {FrameData: hold2, LoopFrames: loop01},
+		"airHurt":     {FrameData: hold2, LoopFrames: loop01},
+		"blockHit":    {FrameData: hold2, LoopFrames: loop01},
+		"crouchBlock": {FrameData: hold2, LoopFrames: loop01},
+		"airBlock":    {FrameData: hold2, LoopFrames: loop01},
+		"ko":          {FrameData: []animation.FrameData{{Duration: 8}, {Duration: 8}}},
 	}}
 	ap.SetAnimation(animName)
 	return &animation.StateMachine{

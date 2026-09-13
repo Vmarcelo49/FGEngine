@@ -190,6 +190,7 @@ boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y 
 duration = 2
 damage = 100
 hitstun = 12
+blockstun = 8
 knockback = 2
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
 [[animations.A.framedata]]
@@ -207,6 +208,7 @@ boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y 
 duration = 2
 damage = 150
 hitstun = 14
+blockstun = 10
 knockback = 3
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
 [[animations.B.framedata]]
@@ -224,6 +226,7 @@ boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y 
 duration = 3
 damage = 200
 hitstun = 16
+blockstun = 12
 knockback = 4
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
 [[animations.C.framedata]]
@@ -241,6 +244,7 @@ boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y 
 duration = 3
 damage = 120
 hitstun = 18
+blockstun = 14
 knockback = 2
 knockup = 4
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
@@ -259,6 +263,7 @@ boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y 
 duration = 3
 damage = 300
 hitstun = 20
+blockstun = 14
 knockback = 4
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
 [[animations."236A".framedata]]

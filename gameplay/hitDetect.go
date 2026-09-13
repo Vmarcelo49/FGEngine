@@ -2,7 +2,9 @@ package gameplay
 
 import (
 	"fgengine/animation"
+	"fgengine/input"
 	"fgengine/types"
+	"slices"
 )
 
 // ResolveHits checks both hit directions (trade-capable) and applies the F1
@@ -58,6 +60,10 @@ func (g *GameState) resolveDirection(ai, di int) {
 			if g.HasConnected(ai, di, anim, frame) {
 				continue
 			}
+			if blockState, guarded := g.checkGuard(di); guarded {
+				g.applyBlock(ai, di, anim, frame, blockState)
+				return
+			}
 			g.applyHit(ai, di, anim, frame)
 			return
 		}
@@ -71,12 +77,7 @@ func (g *GameState) applyHit(ai, di int, anim string, frame int) {
 	def := g.Characters[di].StateMachine
 	afd := atk.AnimPlayer.ActiveFrameData()
 	dfd := def.AnimPlayer.ActiveFrameData()
-
-	// Away from the attacker in world X, by position (robust to facing).
-	dir := 1.0
-	if def.Position.X < atk.Position.X {
-		dir = -1.0
-	}
+	dir := awayDir(g, ai, di)
 
 	// Step 3: damage, clamped to [0, maxHP].
 	def.HP -= afd.Damage
@@ -131,6 +132,83 @@ func selectHitstun(def *animation.StateMachine) string {
 		}
 	}
 	return "hurt"
+}
+
+// Guardable postures (§7.4). Canonical names only (P2).
+var groundGuardable = []string{"idle", "4", "1", "2", "3", "blockHit", "crouchBlock"}
+var airGuardable = []string{"7", "8", "9", "fall", "airBlock"}
+
+// guardHeld reports holding-back on the hit frame: the facing-corrected
+// current input holds Left (§7.4). It reads the history tail, which the
+// intake step (§4.1 step 2) guarantees is the current frame's input by the
+// time hit detection (§4.1 step 4) runs.
+func guardHeld(g *GameState, di int) bool {
+	hist := g.inputHist[di]
+	if len(hist) == 0 {
+		return false
+	}
+	in := hist[len(hist)-1]
+	if g.Characters[di].StateMachine.IsFacingLeft == animation.Left {
+		if in&input.Left != 0 {
+			in = (in &^ input.Left) | input.Right
+		} else if in&input.Right != 0 {
+			in = (in &^ input.Right) | input.Left
+		}
+	}
+	return in&input.Left != 0
+}
+
+// checkGuard evaluates §7.4: back held + guardable posture. Returns the
+// blockstun state to enter ("" = not guarded).
+func (g *GameState) checkGuard(di int) (string, bool) {
+	def := g.Characters[di].StateMachine
+	if def == nil || def.AnimPlayer == nil || def.AnimPlayer.ActiveAnimation == nil {
+		return "", false
+	}
+	if !guardHeld(g, di) {
+		return "", false
+	}
+	name := def.AnimPlayer.ActiveAnimation.Name
+	if def.IsAirborne() {
+		if slices.Contains(airGuardable, name) {
+			return "airBlock", true
+		}
+		return "", false
+	}
+	if !slices.Contains(groundGuardable, name) {
+		return "", false
+	}
+	if name == "1" || name == "2" || name == "3" {
+		return "crouchBlock", true
+	}
+	return "blockHit", true
+}
+
+// applyBlock resolves a guarded hit: no damage (chip 0, SPEC §7.4), the
+// selected blockstun state with the attack's blockstun value, and the
+// usual pushback displacement. The connect is recorded.
+func (g *GameState) applyBlock(ai, di int, anim string, frame int, state string) {
+	atk := g.Characters[ai].StateMachine
+	def := g.Characters[di].StateMachine
+	afd := atk.AnimPlayer.ActiveFrameData()
+	dir := awayDir(g, ai, di)
+
+	def.AnimPlayer.SetAnimation(state)
+	def.StunFrames = afd.Blockstun
+
+	def.Position.X += dir * float64(afd.Pushback)
+	atk.Position.X -= dir * float64(afd.Pushback/2)
+
+	g.RecordConnect(ai, di, anim, frame)
+}
+
+// awayDir returns +1 when the defender stands right of the attacker
+// (impulses push them apart), -1 otherwise.
+func awayDir(g *GameState, ai, di int) float64 {
+	if g.Characters[di].StateMachine.Position.X < g.Characters[ai].StateMachine.Position.X {
+		return -1.0
+	}
+	return 1.0
 }
 
 func boxInWorldCoordinates(box types.Rect, sm *animation.StateMachine) (types.Rect, bool) {
