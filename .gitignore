@@ -39,4 +39,5 @@ Thumbs.db
 # Folder focused on study and experiments
 study/
 
-config.yaml
+# Local runtime config (created on first run)
+config.toml
