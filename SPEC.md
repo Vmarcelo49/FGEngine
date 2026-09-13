@@ -689,9 +689,10 @@ returns to `fall` via the post-physics rules (§6.7).
 
 ### 7.8 HUD `[todo]` (F6)
 
-- HP bars: P1 left, P2 right, mirrored drain; show current/max HP from
-  snapshot state.
-- Round-win pips per player; center round timer.
+- HP bars: P1 left, P2 right, mirrored drain depleting from the outer
+  corners toward the middle; show current/max HP from snapshot state.
+- Round-win pips per player, centered flanking the timer; center round
+  timer.
 - KO / round-end text, localized via `language` (EN/BR).
 - HUD reads simulation state (presentation), never mutates it.
 

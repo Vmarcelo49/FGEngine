@@ -39,11 +39,11 @@ var (
 func (g *GameplayScene) drawHUD(screen *ebiten.Image) {
 	state := g.gamestate.HUD()
 
-	drawHPBar(screen, hudMargin, state.P1HP, state.P1MaxHP, false)
-	drawHPBar(screen, 640-hudMargin-hudBarW, state.P2HP, state.P2MaxHP, true)
+	drawHPBar(screen, hudMargin, state.P1HP, state.P1MaxHP, true)
+	drawHPBar(screen, 640-hudMargin-hudBarW, state.P2HP, state.P2MaxHP, false)
 
-	drawPips(screen, hudMargin, state.P1Wins, false)
-	drawPips(screen, 640-hudMargin, state.P2Wins, true)
+	drawPips(screen, 288, state.P1Wins, false)
+	drawPips(screen, 352, state.P2Wins, true)
 
 	timer := strconv.Itoa(state.TimerSeconds)
 	ebitenutil.DebugPrintAt(screen, timer, 320-len(timer)*hudFontW/2, hudTimerY)
