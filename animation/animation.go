@@ -135,7 +135,11 @@ type AnimationPlayer struct {
 	Animations      map[string]*Animation `toml:"-"`
 	FrameIndex      int                   `toml:"-"`
 	AnimationQueue  []string              `toml:"-"` // names are probably smaller than full Animation structs
-
+	// Generation counts animation activations: every successful
+	// SetAnimation starts a new generation. The hit-connect ledger keys
+	// on it so separate activations of the same move hit independently
+	// (SPEC §7.1).
+	Generation    int `toml:"-"`
 	FrameTimeLeft int `toml:"-"`
 }
 
@@ -169,6 +173,7 @@ func (ap *AnimationPlayer) SetAnimation(name string) {
 	}
 	anim.Name = name
 	ap.ActiveAnimation = anim
+	ap.Generation++
 	ap.FrameIndex = 0
 	if len(anim.FrameData) == 0 {
 		ap.FrameTimeLeft = 0

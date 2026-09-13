@@ -155,6 +155,9 @@ Reference files:
   - `go build ./cmd/test`
 - Validate all packages:
   - `go test ./...`
+- Headless suite: sim/data packages carry no display dependency, so the
+  full suite runs without Xvfb or a display server. CI
+  (`.github/workflows/ci.yml`: build, vet, test, gofmt gate) relies on it.
 
 ### Currently failing/stale commands
 - Old targeted test command from previous AGENTS revisions is stale because it includes `./collision`, which no longer exists.
@@ -162,8 +165,11 @@ Reference files:
 
 ## 8) Current Risks and Constraints for Agents
 
-1. Automated tests are mostly compile-level
-- Most packages report `[no test files]`.
+1. Display-linked packages carry no tests
+- `scene`, `graphics`, `device`, `stage`, `editor` need a display and are
+  covered by build/vet plus review; sim/data packages (`gameplay`,
+  `animation`, `character`, `input`, `config`, `types`, `language`) have
+  headless unit/integration tests per SPEC §11.5.
 
 2. Refactor in progress
 - README states broad rewrites are underway.
@@ -221,9 +227,8 @@ When changing character/data flow (TOML per SPEC §6.1):
 
 ## 11) Suggested Next Stabilization Tasks
 
-1. Test coverage per SPEC §11.5 and F0: replay determinism test with golden hash, character file round-trip test, input intent/sequence tests (TOML-aware after the F0 migration).
-2. Replace stale command snippets in docs that reference removed packages.
-3. Decide policy for checked-in binary artifacts like root `editor-imgui`.
+1. Replace stale command snippets in docs that reference removed packages.
+2. Decide policy for checked-in binary artifacts like root `editor-imgui`.
 
 ## 12) Maintenance Rule
 

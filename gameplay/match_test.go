@@ -153,7 +153,7 @@ func TestResetContents(t *testing.T) {
 	d.Velocity.X = 9
 	g.inputHist[0] = append(g.inputHist[0], input.A)
 	g.inputHist[1] = append(g.inputHist[1], input.Left)
-	g.RecordConnect(0, 1, "A", 0)
+	g.RecordConnect(0, 1, "A", 0, 0)
 	for i := 0; i < constants.RoundEndFreezeFrames; i++ {
 		g.Update(neutralPair)
 	}

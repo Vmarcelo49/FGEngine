@@ -158,9 +158,9 @@ everything it calls), it is forbidden to:
 - `GameState` must be **fully snapshot-able**: a snapshot captures every
   byte of runtime state — both `StateMachine`s (position, velocity, facing,
   HP, `StunFrames`, `IgnoreGravityFrames`, `AnimationQueue` contents,
-  animation name, frame index, frame time left), both input histories, the
-  connect ledger, the PRNG state, and all match counters (round, wins,
-  timer, phase, freeze countdown). `TotalDuration` is a derived cache of
+  animation name, frame index, animation generation, frame time left), both
+  input histories, the connect ledger, the PRNG state, and all match
+  counters (round, wins, timer, phase, freeze countdown). `TotalDuration` is a derived cache of
   file data and is excluded. This list is authoritative; §7.1 and §12
   defer to it.
 - After each simulation step the engine computes a **state hash**:
@@ -556,9 +556,11 @@ A character file is rejected if:
 - A given active frame's hitboxes may connect **at most once** (no multi-hit
   per frame entry; multi-hit moves are authored as several frame entries).
   Enforced by a connect ledger: `GameState` records (attacker, animation,
-  frame index, defender) tuples that already connected; entries clear when
-  the attacker's frame advances. The ledger is snapshot state (§3.5).
-- `[todo]` F1: apply all effects below; today only overlap is detected.
+  frame index, generation, defender) tuples that already connected; entries
+  clear when the attacker's frame advances. Generation counts animation
+  activations (incremented on every `SetAnimation`), so separate
+  activations of the same move hit independently. The ledger is snapshot
+  state (§3.5).
 
 ### 7.2 Hit resolution `[todo]` (F1/F2)
 

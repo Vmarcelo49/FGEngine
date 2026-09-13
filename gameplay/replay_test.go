@@ -10,10 +10,11 @@ import (
 // constant only together with the simulation change that moved it, after
 // confirming the new behavior is intended.
 // History: F0 genesis; F2 MaxHP joined the snapshot; F4 launch flags
-// joined the snapshot; F5 rounds start at 1 (was 0). No behavior change
-// in any case: the script never connects, stuns, launches, or ends.
-// Determinism (re-run equality) held across every regeneration.
-const goldenReplayHash uint64 = 15532955004251616422
+// joined the snapshot; F5 rounds start at 1 (was 0); F7 animation
+// Generation joined the snapshot. No behavior change in any case: the
+// script never connects, stuns, launches, or ends. Determinism (re-run
+// equality) held across every regeneration.
+const goldenReplayHash uint64 = 12475726821285840510
 
 // replayScript is a fixed 300-frame input stream exercising walks, a jump,
 // a normal, a dash, and a special motion on both sides.

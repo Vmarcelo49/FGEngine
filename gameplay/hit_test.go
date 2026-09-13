@@ -176,7 +176,8 @@ func TestMissChangesNothing(t *testing.T) {
 func TestZeroTouchZeroesVelocity(t *testing.T) {
 	def := idleState(105)
 	def.Velocity = types.Vector2{X: 5, Y: -3}
-	g := hitGameState(attackState(100, 0, 0, 0, 0), def)
+	atk := attackState(100, 0, 0, 0, 0)
+	g := hitGameState(atk, def)
 	g.ResolveHits()
 	if got := g.Characters[1].StateMachine.Velocity; got.X != 0 || got.Y != 0 {
 		t.Fatalf("zero touch should zero velocity, got %v", got)
@@ -184,7 +185,27 @@ func TestZeroTouchZeroesVelocity(t *testing.T) {
 	if got := g.Characters[1].StateMachine.HP; got != 10000 {
 		t.Fatalf("zero touch changed HP: %d", got)
 	}
-	if !g.HasConnected(0, 1, "A", 0) {
+	if !g.HasConnected(0, 1, "A", 0, atk.AnimPlayer.Generation) {
 		t.Fatal("zero touch should still record the connect")
+	}
+}
+
+// Separate activations of the same move hit independently: the ledger keys
+// on the animation generation, not just (anim, frame). Regression test:
+// blocking (or taking) an attack must not immunize the defender against
+// the next activation of the same move.
+func TestReattackAfterNewActivationConnects(t *testing.T) {
+	atk := attackState(100, 100, 0, 0, 0)
+	g := hitGameState(atk, idleState(105))
+	g.ResolveHits()
+	if got := g.Characters[1].StateMachine.HP; got != 9900 {
+		t.Fatalf("first hit HP = %d, want 9900", got)
+	}
+	// Same move, new activation: same anim name and frame index, new
+	// generation.
+	atk.AnimPlayer.SetAnimation("A")
+	g.ResolveHits()
+	if got := g.Characters[1].StateMachine.HP; got != 9800 {
+		t.Fatalf("re-attack HP = %d, want 9800", got)
 	}
 }

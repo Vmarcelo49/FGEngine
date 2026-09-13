@@ -26,8 +26,16 @@ func (g *GameState) ResolveHits() {
 		case p10 > p01:
 			g.resolveDirection(1, 0)
 		default:
-			g.resolveDirection(0, 1)
-			g.resolveDirection(1, 0)
+			// Simultaneous trade: snapshot BOTH attack frames before
+			// EITHER applies — landing one hit replaces the victim's
+			// animation, which would corrupt a lazily-taken snapshot of
+			// their attack (observed: hurt/0 with full HP). Overlap was
+			// proven by the dry run; defender-side checks stay live per
+			// direction.
+			s0 := snapshotSide(g, 0, 1)
+			s1 := snapshotSide(g, 1, 0)
+			g.applyTradeSide(s0)
+			g.applyTradeSide(s1)
 		}
 		return
 	}
@@ -116,11 +124,7 @@ func (g *GameState) resolveDirection(ai, di int) {
 	if dfd.IsInvincible {
 		return
 	}
-	anim, frame := "", 0
-	if atk.AnimPlayer.ActiveAnimation != nil {
-		anim = atk.AnimPlayer.ActiveAnimation.Name
-		frame = atk.AnimPlayer.FrameIndex
-	}
+	anim, frame, gen := attackKey(atk)
 	for _, hitBox := range afd.Boxes[types.Hit] {
 		hitBoxWorld, ok := boxInWorldCoordinates(hitBox, atk)
 		if !ok {
@@ -134,18 +138,21 @@ func (g *GameState) resolveDirection(ai, di int) {
 			if !hitBoxWorld.IsOverlapping(hurtBoxWorld) {
 				continue
 			}
-			if g.HasConnected(ai, di, anim, frame) {
+			if g.HasConnected(ai, di, anim, frame, gen) {
 				continue
 			}
+			// Snapshot the attack frame: application below must not depend
+			// on live attacker state beyond this point.
+			snap := *afd
 			if downed {
-				g.applyOTG(ai, di, anim, frame)
+				g.applyOTG(ai, di, snap, anim, frame, gen)
 				return
 			}
 			if blockState, guarded := g.checkGuard(di); guarded {
-				g.applyBlock(ai, di, anim, frame, blockState)
+				g.applyBlock(ai, di, snap, anim, frame, gen, blockState)
 				return
 			}
-			g.applyHit(ai, di, anim, frame)
+			g.applyHit(ai, di, snap, anim, frame, gen)
 			return
 		}
 	}
@@ -153,10 +160,9 @@ func (g *GameState) resolveDirection(ai, di int) {
 
 // applyHit resolves one landed hit per §7.2 (F1 core + F2 steps: clamp,
 // armor, reaction entry, KO; guard is F3, OTG is F4, KO flow is F5).
-func (g *GameState) applyHit(ai, di int, anim string, frame int) {
+func (g *GameState) applyHit(ai, di int, afd animation.FrameData, anim string, frame, gen int) {
 	atk := g.Characters[ai].StateMachine
 	def := g.Characters[di].StateMachine
-	afd := atk.AnimPlayer.ActiveFrameData()
 	dfd := def.AnimPlayer.ActiveFrameData()
 	dir := awayDir(g, ai, di)
 
@@ -168,7 +174,7 @@ func (g *GameState) applyHit(ai, di int, anim string, frame int) {
 	// impulses, no pushback, no state change) — but the connect is still
 	// recorded below.
 	if dfd.HasArmor {
-		g.RecordConnect(ai, di, anim, frame)
+		g.RecordConnect(ai, di, anim, frame, gen)
 		return
 	}
 
@@ -200,7 +206,79 @@ func (g *GameState) applyHit(ai, di int, anim string, frame int) {
 		def.StunFrames = afd.Hitstun
 	}
 
-	g.RecordConnect(ai, di, anim, frame)
+	g.RecordConnect(ai, di, anim, frame, gen)
+}
+
+// attackKey identifies the attacker's current frame activation for the
+// ledger: animation name, frame index, and generation (SPEC §7.1).
+func attackKey(sm *animation.StateMachine) (anim string, frame, generation int) {
+	if sm == nil || sm.AnimPlayer == nil {
+		return "", 0, 0
+	}
+	if sm.AnimPlayer.ActiveAnimation != nil {
+		anim = sm.AnimPlayer.ActiveAnimation.Name
+	}
+	return anim, sm.AnimPlayer.FrameIndex, sm.AnimPlayer.Generation
+}
+
+// tradeSide is one half of a simultaneous trade: the attacker's frame data
+// snapshotted before either half applies.
+type tradeSide struct {
+	ai, di     int
+	fd         animation.FrameData
+	anim       string
+	frame, gen int
+}
+
+func snapshotSide(g *GameState, ai, di int) tradeSide {
+	s := tradeSide{ai: ai, di: di}
+	if atk := g.Characters[ai].StateMachine; atk != nil && atk.AnimPlayer != nil {
+		if afd := atk.AnimPlayer.ActiveFrameData(); afd != nil {
+			s.fd = *afd
+		}
+		s.anim, s.frame, s.gen = attackKey(atk)
+	}
+	return s
+}
+
+// applyTradeSide applies one half of a simultaneous trade. Overlap was
+// proven by the dry run; the attack snapshot predates either application
+// while defender-side checks (ko/getup, downed, invincibility, guard,
+// ledger) stay live, mirroring resolveDirection's order.
+func (g *GameState) applyTradeSide(s tradeSide) {
+	def := g.Characters[s.di].StateMachine
+	if def == nil || def.AnimPlayer == nil {
+		return
+	}
+	dfd := def.AnimPlayer.ActiveFrameData()
+	if dfd == nil {
+		return
+	}
+	if def.AnimPlayer.ActiveAnimation != nil {
+		switch def.AnimPlayer.ActiveAnimation.Name {
+		case "ko", "getup":
+			return
+		}
+	}
+	downed := def.AnimPlayer.ActiveAnimation != nil && def.AnimPlayer.ActiveAnimation.Name == "knockdown"
+	if downed && !s.fd.CanOTG {
+		return
+	}
+	if dfd.IsInvincible {
+		return
+	}
+	if g.HasConnected(s.ai, s.di, s.anim, s.frame, s.gen) {
+		return
+	}
+	if downed {
+		g.applyOTG(s.ai, s.di, s.fd, s.anim, s.frame, s.gen)
+		return
+	}
+	if blockState, guarded := g.checkGuard(s.di); guarded {
+		g.applyBlock(s.ai, s.di, s.fd, s.anim, s.frame, s.gen, blockState)
+		return
+	}
+	g.applyHit(s.ai, s.di, s.fd, s.anim, s.frame, s.gen)
 }
 
 // clampHP bounds HP to [0, maxHP].
@@ -215,10 +293,9 @@ func clampHP(sm *animation.StateMachine) {
 // applyOTG resolves a canOTG hit on a downed defender (§7.2 step 0):
 // damage, pop-up into airHurt with hitstun, then pushback. Lethal OTG
 // damage still KOs (KO precedence, as in applyHit).
-func (g *GameState) applyOTG(ai, di int, anim string, frame int) {
+func (g *GameState) applyOTG(ai, di int, afd animation.FrameData, anim string, frame, gen int) {
 	atk := g.Characters[ai].StateMachine
 	def := g.Characters[di].StateMachine
-	afd := atk.AnimPlayer.ActiveFrameData()
 	dir := awayDir(g, ai, di)
 
 	def.HP -= afd.Damage
@@ -240,7 +317,7 @@ func (g *GameState) applyOTG(ai, di int, anim string, frame int) {
 	def.Position.X += dir * float64(afd.Pushback)
 	atk.Position.X -= dir * float64(afd.Pushback/2)
 
-	g.RecordConnect(ai, di, anim, frame)
+	g.RecordConnect(ai, di, anim, frame, gen)
 }
 
 // selectHitstun picks the reaction state by defender posture (§6.7):
@@ -311,10 +388,9 @@ func (g *GameState) checkGuard(di int) (string, bool) {
 // applyBlock resolves a guarded hit: no damage (chip 0, SPEC §7.4), the
 // selected blockstun state with the attack's blockstun value, and the
 // usual pushback displacement. The connect is recorded.
-func (g *GameState) applyBlock(ai, di int, anim string, frame int, state string) {
+func (g *GameState) applyBlock(ai, di int, afd animation.FrameData, anim string, frame, gen int, state string) {
 	atk := g.Characters[ai].StateMachine
 	def := g.Characters[di].StateMachine
-	afd := atk.AnimPlayer.ActiveFrameData()
 	dir := awayDir(g, ai, di)
 
 	def.AnimPlayer.SetAnimation(state)
@@ -323,7 +399,7 @@ func (g *GameState) applyBlock(ai, di int, anim string, frame int, state string)
 	def.Position.X += dir * float64(afd.Pushback)
 	atk.Position.X -= dir * float64(afd.Pushback/2)
 
-	g.RecordConnect(ai, di, anim, frame)
+	g.RecordConnect(ai, di, anim, frame, gen)
 }
 
 // awayDir returns +1 when the defender stands right of the attacker

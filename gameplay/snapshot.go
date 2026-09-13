@@ -18,12 +18,15 @@ const (
 )
 
 // ConnectKey records one landed hitbox for the one-hit-per-frame rule
-// (SPEC §7.1). Entries clear when the attacker's frame advances.
+// (SPEC §7.1). Entries clear when the attacker's frame advances or a new
+// activation starts. Generation distinguishes separate activations of the
+// same animation: each SetAnimation starts a new generation.
 type ConnectKey struct {
-	Attacker int
-	Anim     string
-	Frame    int
-	Defender int
+	Attacker   int
+	Anim       string
+	Frame      int
+	Generation int
+	Defender   int
 }
 
 // Hash returns the FNV-1a 64-bit hash over the canonical snapshot encoding
@@ -71,7 +74,7 @@ func (g GameState) Hash() uint64 {
 		putBool(sm.GroundBounceUsed)
 		putI64(sm.IgnoreGravityFrames)
 		putBool(sm.IsFacingLeft == animation.Left)
-		name, frameIndex, timeLeft := "", 0, 0
+		name, frameIndex, timeLeft, generation := "", 0, 0, 0
 		var queue []string
 		if sm.AnimPlayer != nil {
 			if sm.AnimPlayer.ActiveAnimation != nil {
@@ -79,11 +82,13 @@ func (g GameState) Hash() uint64 {
 			}
 			frameIndex = sm.AnimPlayer.FrameIndex
 			timeLeft = sm.AnimPlayer.FrameTimeLeft
+			generation = sm.AnimPlayer.Generation
 			queue = sm.AnimPlayer.AnimationQueue
 		}
 		putString(name)
 		putI64(frameIndex)
 		putI64(timeLeft)
+		putI64(generation)
 		putU64(uint64(len(queue)))
 		for _, q := range queue {
 			putString(q)
@@ -99,6 +104,7 @@ func (g GameState) Hash() uint64 {
 		putI64(c.Attacker)
 		putString(c.Anim)
 		putI64(c.Frame)
+		putI64(c.Generation)
 		putI64(c.Defender)
 	}
 
@@ -121,12 +127,13 @@ func (g *GameState) pruneConnects() {
 		if c.Attacker < 0 || c.Attacker > 1 {
 			continue
 		}
-		name, frame := "", -1
+		name, frame, generation := "", -1, -1
 		if sm := g.Characters[c.Attacker].StateMachine; sm != nil && sm.AnimPlayer != nil && sm.AnimPlayer.ActiveAnimation != nil {
 			name = sm.AnimPlayer.ActiveAnimation.Name
 			frame = sm.AnimPlayer.FrameIndex
+			generation = sm.AnimPlayer.Generation
 		}
-		if c.Anim == name && c.Frame == frame {
+		if c.Anim == name && c.Frame == frame && c.Generation == generation {
 			kept = append(kept, c)
 		}
 	}
@@ -137,10 +144,10 @@ func (g *GameState) pruneConnects() {
 }
 
 // HasConnected reports whether this attacker frame already landed on this
-// defender (one-hit-per-frame rule, SPEC §7.1).
-func (g *GameState) HasConnected(attacker, defender int, anim string, frame int) bool {
+// defender in this activation (one-hit-per-frame rule, SPEC §7.1).
+func (g *GameState) HasConnected(attacker, defender int, anim string, frame, generation int) bool {
 	for _, c := range g.Connects {
-		if c.Attacker == attacker && c.Defender == defender && c.Anim == anim && c.Frame == frame {
+		if c.Attacker == attacker && c.Defender == defender && c.Anim == anim && c.Frame == frame && c.Generation == generation {
 			return true
 		}
 	}
@@ -148,6 +155,6 @@ func (g *GameState) HasConnected(attacker, defender int, anim string, frame int)
 }
 
 // RecordConnect logs a landed hit for the one-hit-per-frame rule.
-func (g *GameState) RecordConnect(attacker, defender int, anim string, frame int) {
-	g.Connects = append(g.Connects, ConnectKey{Attacker: attacker, Anim: anim, Frame: frame, Defender: defender})
+func (g *GameState) RecordConnect(attacker, defender int, anim string, frame, generation int) {
+	g.Connects = append(g.Connects, ConnectKey{Attacker: attacker, Anim: anim, Frame: frame, Generation: generation, Defender: defender})
 }

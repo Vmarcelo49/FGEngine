@@ -55,7 +55,7 @@ func TestHashSensitive(t *testing.T) {
 		"facing":    func(g *GameState) { g.Characters[0].StateMachine.IsFacingLeft = animation.Left },
 		"timer":     func(g *GameState) { g.TimerFrames-- },
 		"rng":       func(g *GameState) { g.RNG.Next() },
-		"ledger":    func(g *GameState) { g.RecordConnect(0, 1, "idle", 0) },
+		"ledger":    func(g *GameState) { g.RecordConnect(0, 1, "idle", 0, 0) },
 		"history":   func(g *GameState) { g.inputHist[0] = append(g.inputHist[0], 6) },
 		"roundWins": func(g *GameState) { g.Wins[1]++ },
 	}
@@ -69,34 +69,39 @@ func TestHashSensitive(t *testing.T) {
 }
 
 // Ledger entries survive while the attacker stays on the recorded frame
-// and clear once it advances (SPEC §7.1).
+// of the same activation, and clear once the frame advances or a new
+// activation starts (SPEC §7.1).
 func TestConnectLedgerPrune(t *testing.T) {
 	g := testGameState(1)
+	gen := g.Characters[0].StateMachine.AnimPlayer.Generation
 
-	if g.HasConnected(0, 1, "idle", 0) {
+	if g.HasConnected(0, 1, "idle", 0, gen) {
 		t.Fatal("empty ledger must report no connection")
 	}
-	g.RecordConnect(0, 1, "idle", 0)
-	if !g.HasConnected(0, 1, "idle", 0) {
+	g.RecordConnect(0, 1, "idle", 0, gen)
+	if !g.HasConnected(0, 1, "idle", 0, gen) {
 		t.Fatal("recorded connection not found")
 	}
-	if g.HasConnected(0, 1, "idle", 1) {
+	if g.HasConnected(0, 1, "idle", 1, gen) {
 		t.Fatal("different frame must not match")
 	}
-	if g.HasConnected(1, 0, "idle", 0) {
+	if g.HasConnected(1, 0, "idle", 0, gen) {
 		t.Fatal("swapped players must not match")
 	}
+	if g.HasConnected(0, 1, "idle", 0, gen+1) {
+		t.Fatal("different generation must not match")
+	}
 
-	// Same frame: prune keeps the entry.
+	// Same frame, same activation: prune keeps the entry.
 	g.pruneConnects()
-	if !g.HasConnected(0, 1, "idle", 0) {
+	if !g.HasConnected(0, 1, "idle", 0, gen) {
 		t.Fatal("prune dropped an entry for the still-active frame")
 	}
 
 	// Attacker advances: prune clears it.
 	g.Characters[0].StateMachine.AnimPlayer.FrameIndex = 1
 	g.pruneConnects()
-	if g.HasConnected(0, 1, "idle", 0) {
+	if g.HasConnected(0, 1, "idle", 0, gen) {
 		t.Fatal("prune kept an entry for a departed frame")
 	}
 }

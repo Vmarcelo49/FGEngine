@@ -1,0 +1,20 @@
+# FGEngine CI: the full suite runs headless (sim and data packages carry
+# no display dependency — see SPEC §11.5 and AGENTS.md §7), so no xvfb or
+# display server is needed. Golden-hash tests pin behavior; the Go version
+# comes from go.mod (toolchain changes are determinism-scope, SPEC §11.7).
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go build ./...
+      - run: go vet ./...
+      - run: go test ./...
+      - run: test -z "$(gofmt -l .)"
