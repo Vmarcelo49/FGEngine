@@ -262,10 +262,12 @@ boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y 
 [[animations."236A".framedata]]
 duration = 3
 damage = 300
-hitstun = 20
+hitstun = 24
 blockstun = 14
-knockback = 4
-boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 96, y = 50, w = 64, h = 40 }] }
+knockback = 2
+knockup = 8
+canHardKnockdown = true
+boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 64, y = 20, w = 128, h = 100 }] }
 [[animations."236A".framedata]]
 duration = 8
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }

@@ -8,7 +8,9 @@ import (
 
 // Golden match hash (SPEC §3.6, F7): the full 2-round scripted scenario.
 // Same regenerate-discipline as the replay golden.
-const goldenMatchHash uint64 = 12060434798500015503
+// History: F7 genesis; 236A became a launcher (knockup, long stun,
+// knockdown flag, big hitbox) so the scenario trajectory changed.
+const goldenMatchHash uint64 = 7203099118063159584
 
 const (
 	scenP1X = 300.0
@@ -227,5 +229,65 @@ func TestFullMatchScenario(t *testing.T) {
 	}
 	if h1 := g1.Hash(); h1 != goldenMatchHash {
 		t.Fatalf("hash %d does not match golden %d", h1, goldenMatchHash)
+	}
+}
+
+// TestLauncherKnockdownCycle proves the 236A launcher interaction chain on
+// real data: big hitbox connects → launch with long stun → still stunned
+// mid-flight → knockdown on touchdown → getup → idle.
+func TestLauncherKnockdownCycle(t *testing.T) {
+	t.Chdir(gameplayRepoRoot(t))
+	p1, p2 := loadScenarioChars(t)
+	p1.StateMachine.Position.X = 300
+	p2.StateMachine.Position.X = 360
+	g := NewGameState(p1, p2, 4242)
+	d := g.Characters[1].StateMachine
+
+	// 236A motion: Down, Down-Forward, Forward, A (P1 faces right).
+	for _, m := range []input.GameInput{input.Down, input.Down | input.Right, input.Right, input.A} {
+		g.Update([2]input.GameInput{m, input.NoInput})
+	}
+
+	launched, downed, risen, done := false, false, false, false
+	for i := 0; i < 90 && !done; i++ {
+		g.Update(scenNeutral)
+		name := d.AnimPlayer.ActiveAnimationName()
+		switch {
+		case !launched && d.Position.Y < 382 && d.StunFrames > 0:
+			launched = true
+			if name != "hurt" {
+				t.Fatalf("launched in %q, want hurt (grounded at hit)", name)
+			}
+		case launched && !downed && name == "knockdown":
+			downed = true
+			if d.StunFrames <= 0 {
+				t.Fatal("touchdown must happen while still stunned")
+			}
+		case downed && !risen && name == "getup":
+			risen = true
+		case risen && name == "idle":
+			done = true
+		}
+	}
+	if !launched {
+		t.Fatal("victim never launched stunned")
+	}
+	if !downed {
+		t.Fatal("never converted to knockdown")
+	}
+	if !risen {
+		t.Fatal("never got up")
+	}
+	if !done {
+		t.Fatal("never recovered to idle")
+	}
+	if d.HP != 9700 {
+		t.Fatalf("HP=%d, want exactly the 300 launcher damage", d.HP)
+	}
+	if d.StunFrames != 0 {
+		t.Fatalf("StunFrames=%d, want spent", d.StunFrames)
+	}
+	if d.KnockdownPending {
+		t.Fatal("KnockdownPending must clear on conversion")
 	}
 }
