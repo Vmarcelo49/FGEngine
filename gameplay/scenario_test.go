@@ -8,9 +8,10 @@ import (
 
 // Golden match hash (SPEC §3.6, F7): the full 2-round scripted scenario.
 // Same regenerate-discipline as the replay golden.
-// History: F7 genesis; 236A became a launcher (knockup, long stun,
-// knockdown flag, big hitbox) so the scenario trajectory changed.
-const goldenMatchHash uint64 = 7203099118063159584
+// History: F7 genesis; 236A became a launcher; jumps retuned (-6 impulse)
+// and 236A strengthened to a true launch (knockup 15, stun 32), changing
+// both trajectories.
+const goldenMatchHash uint64 = 10660563622942976717
 
 const (
 	scenP1X = 300.0
@@ -72,7 +73,7 @@ func roundOne(t *testing.T, g *GameState) {
 		t.Fatal("P1 never left the ground")
 	}
 	landed := false
-	for i := 0; i < 40; i++ {
+	for i := 0; i < 60; i++ {
 		g.Update(scenNeutral)
 		if p1sm.Position.Y == 382 && p1sm.AnimPlayer.ActiveAnimationName() == "idle" {
 			landed = true
@@ -113,18 +114,22 @@ func roundOne(t *testing.T, g *GameState) {
 		}
 	}
 
-	// Special: 236A motion fires and connects.
+	// Special: 236A launcher fires and connects; the victim rides the
+	// full launch → knockdown → getup cycle inside this block.
 	anchor(g, scenP1X, scenP2X)
 	for _, m := range []input.GameInput{input.Down, input.Down | input.Right, input.Right, input.A} {
 		g.Update([2]input.GameInput{m, input.NoInput})
 	}
-	stepN(g, scenNeutral, 21)
+	stepN(g, scenNeutral, 66)
 	want -= 300
 	if p2sm.HP != want {
 		t.Fatalf("after special: HP=%d, want %d", p2sm.HP, want)
 	}
 	if got := p1sm.AnimPlayer.ActiveAnimationName(); got != "idle" {
 		t.Fatalf("P1 after special = %q, want idle", got)
+	}
+	if got := p2sm.AnimPlayer.ActiveAnimationName(); got != "idle" {
+		t.Fatalf("P2 after special = %q, want recovered idle", got)
 	}
 
 	// Block: P2 holds back through 3 attacks, HP frozen.

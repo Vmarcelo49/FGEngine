@@ -142,7 +142,7 @@ anchor = { x = 64, y = 120 }
 [[animations."7".framedata]]
 duration = 3
 changeXSpeed = -2
-changeYSpeed = -3
+changeYSpeed = -6
 cancelTypes = ["any"]
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
 [[animations."7".framedata]]
@@ -156,7 +156,7 @@ imgPath = "placeholder/8.png"
 anchor = { x = 64, y = 120 }
 [[animations."8".framedata]]
 duration = 3
-changeYSpeed = -3
+changeYSpeed = -6
 cancelTypes = ["any"]
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
 [[animations."8".framedata]]
@@ -171,7 +171,7 @@ anchor = { x = 64, y = 120 }
 [[animations."9".framedata]]
 duration = 3
 changeXSpeed = 2
-changeYSpeed = -3
+changeYSpeed = -6
 cancelTypes = ["any"]
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }] }
 [[animations."9".framedata]]
@@ -262,10 +262,10 @@ boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y 
 [[animations."236A".framedata]]
 duration = 3
 damage = 300
-hitstun = 24
+hitstun = 32
 blockstun = 14
 knockback = 2
-knockup = 8
+knockup = 15
 canHardKnockdown = true
 boxes = { collision = [{ x = 32, y = 40, w = 64, h = 80 }], hurt = [{ x = 32, y = 40, w = 64, h = 80 }], hit = [{ x = 64, y = 20, w = 128, h = 100 }] }
 [[animations."236A".framedata]]
