@@ -65,6 +65,20 @@ func (ap *AnimationPlayer) Update(intentAnimation string, stunFrames int) {
 		return
 	}
 
+	current := ap.ActiveAnimation.FrameData[ap.FrameIndex]
+	if current.IsHoldable && ap.holding(intentAnimation) {
+		// Holdable frames persist while the animation's own intent is
+		// held (SPEC §6.5); stun hold above takes precedence.
+		ap.FrameTimeLeft = current.Duration
+		return
+	}
+	if current.AnimationSwitch != "" {
+		// Forced data-driven transition on frame end (SPEC §6.5; the
+		// target is validated at load per §6.8 rule 3).
+		ap.SetAnimation(current.AnimationSwitch)
+		return
+	}
+
 	ap.FrameIndex++
 
 	// end of animation reached, stop at the last frame, should never happen because there is a fallback to idle, also helps not to put wrong values into the frameindex and point to nil frames.
@@ -77,10 +91,7 @@ func (ap *AnimationPlayer) Update(intentAnimation string, stunFrames int) {
 	loopFrames := ap.ActiveAnimation.LoopFrames
 
 	if loopFrames != nil && loopFrames.Start != loopFrames.End {
-		holding := ap.ActiveAnimation.Name == "idle" ||
-			ap.ActiveAnimation.Name == intentAnimation
-
-		if holding {
+		if ap.holding(intentAnimation) {
 			// loop
 			if ap.FrameIndex > loopFrames.End {
 				ap.FrameIndex = loopFrames.Start
@@ -103,6 +114,13 @@ func (ap *AnimationPlayer) Update(intentAnimation string, stunFrames int) {
 	}
 
 	ap.FrameTimeLeft = ap.ActiveAnimation.FrameData[ap.FrameIndex].Duration
+}
+
+// holding reports whether the active animation is held: its own intent is
+// active, or it is idle (SPEC §6.4).
+func (ap *AnimationPlayer) holding(intentAnimation string) bool {
+	return ap.ActiveAnimation.Name == "idle" ||
+		ap.ActiveAnimation.Name == intentAnimation
 }
 
 type Sprite struct {

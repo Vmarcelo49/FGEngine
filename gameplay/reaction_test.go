@@ -16,6 +16,9 @@ func poseState(x, y float64, animName string) *animation.StateMachine {
 	hurtBox := map[types.BoxType][]types.Rect{
 		types.Hurt: {{X: -32, Y: -40, W: 64, H: 40}},
 	}
+	lyingBox := map[types.BoxType][]types.Rect{
+		types.Hurt: {{X: -40, Y: -24, W: 80, H: 24}},
+	}
 	idleFD := []animation.FrameData{{Duration: 100, Boxes: hurtBox}}
 	// Reaction frames carry hurtboxes: stunned defenders can be re-hit
 	// (hitstun chaining) and re-blocked (re-guard).
@@ -34,6 +37,8 @@ func poseState(x, y float64, animName string) *animation.StateMachine {
 		"blockHit":    {FrameData: hold2, LoopFrames: loop01},
 		"crouchBlock": {FrameData: hold2, LoopFrames: loop01},
 		"airBlock":    {FrameData: hold2, LoopFrames: loop01},
+		"knockdown":   {FrameData: []animation.FrameData{{Duration: 6, Boxes: lyingBox}, {Duration: 6, Boxes: lyingBox}, {Duration: 6, Boxes: lyingBox}}},
+		"getup":       {FrameData: []animation.FrameData{{Duration: 4}, {Duration: 4}}},
 		"ko":          {FrameData: []animation.FrameData{{Duration: 8}, {Duration: 8}}},
 	}}
 	ap.SetAnimation(animName)

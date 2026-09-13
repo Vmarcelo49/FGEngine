@@ -146,22 +146,55 @@ func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {
 		return
 	}
 
-	// Terminal ko: stays, never falls through to idle (SPEC §6.7 rule 5).
-	if sm.AnimPlayer.ActiveAnimation != nil && sm.AnimPlayer.ActiveAnimation.Name == "ko" {
-		return
+	// Explicit exits (SPEC §6.7 rule 5): these states never fall through
+	// to rule 4.
+	if sm.AnimPlayer.ActiveAnimation != nil {
+		switch sm.AnimPlayer.ActiveAnimation.Name {
+		case "ko":
+			return
+		case "knockdown":
+			if sm.AnimPlayer.IsFinished() {
+				sm.AnimPlayer.SetAnimation("getup")
+			}
+			return
+		case "getup":
+			if sm.AnimPlayer.IsFinished() {
+				sm.AnimPlayer.SetAnimation("idle")
+			}
+			return
+		}
 	}
 
 	isAirborne := sm.IsAirborne()
 	landedThisFrame := ctx.wasAirborne && !isAirborne
 
 	if landedThisFrame {
-		if sm.AnimPlayer.ActiveAnimationName() == "airBlock" && sm.StunFrames > 0 {
+		// Ground contact consumes launch memory (§7.5).
+		knockdown := sm.KnockdownPending
+		sm.KnockdownPending = false
+		sm.WallBouncePending = false
+		sm.GroundBounceArmed = false
+		sm.GroundBounceUsed = false
+		current := sm.AnimPlayer.ActiveAnimationName()
+		switch {
+		case current == "airBlock" && sm.StunFrames > 0:
 			// Landing converts remaining air blockstun to blockHit,
 			// counter preserved (§7.4).
 			sm.AnimPlayer.SetAnimation("blockHit")
-		} else if _, hasLanding := sm.AnimPlayer.Animations["landing"]; hasLanding && sm.AnimPlayer.ActiveAnimationName() != "landing" {
-			sm.AnimPlayer.SetAnimation("landing")
+		case knockdown:
+			// Knockdown launch touches down → knockdown state (§7.5).
+			sm.AnimPlayer.SetAnimation("knockdown")
+		default:
+			if _, hasLanding := sm.AnimPlayer.Animations["landing"]; hasLanding && current != "landing" {
+				sm.AnimPlayer.SetAnimation("landing")
+			}
 		}
+	} else if !isAirborne {
+		// Grounded without a landing event: any launch flags are stale.
+		sm.KnockdownPending = false
+		sm.WallBouncePending = false
+		sm.GroundBounceArmed = false
+		sm.GroundBounceUsed = false
 	}
 
 	if !sm.AnimPlayer.IsFinished() {
@@ -221,6 +254,11 @@ func (g *GameState) checkCancelAnim(ctx playerFrameContext) {
 }
 
 func canCancelTo(frameData *animation.FrameData, sm *animation.StateMachine, intentAnimation string) bool {
+	// Recovery frames never cancel, even with cancelTypes listed (SPEC §6.5).
+	if frameData.IsRecovery {
+		return false
+	}
+
 	if intentAnimation == "" {
 		return false
 	}

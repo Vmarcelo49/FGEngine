@@ -64,6 +64,10 @@ func (g GameState) Hash() uint64 {
 		putI64(sm.HP)
 		putI64(sm.MaxHP)
 		putI64(sm.StunFrames)
+		putBool(sm.KnockdownPending)
+		putBool(sm.WallBouncePending)
+		putBool(sm.GroundBounceArmed)
+		putBool(sm.GroundBounceUsed)
 		putI64(sm.IgnoreGravityFrames)
 		putBool(sm.IsFacingLeft == animation.Left)
 		name, frameIndex, timeLeft := "", 0, 0

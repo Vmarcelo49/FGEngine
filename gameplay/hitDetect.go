@@ -13,8 +13,73 @@ import (
 // Reaction-state entry + StunFrames (F2), guard (F3), invincibility/armor
 // (F2), OTG (F4), and KO handling (F5) are not applied here.
 func (g *GameState) ResolveHits() {
-	g.resolveDirection(0, 1)
-	g.resolveDirection(1, 0)
+	hit01 := g.findsHit(0, 1)
+	hit10 := g.findsHit(1, 0)
+	if hit01 && hit10 {
+		// Trade with priority (§7.3): unequal priorities resolve only
+		// the higher one; equal (or both zero) trade.
+		p01 := g.activePriority(0)
+		p10 := g.activePriority(1)
+		switch {
+		case p01 > p10:
+			g.resolveDirection(0, 1)
+		case p10 > p01:
+			g.resolveDirection(1, 0)
+		default:
+			g.resolveDirection(0, 1)
+			g.resolveDirection(1, 0)
+		}
+		return
+	}
+	if hit01 {
+		g.resolveDirection(0, 1)
+	}
+	if hit10 {
+		g.resolveDirection(1, 0)
+	}
+}
+
+// findsHit reports whether the attacker's active hitboxes overlap the
+// defender's hurtboxes right now, without applying effects.
+func (g *GameState) findsHit(ai, di int) bool {
+	atk := g.Characters[ai].StateMachine
+	def := g.Characters[di].StateMachine
+	if atk == nil || def == nil || atk.AnimPlayer == nil || def.AnimPlayer == nil {
+		return false
+	}
+	afd := atk.AnimPlayer.ActiveFrameData()
+	dfd := def.AnimPlayer.ActiveFrameData()
+	if afd == nil || dfd == nil {
+		return false
+	}
+	for _, hitBox := range afd.Boxes[types.Hit] {
+		hitBoxWorld, ok := boxInWorldCoordinates(hitBox, atk)
+		if !ok {
+			continue
+		}
+		for _, hurtBox := range dfd.Boxes[types.Hurt] {
+			hurtBoxWorld, ok := boxInWorldCoordinates(hurtBox, def)
+			if !ok {
+				continue
+			}
+			if hitBoxWorld.IsOverlapping(hurtBoxWorld) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// activePriority returns the attacker's active frame priority (§7.3).
+func (g *GameState) activePriority(ai int) int {
+	sm := g.Characters[ai].StateMachine
+	if sm == nil || sm.AnimPlayer == nil {
+		return 0
+	}
+	if fd := sm.AnimPlayer.ActiveFrameData(); fd != nil {
+		return fd.Priority
+	}
+	return 0
 }
 
 func (g *GameState) resolveDirection(ai, di int) {
@@ -31,8 +96,20 @@ func (g *GameState) resolveDirection(ai, di int) {
 	if len(afd.Boxes[types.Hit]) == 0 || len(dfd.Boxes[types.Hurt]) == 0 {
 		return
 	}
-	// §7.6: ko takes none.
-	if def.AnimPlayer.ActiveAnimation != nil && def.AnimPlayer.ActiveAnimation.Name == "ko" {
+	// §7.6: ko and getup take none (getup holds by state rule,
+	// independent of its data flags).
+	defName := ""
+	if def.AnimPlayer.ActiveAnimation != nil {
+		defName = def.AnimPlayer.ActiveAnimation.Name
+		switch defName {
+		case "ko", "getup":
+			return
+		}
+	}
+	// §7.2 step 0 (OTG): downed defenders only take canOTG hits, and
+	// cannot guard. Non-OTG frames pass straight through.
+	downed := defName == "knockdown"
+	if downed && !afd.CanOTG {
 		return
 	}
 	// §7.2 step 1: invincibility.
@@ -60,6 +137,10 @@ func (g *GameState) resolveDirection(ai, di int) {
 			if g.HasConnected(ai, di, anim, frame) {
 				continue
 			}
+			if downed {
+				g.applyOTG(ai, di, anim, frame)
+				return
+			}
 			if blockState, guarded := g.checkGuard(di); guarded {
 				g.applyBlock(ai, di, anim, frame, blockState)
 				return
@@ -81,11 +162,7 @@ func (g *GameState) applyHit(ai, di int, anim string, frame int) {
 
 	// Step 3: damage, clamped to [0, maxHP].
 	def.HP -= afd.Damage
-	if def.HP < 0 {
-		def.HP = 0
-	} else if def.HP > def.MaxHP {
-		def.HP = def.MaxHP
-	}
+	clampHP(def)
 
 	// Step 4: armor absorbs the entire reaction (no hitstun, no
 	// impulses, no pushback, no state change) — but the connect is still
@@ -94,6 +171,13 @@ func (g *GameState) applyHit(ai, di int, anim string, frame int) {
 		g.RecordConnect(ai, di, anim, frame)
 		return
 	}
+
+	// Launch memory for F4 mechanics (§7.5): the latest launching hit
+	// defines the launch (overwrite semantics).
+	def.KnockdownPending = afd.CanHardKnockdown
+	def.WallBouncePending = afd.CanWallBounce
+	def.GroundBounceArmed = afd.CanGroundBounce
+	def.GroundBounceUsed = false
 
 	// Step 5 velocity: a hit overwrites momentum, then impulses add.
 	def.Velocity.X = 0
@@ -115,6 +199,46 @@ func (g *GameState) applyHit(ai, di int, anim string, frame int) {
 		def.AnimPlayer.SetAnimation(selectHitstun(def))
 		def.StunFrames = afd.Hitstun
 	}
+
+	g.RecordConnect(ai, di, anim, frame)
+}
+
+// clampHP bounds HP to [0, maxHP].
+func clampHP(sm *animation.StateMachine) {
+	if sm.HP < 0 {
+		sm.HP = 0
+	} else if sm.HP > sm.MaxHP {
+		sm.HP = sm.MaxHP
+	}
+}
+
+// applyOTG resolves a canOTG hit on a downed defender (§7.2 step 0):
+// damage, pop-up into airHurt with hitstun, then pushback. Lethal OTG
+// damage still KOs (KO precedence, as in applyHit).
+func (g *GameState) applyOTG(ai, di int, anim string, frame int) {
+	atk := g.Characters[ai].StateMachine
+	def := g.Characters[di].StateMachine
+	afd := atk.AnimPlayer.ActiveFrameData()
+	dir := awayDir(g, ai, di)
+
+	def.HP -= afd.Damage
+	clampHP(def)
+
+	def.Velocity.X = 0
+	def.Velocity.Y = 0
+	def.Velocity.X += dir * float64(afd.Knockback)
+	def.Velocity.Y += -float64(afd.Knockup)
+
+	if def.HP <= 0 {
+		def.StunFrames = 0
+		def.AnimPlayer.SetAnimation("ko")
+	} else {
+		def.AnimPlayer.SetAnimation("airHurt")
+		def.StunFrames = afd.Hitstun
+	}
+
+	def.Position.X += dir * float64(afd.Pushback)
+	atk.Position.X -= dir * float64(afd.Pushback/2)
 
 	g.RecordConnect(ai, di, anim, frame)
 }

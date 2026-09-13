@@ -26,6 +26,13 @@ type StateMachine struct {
 	// StunFrames counts down hitstun/blockstun, loaded from the attack's
 	// hitstun/blockstun value itself (SPEC §7.6). Ticked in §4.1 intake.
 	StunFrames int `toml:"-"`
+	// Launch memory (SPEC §7.5): set from the latest launching hit in
+	// applyHit (overwrite semantics), consumed or cleared on ground
+	// contact, cleared as stale while grounded without landing.
+	KnockdownPending  bool `toml:"-"`
+	WallBouncePending bool `toml:"-"`
+	GroundBounceArmed bool `toml:"-"`
+	GroundBounceUsed  bool `toml:"-"`
 
 	AnimPlayer *AnimationPlayer `toml:"-"`
 }
@@ -83,10 +90,21 @@ func (sm *StateMachine) ApplyPhysics() {
 	// Keep character inside world bounds.
 	if sm.Position.X < 0 {
 		sm.Position.X = 0
-		sm.Velocity.X = 0
+		// Wall bounce: reflect with damping instead of stopping. The
+		// pending flag is the significance signal (no speed threshold);
+		// it survives wall bounces and clears on ground contact (§7.5).
+		if sm.WallBouncePending && sm.Velocity.X < 0 {
+			sm.Velocity.X = -sm.Velocity.X * 0.6
+		} else {
+			sm.Velocity.X = 0
+		}
 	} else if sm.Position.X > constants.WorldWidth {
 		sm.Position.X = constants.WorldWidth
-		sm.Velocity.X = 0
+		if sm.WallBouncePending && sm.Velocity.X > 0 {
+			sm.Velocity.X = -sm.Velocity.X * 0.6
+		} else {
+			sm.Velocity.X = 0
+		}
 	}
 
 	if sm.Position.Y < 0 {
@@ -95,7 +113,16 @@ func (sm *StateMachine) ApplyPhysics() {
 			sm.Velocity.Y = 0
 		}
 	} else if sm.Position.Y > constants.GroundLevelY {
-		sm.Position.Y = constants.GroundLevelY
-		sm.Velocity.Y = 0
+		// Ground bounce, once per launch: reflect with damping and rest
+		// 1px above ground so the airborne invariant holds and no landing
+		// event fires (§7.5).
+		if sm.GroundBounceArmed && !sm.GroundBounceUsed && sm.Velocity.Y > 0 {
+			sm.Position.Y = constants.GroundLevelY - 1
+			sm.Velocity.Y = -sm.Velocity.Y * 0.4
+			sm.GroundBounceUsed = true
+		} else {
+			sm.Position.Y = constants.GroundLevelY
+			sm.Velocity.Y = 0
+		}
 	}
 }
