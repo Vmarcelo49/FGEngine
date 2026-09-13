@@ -293,8 +293,10 @@ func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {
 				sm.AnimPlayer.SetAnimation("landing")
 			}
 		}
-	} else if !isAirborne {
-		// Grounded without a landing event: any launch flags are stale.
+	} else if !isAirborne && sm.Velocity.Y >= 0 {
+		// Grounded without a landing event and not launching this frame:
+		// any launch flags are stale. (A hit victim keeps its flags here
+		// because its just-set upward velocity reads vy < 0.)
 		sm.KnockdownPending = false
 		sm.WallBouncePending = false
 		sm.GroundBounceArmed = false
