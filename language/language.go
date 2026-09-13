@@ -1,14 +1,16 @@
 package language
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"github.com/pelletier/go-toml/v2"
 )
 
 type Language struct {
-	Lang     Lang              `yaml:"lang"`
-	GameText map[string]string `yaml:"game_text,omitempty"`
+	Lang     Lang              `toml:"lang"`
+	GameText map[string]string `toml:"game_text,omitempty"`
 }
 
 type Lang string
@@ -22,31 +24,22 @@ const (
 )
 
 func LoadLang(configStr Lang) (*Language, error) {
-	lang, err := ImportYAML(defaultPath + string(configStr))
-	if err != nil {
-		return nil, err
-	}
-	return lang, nil
+	return ImportTOML(defaultPath + "/" + string(configStr) + ".toml")
 }
 
-/*
-func (lang *Language) exportYAML(filename string) error {
-	data, err := yaml.Marshal(lang)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(filename, data, 0644)
-}*/
-
-func ImportYAML(filename string) (*Language, error) {
+func ImportTOML(filename string) (*Language, error) {
 	data, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
 	var lang Language
-	err = yaml.Unmarshal(data, &lang)
-	return &lang, err
+	decoder := toml.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&lang); err != nil {
+		return nil, fmt.Errorf("failed to decode language data: %w", err)
+	}
+	return &lang, nil
 }
 
 func MakePTBR() Language {

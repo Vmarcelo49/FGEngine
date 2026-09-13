@@ -29,8 +29,7 @@ Current project state from README.MD: major rewrites are in progress.
 - `github.com/hajimehoshi/ebiten/v2` (game loop, rendering, input)
 - `github.com/ebitengine/debugui` (runtime debug overlay)
 - `github.com/gabstv/ebiten-imgui/v3` and `github.com/gabstv/cimgui-go` (editor UI)
-- `gopkg.in/yaml.v3` (language serialization)
-- `github.com/pelletier/go-toml/v2` (config and character serialization — SPEC §6.1)
+- `github.com/pelletier/go-toml/v2` (config, character, and language serialization — SPEC §6.1)
 
 ### Platform and tooling notes
 - Desktop native target via regular Go build/test.
@@ -40,7 +39,7 @@ Current project state from README.MD: major rewrites are in progress.
 
 ### Data and assets
 - Character definitions: TOML under `assets/characters` (fixture art in `assets/characters/placeholder/`)
-- Localized text: YAML under `assets/text`
+- Localized text: TOML under `assets/text`
 - Shared/stage art: `assets/common`, `assets/stages`
 
 ## 3) Runtime and Editor Entrypoints
@@ -53,8 +52,7 @@ Current project state from README.MD: major rewrites are in progress.
 - Window defaults to 1920x1080 and resizing enabled.
 
 ### Utility binary
-- `cmd/test/main.go` currently calls `language.ImportYAML("./ptbr.yaml")`.
-- This is currently path-fragile and fails from repo root unless that file exists there.
+- `cmd/test/main.go` calls `language.LoadLang(language.English)` (stable path under `assets/text/`, works from repo root).
 
 ## 4) High-Level Architecture
 
@@ -107,7 +105,7 @@ Current project state from README.MD: major rewrites are in progress.
 - `gameplay/`: game update loop, collision, hit detection
 - `graphics/`: camera, image cache, character sprite/box rendering
 - `input/`: input intents, sequences, SOCD (ebiten-free)
-- `language/`: i18n YAML import model
+- `language/`: i18n TOML import model
 - `scene/`: scene manager and scene implementations
 - `stage/`: stage rendering/backdrop generation
 - `types/`: shared vectors/rects/box types
@@ -137,14 +135,14 @@ Path behavior:
 Reference file:
 - `assets/characters/PlaceHolder.toml` (fixture art in `assets/characters/placeholder/`)
 
-### Language YAML contract
+### Language TOML contract
 - `language.Language` fields:
   - `lang`
   - `game_text` map
 
 Reference files:
-- `assets/text/EN.yaml`
-- `assets/text/BR.yaml`
+- `assets/text/EN.toml`
+- `assets/text/BR.toml`
 
 ## 7) Commands and Validation (Observed on Linux, 2026-04-23)
 
@@ -161,8 +159,6 @@ Reference files:
 ### Currently failing/stale commands
 - Old targeted test command from previous AGENTS revisions is stale because it includes `./collision`, which no longer exists.
   - Fails with: `stat .../collision: directory not found`
-- Utility run command is currently path-fragile:
-  - `go run ./cmd/test` fails from repo root with `open ./ptbr.yaml: no such file or directory`
 
 ## 8) Current Risks and Constraints for Agents
 
@@ -186,7 +182,7 @@ Reference files:
 ## 9) Code Patterns and Conventions
 
 1. Keep runtime-vs-serialized boundaries explicit
-- Preserve `yaml:"-"` runtime-only tags in gameplay state fields.
+- Preserve `toml:"-"` runtime-only tags in gameplay state fields.
 
 2. Respect package ownership
 - `input`: intent extraction and normalization (ebiten-free)
@@ -218,17 +214,16 @@ When implementing a change:
 6. Document any command failures with exact errors.
 7. Update `SPEC.md` in the same PR when behavior changes (SPEC §11.6).
 
-When changing character/data flow (YAML today, TOML per SPEC §6.1):
+When changing character/data flow (TOML per SPEC §6.1):
 1. Update loaders and save/export paths together.
 2. Preserve backward compatibility when practical.
 3. Keep sprite path handling consistent (relative vs absolute behavior).
 
 ## 11) Suggested Next Stabilization Tasks
 
-1. Fix `cmd/test` to use a stable asset path (for example under `assets/text`).
-2. Test coverage per SPEC §11.5 and F0: replay determinism test with golden hash, character file round-trip test, input intent/sequence tests (TOML-aware after the F0 migration).
-3. Replace stale command snippets in docs that reference removed packages.
-4. Decide policy for checked-in binary artifacts like root `editor-imgui`.
+1. Test coverage per SPEC §11.5 and F0: replay determinism test with golden hash, character file round-trip test, input intent/sequence tests (TOML-aware after the F0 migration).
+2. Replace stale command snippets in docs that reference removed packages.
+3. Decide policy for checked-in binary artifacts like root `editor-imgui`.
 
 ## 12) Maintenance Rule
 

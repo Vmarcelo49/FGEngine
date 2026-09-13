@@ -7,8 +7,8 @@ require (
 	github.com/gabstv/cimgui-go v0.0.0-20231031221758-68bd718f94cc
 	github.com/gabstv/ebiten-imgui/v3 v3.0.0
 	github.com/hajimehoshi/ebiten/v2 v2.9.9
+	github.com/pelletier/go-toml/v2 v2.4.3
 	golang.org/x/image v0.39.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -18,13 +18,9 @@ require (
 	github.com/go-text/typesetting v0.3.4 // indirect
 	github.com/hajimehoshi/bitmapfont/v4 v4.1.0 // indirect
 	github.com/jezek/xgb v1.3.0 // indirect
-	github.com/kr/pretty v0.3.1 // indirect
-	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/pierrec/lz4/v4 v4.1.26 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.43.0 // indirect
 	golang.org/x/text v0.36.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )

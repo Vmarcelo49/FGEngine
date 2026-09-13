@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	text, err := language.ImportYAML("./ptbr.yaml")
+	text, err := language.LoadLang(language.English)
 	if err != nil {
 		panic(err)
 	}

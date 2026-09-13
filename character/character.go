@@ -11,15 +11,15 @@ import (
 )
 
 type Character struct {
-	Name         string                  `yaml:"name" toml:"name"`
-	Properties   CharacterProperties     `yaml:"properties" toml:"properties"`
-	StateMachine *animation.StateMachine `yaml:"stateMachine" toml:"-"`
+	Name         string                  `toml:"name"`
+	Properties   CharacterProperties     `toml:"properties"`
+	StateMachine *animation.StateMachine `toml:"-"`
 }
 
 // CharacterProperties holds per-character tuning (SPEC §6.3). It is the
 // only place character constants may live — never Go code (P2).
 type CharacterProperties struct {
-	MaxHP int `yaml:"maxHP,omitempty" toml:"maxHP,omitempty"`
+	MaxHP int `toml:"maxHP,omitempty"`
 }
 
 func LoadCharacter(name string, playerSide int) (*Character, error) {

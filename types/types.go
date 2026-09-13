@@ -3,15 +3,15 @@ package types
 import "math"
 
 type Rect struct {
-	X float64 `yaml:"x,omitempty" toml:"x,omitempty"`
-	Y float64 `yaml:"y,omitempty" toml:"y,omitempty"`
-	W float64 `yaml:"w" toml:"w"`
-	H float64 `yaml:"h" toml:"h"`
+	X float64 `toml:"x,omitempty"`
+	Y float64 `toml:"y,omitempty"`
+	W float64 `toml:"w"`
+	H float64 `toml:"h"`
 }
 
 type Vector2 struct {
-	X float64 `yaml:"x,omitempty" toml:"x,omitempty"`
-	Y float64 `yaml:"y,omitempty" toml:"y,omitempty"`
+	X float64 `toml:"x,omitempty"`
+	Y float64 `toml:"y,omitempty"`
 }
 
 // BoxType is a string-kind enum so box map keys encode as their SPEC §6.5

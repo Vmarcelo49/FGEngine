@@ -324,10 +324,10 @@ history push (§4.1 step 2) derives from those inputs alone. The input layer
 
 ### 6.1 Storage format policy
 
-- **Target format: TOML.** YAML is a legacy format and will be abandoned.
-  (TOML over JSON because character files are hand-edited and benefit from
-  comments; a binary format is deliberately not adopted — authorability
-  matters more than size here.)
+- **Format: TOML, exclusively.** YAML was fully removed (characters, config,
+  and language files all migrated). (TOML over JSON because data files are
+  hand-edited and benefit from comments; a binary format is deliberately
+  not adopted — authorability matters more than size here.)
 - The **logical contract below is authoritative**; it is format-independent.
   F0 delivers the TOML loader/writer, converts all assets, and removes the
   YAML loader.
@@ -840,8 +840,8 @@ to this section — on conflict, §12 wins.)
    the map outright (including the non-standard `426A` entry); SOCD
    filtering applies after the per-player device merge (§5.2).
 - **Acceptance:** replay test green; `PlaceHolder.toml` loads, validates,
-  plays; `config.toml` replaces `config.yaml`; `assets/text/*.yaml`
-  stay YAML (language files). No other YAML remains.
+  plays; `config.toml` replaces `config.yaml`; `EN.toml`/`BR.toml`
+  replace the language YAML. No YAML remains.
 - **Note:** the game relies on ebiten's default 60 TPS; no tick-rate
   pinning is required (§3.1).
 
