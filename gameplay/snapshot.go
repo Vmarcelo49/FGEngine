@@ -62,6 +62,7 @@ func (g GameState) Hash() uint64 {
 		putF64(sm.Velocity.X)
 		putF64(sm.Velocity.Y)
 		putI64(sm.HP)
+		putI64(sm.MaxHP)
 		putI64(sm.StunFrames)
 		putI64(sm.IgnoreGravityFrames)
 		putBool(sm.IsFacingLeft == animation.Left)

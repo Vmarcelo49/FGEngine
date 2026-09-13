@@ -26,6 +26,7 @@ func attackState(x float64, damage, kb, kup, pushback int) *animation.StateMachi
 	ap.SetAnimation("A")
 	return &animation.StateMachine{
 		HP:         10000,
+		MaxHP:      10000,
 		Position:   types.Vector2{X: x, Y: 382},
 		AnimPlayer: ap,
 	}
@@ -45,6 +46,7 @@ func idleState(x float64) *animation.StateMachine {
 	ap.SetAnimation("idle")
 	return &animation.StateMachine{
 		HP:         10000,
+		MaxHP:      10000,
 		Position:   types.Vector2{X: x, Y: 382},
 		AnimPlayer: ap,
 	}

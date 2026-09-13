@@ -146,6 +146,11 @@ func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {
 		return
 	}
 
+	// Terminal ko: stays, never falls through to idle (SPEC §6.7 rule 5).
+	if sm.AnimPlayer.ActiveAnimation != nil && sm.AnimPlayer.ActiveAnimation.Name == "ko" {
+		return
+	}
+
 	isAirborne := sm.IsAirborne()
 	landedThisFrame := ctx.wasAirborne && !isAirborne
 

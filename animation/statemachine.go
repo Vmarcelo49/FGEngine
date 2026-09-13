@@ -18,6 +18,7 @@ type StateMachine struct {
 	//ActiveState         State
 	//PreviousState       State
 	HP                  int           `yaml:"-" toml:"-"`
+	MaxHP               int           `yaml:"-" toml:"-"`
 	Position            types.Vector2 `yaml:"-" toml:"-"`
 	Velocity            types.Vector2 `yaml:"-" toml:"-"`
 	IgnoreGravityFrames int           `yaml:"-" toml:"-"`

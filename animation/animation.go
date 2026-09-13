@@ -91,6 +91,13 @@ func (ap *AnimationPlayer) Update(intentAnimation string, stunFrames int) {
 				ap.FrameIndex <= loopFrames.End {
 
 				ap.FrameIndex = loopFrames.End + 1
+				// A loop range reaching the last frame (e.g. a fully-looped
+				// reaction whose stun just expired) has no trailing frames:
+				// clamp to the last frame so it finishes instead of
+				// indexing past the end.
+				if ap.FrameIndex >= len(ap.ActiveAnimation.FrameData) {
+					ap.FrameIndex = len(ap.ActiveAnimation.FrameData) - 1
+				}
 			}
 		}
 	}

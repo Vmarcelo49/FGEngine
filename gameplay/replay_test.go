@@ -9,7 +9,9 @@ import (
 // Golden replay hash (SPEC §3.6). Regenerate deliberately: change the
 // constant only together with the simulation change that moved it, after
 // confirming the new behavior is intended.
-const goldenReplayHash uint64 = 6631506711982979655
+// History: F0 genesis; F2 MaxHP joined the snapshot (no behavior change,
+// script never connects).
+const goldenReplayHash uint64 = 8115302003718408263
 
 // replayScript is a fixed 300-frame input stream exercising walks, a jump,
 // a normal, a dash, and a special motion on both sides.

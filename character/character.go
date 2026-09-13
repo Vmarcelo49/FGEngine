@@ -73,6 +73,7 @@ func (c *Character) initialize(playerSide int) {
 	}
 
 	c.StateMachine.HP = c.Properties.MaxHP
+	c.StateMachine.MaxHP = c.Properties.MaxHP
 	c.StateMachine.Position = types.Vector2{X: initialX, Y: constants.GroundLevelY}
 	c.StateMachine.IsFacingLeft = facing
 	c.StateMachine.Velocity = types.Vector2{}
