@@ -8,6 +8,9 @@ import (
 )
 
 func attackState(x float64, damage, kb, kup, pushback int) *animation.StateMachine {
+	hurtOnly := map[types.BoxType][]types.Rect{
+		types.Hurt: {{X: -32, Y: -40, W: 64, H: 40}},
+	}
 	ap := &animation.AnimationPlayer{
 		Animations: map[string]*animation.Animation{
 			"A": {FrameData: []animation.FrameData{{
@@ -21,6 +24,9 @@ func attackState(x float64, damage, kb, kup, pushback int) *animation.StateMachi
 					types.Hurt: {{X: -32, Y: -40, W: 64, H: 40}},
 				},
 			}}},
+			// Round-flow states (forced by beginRoundEnd/resetRound).
+			"idle": {FrameData: []animation.FrameData{{Duration: 100, Boxes: hurtOnly}}},
+			"win":  {FrameData: []animation.FrameData{{Duration: 8}, {Duration: 8}}},
 		},
 	}
 	ap.SetAnimation("A")

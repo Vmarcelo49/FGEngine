@@ -5,6 +5,7 @@ import (
 	"fgengine/character"
 	"fgengine/constants"
 	"fgengine/input"
+	"fgengine/types"
 	"slices"
 )
 
@@ -12,7 +13,6 @@ type GameState struct {
 	Characters [2]*character.Character
 	inputHist  [2][]input.GameInput
 	// Rollback/determinism substrate (SPEC §3.4, §3.5, §7.1, §7.7).
-	// Phase transitions land in F5; F0 only ticks the timer.
 	RNG          SplitMix64
 	Connects     []ConnectKey
 	TimerFrames  int
@@ -30,6 +30,7 @@ func NewGameState(p1, p2 *character.Character, seed uint64) GameState {
 		Characters:  [2]*character.Character{p1, p2},
 		RNG:         SplitMix64{State: seed},
 		TimerFrames: constants.RoundTimerFrames,
+		Round:       1,
 		Phase:       PhaseFight,
 	}
 }
@@ -41,10 +42,16 @@ type playerFrameContext struct {
 }
 
 func (g *GameState) Update(inputs [2]input.GameInput) {
+	if g.Phase != PhaseFight {
+		// Round over: full freeze, countdown only (SPEC §7.7).
+		g.updateMatchFlow()
+		return
+	}
+
 	g.pruneConnects()
 
-	// Round timer ticks during the fight phase (transitions land in F5).
-	if g.Phase == PhaseFight && g.TimerFrames > 0 {
+	// Round timer ticks during the fight phase.
+	if g.TimerFrames > 0 {
 		g.TimerFrames--
 	}
 
@@ -92,6 +99,103 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 		// some animations may need info on the input to check some logic
 		ctx.stateMachine.AnimPlayer.Update(ctx.intentAnimation, ctx.stateMachine.StunFrames)
 	}
+
+	// Match flow last: round-end detection (SPEC §4.1 step 7, §7.7).
+	g.updateMatchFlow()
+}
+
+// updateMatchFlow runs round-end detection, the freeze countdown, and
+// round reset / match end (SPEC §7.7).
+func (g *GameState) updateMatchFlow() {
+	switch g.Phase {
+	case PhaseMatchEnd:
+		return
+	case PhaseRoundEnd:
+		if g.FreezeFrames > 0 {
+			g.FreezeFrames--
+		}
+		if g.FreezeFrames > 0 {
+			return
+		}
+		if g.Wins[0] >= constants.RoundsToWin || g.Wins[1] >= constants.RoundsToWin {
+			g.Phase = PhaseMatchEnd
+			return
+		}
+		g.resetRound()
+		return
+	default: // PhaseFight
+		p1Dead := g.Characters[0].StateMachine.HP <= 0
+		p2Dead := g.Characters[1].StateMachine.HP <= 0
+		switch {
+		case p1Dead && p2Dead:
+			// Double KO: tie, no award (SPEC §7.7).
+			g.beginRoundEnd(-1)
+		case p1Dead:
+			g.beginRoundEnd(1)
+		case p2Dead:
+			g.beginRoundEnd(0)
+		case g.TimerFrames <= 0:
+			hp0 := g.Characters[0].StateMachine.HP
+			hp1 := g.Characters[1].StateMachine.HP
+			switch {
+			case hp0 > hp1:
+				g.beginRoundEnd(0)
+			case hp1 > hp0:
+				g.beginRoundEnd(1)
+			default:
+				g.beginRoundEnd(-1)
+			}
+		}
+	}
+}
+
+// beginRoundEnd awards the round (unless tie), forces end states, and
+// starts the freeze. Winner -1 = tie/double-KO (SPEC §7.7).
+func (g *GameState) beginRoundEnd(winner int) {
+	if winner >= 0 {
+		g.Wins[winner]++
+		// Awarded rounds advance the round number; ties replay it.
+		g.Round++
+		loser := 1 - winner
+		g.Characters[loser].StateMachine.AnimPlayer.SetAnimation("ko")
+		g.Characters[loser].StateMachine.StunFrames = 0
+		g.Characters[winner].StateMachine.AnimPlayer.SetAnimation("win")
+		g.Characters[winner].StateMachine.StunFrames = 0
+	}
+	g.Phase = PhaseRoundEnd
+	g.FreezeFrames = constants.RoundEndFreezeFrames
+}
+
+// resetRound starts the next round: positions, HP, timer, and states reset;
+// histories and ledger clear so nothing carries over (SPEC §7.7).
+func (g *GameState) resetRound() {
+	starts := [2]float64{constants.WorldWidth / 4, 3 * constants.WorldWidth / 4}
+	for i, sm := range []*animation.StateMachine{g.Characters[0].StateMachine, g.Characters[1].StateMachine} {
+		sm.Position = types.Vector2{X: starts[i], Y: constants.GroundLevelY}
+		sm.Velocity = types.Vector2{}
+		sm.HP = sm.MaxHP
+		sm.StunFrames = 0
+		sm.KnockdownPending = false
+		sm.WallBouncePending = false
+		sm.GroundBounceArmed = false
+		sm.GroundBounceUsed = false
+		sm.IgnoreGravityFrames = 0
+		sm.IsFacingLeft = animation.Right
+		if i == 1 {
+			sm.IsFacingLeft = animation.Left
+		}
+		sm.AnimPlayer.SetAnimation("idle")
+		g.inputHist[i] = nil
+	}
+	g.Connects = nil
+	g.TimerFrames = constants.RoundTimerFrames
+	g.Phase = PhaseFight
+	g.FreezeFrames = 0
+}
+
+// MatchOver reports a decided match (SPEC §7.7). The scene exits on it.
+func (g GameState) MatchOver() bool {
+	return g.Phase == PhaseMatchEnd
 }
 
 func (g *GameState) resolveFacing(p1, p2 *animation.StateMachine) {
@@ -150,7 +254,7 @@ func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {
 	// to rule 4.
 	if sm.AnimPlayer.ActiveAnimation != nil {
 		switch sm.AnimPlayer.ActiveAnimation.Name {
-		case "ko":
+		case "ko", "win":
 			return
 		case "knockdown":
 			if sm.AnimPlayer.IsFinished() {

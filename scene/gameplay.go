@@ -47,6 +47,9 @@ type GameplayScene struct {
 
 func (g *GameplayScene) Update(inputs [2]input.GameInput) SceneStatus {
 	g.gamestate.Update(inputs)
+	if g.gamestate.MatchOver() {
+		return Scene1
+	}
 	g.updateCamera()
 	g.updateDebugUI()
 	return SceneDontChange

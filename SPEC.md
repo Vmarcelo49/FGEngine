@@ -216,6 +216,9 @@ everything it calls), it is forbidden to:
 6. **Post-physics animation decisions** (P1, then P2): landing / fall /
    idle / intent-driven transitions (canonical runtime rules, §6.7), then
    advance the animation player (frame step, loop handling).
+7. **Match flow** (F5): in `PhaseFight` this runs last — round-end
+   detection; in other phases it runs alone — freeze countdown
+   (`PhaseRoundEnd`) or no-op (`PhaseMatchEnd`). See §7.7.
 
 The order is fixed. Steps 3 and 6 alternate per-player in lockstep; they must
 not be merged, reordered, or made conditional on input values (aside from the
@@ -665,18 +668,22 @@ returns to `fall` via the post-physics rules (§6.7).
   ceiling: `(TimerFrames + 59) / 60`. Only adds/subs ever apply — no
   other timer math exists in v1.
 - **Round ends** when: KO (HP ≤ 0 → loser enters `ko`, winner enters
-  `win`), or timer hits 0 (higher HP wins; tie = no round awarded, full
-  reset, round number unchanged).
+  `win`), or timer hits 0 (higher HP wins: loser `ko`, winner `win`;
+  tie = no round awarded, full reset, round number unchanged).
+  Double KO (both HP ≤ 0 the same frame, only possible via trade) ties:
+  no round awarded, full reset, round number unchanged.
 - **Ownership:** the match phase (fight → round-end freeze → reset →
   next fight), the freeze countdown, and round-win counting are
   `GameState`-owned simulation state and transitions — scenes only
   observe (§10, item 5).
 - **Match:** best of 3 (first to 2 rounds). Round wins are `GameState`
   fields (snapshot state); the HUD only reads them (§7.8).
-- After round end: brief freeze (v1: 60 frames), then next round (positions
-  reset to §8.5 starts, HP reset, timer reset) or match end.
-- Match end → scene transition out of gameplay (back to menu) `[todo]`
-  (F5).
+- After round end: full freeze (v1: 60 frames — `Update` ticks only the
+  freeze countdown; simulation, inputs, and animations hold), then next
+  round (positions reset to §8.5 starts, HP refilled, stun and launch
+  flags cleared, histories and ledger cleared, timer reset, both to
+  `idle`) or match end. Richer freeze behavior is future work.
+- Match end → scene transition out of gameplay (back to menu).
 
 ### 7.8 HUD `[todo]` (F6)
 

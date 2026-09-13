@@ -14,6 +14,7 @@ type MatchPhase byte
 const (
 	PhaseFight MatchPhase = iota
 	PhaseRoundEnd
+	PhaseMatchEnd
 )
 
 // ConnectKey records one landed hitbox for the one-hit-per-frame rule

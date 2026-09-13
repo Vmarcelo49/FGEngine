@@ -40,6 +40,7 @@ func poseState(x, y float64, animName string) *animation.StateMachine {
 		"knockdown":   {FrameData: []animation.FrameData{{Duration: 6, Boxes: lyingBox}, {Duration: 6, Boxes: lyingBox}, {Duration: 6, Boxes: lyingBox}}},
 		"getup":       {FrameData: []animation.FrameData{{Duration: 4}, {Duration: 4}}},
 		"ko":          {FrameData: []animation.FrameData{{Duration: 8}, {Duration: 8}}},
+		"win":         {FrameData: []animation.FrameData{{Duration: 8}, {Duration: 8}}},
 	}}
 	ap.SetAnimation(animName)
 	return &animation.StateMachine{

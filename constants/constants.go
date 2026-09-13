@@ -18,6 +18,10 @@ const (
 	// RoundTimerFrames is the round timer in simulation steps (99s at 60 TPS).
 	// Displayed seconds are ceiling: (TimerFrames + 59) / 60 (SPEC §7.7).
 	RoundTimerFrames int = 99 * 60
+	// RoundsToWin is a best-of-3 match: first to 2 round wins (SPEC §7.7).
+	RoundsToWin int = 2
+	// RoundEndFreezeFrames is the full-freeze beat after a round ends (SPEC §7.7).
+	RoundEndFreezeFrames int = 60
 
 	GroundLevelY float64 = WorldHeight - 50
 )
