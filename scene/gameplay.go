@@ -2,10 +2,12 @@ package scene
 
 import (
 	"fgengine/character"
+	"fgengine/config"
 	"fgengine/constants"
 	"fgengine/gameplay"
 	"fgengine/graphics"
 	"fgengine/input"
+	"fgengine/language"
 	"fgengine/stage"
 	"fgengine/types"
 	"fmt"
@@ -32,10 +34,21 @@ func MakeGameplayScene() Scene {
 	camera := graphics.NewCamera()
 	camera.WorldBoundsLock = true
 
+	// Locale loaded once per scene; missing files fall back to raw keys,
+	// never a crash (see tr).
+	var gameText map[string]string
+	if locale, err := language.LoadLang(language.Lang(config.ActiveConfig.Language)); err != nil {
+		fmt.Println("hud locale load failed:", err)
+	} else {
+		gameText = locale.GameText
+	}
+
 	return &GameplayScene{
 		camera:    camera,
 		stage:     stage.NewSolidColorStage(constants.StageColor),
-		gamestate: gameplay.NewGameState(playerOne, playerTwo, uint64(time.Now().UnixNano()))}
+		gamestate: gameplay.NewGameState(playerOne, playerTwo, uint64(time.Now().UnixNano())),
+		texts:     gameText,
+	}
 }
 
 type GameplayScene struct {
@@ -43,6 +56,7 @@ type GameplayScene struct {
 	stage     *stage.Stage
 	gamestate gameplay.GameState
 	debugui   debugui.DebugUI
+	texts     map[string]string
 }
 
 func (g *GameplayScene) Update(inputs [2]input.GameInput) SceneStatus {
@@ -69,6 +83,8 @@ func (g *GameplayScene) Draw(screen *ebiten.Image) {
 	}
 
 	g.drawDebugGuides(screen)
+
+	g.drawHUD(screen)
 
 	//g.debugui.Draw(screen)
 }
