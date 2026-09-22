@@ -128,13 +128,13 @@ func TestApplySOCD(t *testing.T) {
 
 func TestCheckSingleInputPriority(t *testing.T) {
 	cases := map[GameInput]string{
-		Down | A:    "A",
-		Up | Right:  "9",
-		Up | Left:   "7",
-		Down:        "2",
-		Left:        "4",
-		NoInput:     "",
-		D | Up:      "D",
+		Down | A:   "A",
+		Up | Right: "9",
+		Up | Left:  "7",
+		Down:       "2",
+		Left:       "4",
+		NoInput:    "",
+		D | Up:     "D",
 	}
 	for in, want := range cases {
 		if got := CheckSingleInput(in); got != want {

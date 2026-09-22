@@ -14,7 +14,25 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - run: go build ./...
-      - run: go vet ./...
-      - run: go test ./...
-      - run: test -z "$(gofmt -l .)"
+      # Headless is not dependency-free: `./...` also compiles the editor,
+      # whose image picker is cgo (`#cgo pkg-config: gtk+-3.0`, `-lX11`).
+      # Install the headers explicitly instead of trusting the runner image
+      # (AGENTS.md §8 item 3).
+      - name: Install cgo build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libgtk-3-dev libx11-dev
+      - name: Build
+        run: go build ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Test (headless)
+        run: go test ./...
+      - name: gofmt
+        run: |
+          unformatted="$(gofmt -l .)"
+          if [ -n "$unformatted" ]; then
+            echo "gofmt required on:"
+            echo "$unformatted"
+            exit 1
+          fi

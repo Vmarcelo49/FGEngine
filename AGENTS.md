@@ -157,7 +157,9 @@ Reference files:
   - `go test ./...`
 - Headless suite: sim/data packages carry no display dependency, so the
   full suite runs without Xvfb or a display server. CI
-  (`.github/workflows/ci.yml`: build, vet, test, gofmt gate) relies on it.
+  (`.github/workflows/ci.yml`: build, vet, test, gofmt gate) relies on it;
+  CI installs the cgo build deps (`libgtk-3-dev`, `libx11-dev`) explicitly,
+  because `./...` still compiles the editor's GTK picker (§8 item 3).
 
 ### Currently failing/stale commands
 - Old targeted test command from previous AGENTS revisions is stale because it includes `./collision`, which no longer exists.
