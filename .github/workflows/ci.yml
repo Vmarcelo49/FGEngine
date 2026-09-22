@@ -1,11 +1,15 @@
-# FGEngine CI: the full suite runs headless (sim and data packages carry
-# no display dependency — see SPEC §11.5 and AGENTS.md §7), so no xvfb or
-# display server is needed. Golden-hash tests pin behavior; the Go version
-# comes from go.mod (toolchain changes are determinism-scope, SPEC §11.7).
+# FGEngine CI: runs only on version tags (v*) — pushes to main are WIP and
+# may not compile, so day-to-day red builds are noise; tag a release when
+# the build has to be green. The suite itself is headless (sim and data
+# packages carry no display dependency — see SPEC §11.5 and AGENTS.md §7),
+# so no xvfb or display server is needed. Golden-hash tests pin behavior;
+# the Go version comes from go.mod (toolchain changes are determinism-scope,
+# SPEC §11.7).
 name: ci
 on:
   push:
-  pull_request:
+    tags:
+      - 'v*'
 jobs:
   build-test:
     runs-on: ubuntu-latest

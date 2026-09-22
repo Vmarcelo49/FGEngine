@@ -156,11 +156,12 @@ Reference files:
 - Validate all packages:
   - `go test ./...`
 - Headless suite: sim/data packages carry no display dependency, so the
-  full suite runs without Xvfb or a display server. CI
-  (`.github/workflows/ci.yml`: build, vet, test, gofmt gate) relies on it;
-  CI installs the cgo build deps explicitly — Ebitengine's Linux X11/GL
-  link set plus GTK for the editor picker (§8 item 3) — because `./...`
-  still builds the cgo editor.
+  full suite runs without Xvfb or a display server. CI runs it on version
+  tags only (`.github/workflows/ci.yml`, triggered by `v*`: build, vet,
+  test, gofmt gate) — WIP pushes to main are deliberately not gated, so
+  tag when the build has to be green. CI installs the cgo build deps
+  explicitly — Ebitengine's Linux X11/GL link set plus GTK for the editor
+  picker (§8 item 3) — because `./...` still builds the cgo editor.
 
 ### Currently failing/stale commands
 - Old targeted test command from previous AGENTS revisions is stale because it includes `./collision`, which no longer exists.
