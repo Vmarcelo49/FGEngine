@@ -16,12 +16,17 @@ jobs:
           go-version-file: go.mod
       # Headless is not dependency-free: `./...` also compiles the editor,
       # whose image picker is cgo (`#cgo pkg-config: gtk+-3.0`, `-lX11`).
-      # Install the headers explicitly instead of trusting the runner image
-      # (AGENTS.md §8 item 3).
+      # The X11/GL dev packages are Ebitengine's own Linux link set
+      # (`internal/glfw/build_linux.go`: -lX11 -lXrandr -lXxf86vm -lXi
+      # -lXcursor -lXinerama); GTK does not pull libXxf86vm in, so list
+      # them all instead of trusting the runner image (AGENTS.md §8 item 3).
       - name: Install cgo build dependencies
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq libgtk-3-dev libx11-dev
+          sudo apt-get install -y -qq \
+            libx11-dev libxrandr-dev libxxf86vm-dev libxi-dev \
+            libxcursor-dev libxinerama-dev libgl1-mesa-dev \
+            libgtk-3-dev pkg-config
       - name: Build
         run: go build ./...
       - name: Vet
