@@ -3,11 +3,11 @@
 This file is the agent-focused onboarding and execution guide for this repository.
 It complements README.MD with practical context for coding agents.
 
-> **Behavior source of truth:** `SPEC.md` (repo root) is normative for all
+> **Behavior source of truth:** `docs/SPEC.md` is normative for all
 > engine behavior — determinism contract, frame pipeline, input model,
 > character data contract, combat rules, physics, and the F0–F7 roadmap.
-> When this file and `SPEC.md` disagree, `SPEC.md` wins. Read the relevant
-> `SPEC.md` sections before changing behavior, and update `SPEC.md` in the
+> When this file and `docs/SPEC.md` disagree, `docs/SPEC.md` wins. Read the relevant
+> `docs/SPEC.md` sections before changing behavior, and update `docs/SPEC.md` in the
 > same PR when behavior changes (SPEC §11.6).
 
 ## 1) Repository Purpose
@@ -18,7 +18,9 @@ The repository currently has three active surfaces:
 - Character editor executable (`cmd/editor`)
 - Utility/test executable (`cmd/test`)
 
-Current project state from README.MD: major rewrites are in progress.
+Current project state from README.MD: the F0–F7 roadmap is complete; the
+engine plays full local matches, and the first real character (Tiki) is in
+production.
 
 ## 2) Tech Stack
 
@@ -109,14 +111,16 @@ Current project state from README.MD: major rewrites are in progress.
 - `scene/`: scene manager and scene implementations
 - `stage/`: stage rendering/backdrop generation
 - `types/`: shared vectors/rects/box types
+- `docs/`: `SPEC.md` (normative behavior spec) and `lista-de-tarefas.md`
+  (Portuguese working task list)
 
 Note: there is no top-level `collision/` package in the current workspace.
 
 ## 6) Data Contracts (Important)
 
-The authoritative contracts live in `SPEC.md` §6 (character files, frame
-data, boxes, canonical states, strict validation). What follows is
-current-state orientation only — on conflict, `SPEC.md` wins.
+The authoritative contracts live in `docs/SPEC.md` §6 (character files,
+frame data, boxes, canonical states, strict validation). What follows is
+current-state orientation only — on conflict, `docs/SPEC.md` wins.
 
 ### Character files (TOML per SPEC §6.1)
 Loader/editor flows expect the flat SPEC §6.2 layout:
@@ -175,8 +179,9 @@ Reference files:
   `animation`, `character`, `input`, `config`, `types`, `language`) have
   headless unit/integration tests per SPEC §11.5.
 
-2. Refactor in progress
-- README states broad rewrites are underway.
+2. Post-rewrite stabilization
+- The F0–F7 roadmap is complete (see README.MD); the focus is now feel
+  tuning, content (first real character: Tiki), and docs sync.
 - Prefer small, localized edits unless explicitly asked for larger changes.
 
 3. Editor has Linux-specific native picker dependency
@@ -186,8 +191,9 @@ Reference files:
 4. Desktop-first assumptions remain
 - Runtime/editor workflows prioritize desktop behavior and desktop input models.
 
-5. Repository contains generated/runtime artifacts
-- Root currently includes an `editor-imgui` ELF binary artifact; do not treat it as source.
+5. Runtime artifacts are gitignored
+- `config.toml` (created on first run) and `imgui.ini` (editor runtime
+  state) are local artifacts and must not be committed.
 
 ## 9) Code Patterns and Conventions
 
@@ -203,7 +209,7 @@ Reference files:
 - `editor`: content authoring workflow
 
 3. Preserve deterministic frame behavior
-- `SPEC.md` §3 (determinism contract) and §4 (frame pipeline order) are normative — do not reorder, parallelize, or introduce map iteration / wall-clock / unseeded RNG into the simulation path.
+- `docs/SPEC.md` §3 (determinism contract) and §4 (frame pipeline order) are normative — do not reorder, parallelize, or introduce map iteration / wall-clock / unseeded RNG into the simulation path.
 - Maintain update ordering assumptions in `gameplay.GameState.Update`.
 - Keep scene transition input-neutral gating behavior intact unless intentionally changed.
 
@@ -217,12 +223,12 @@ Reference files:
 
 When implementing a change:
 1. Identify the surface first: runtime, editor, shared systems, or utility binary.
-2. Read the governing `SPEC.md` sections before changing behavior (determinism §3, pipeline §4, data §6, combat §7 as applicable).
+2. Read the governing `docs/SPEC.md` sections before changing behavior (determinism §3, pipeline §4, data §6, combat §7 as applicable).
 3. Make the smallest viable change and keep package boundaries.
 4. Run `go test` for changed packages; run `go test ./...` for cross-cutting changes.
 5. If touching editor GTK integration, validate on Linux with cgo enabled.
 6. Document any command failures with exact errors.
-7. Update `SPEC.md` in the same PR when behavior changes (SPEC §11.6).
+7. Update `docs/SPEC.md` in the same PR when behavior changes (SPEC §11.6).
 
 When changing character/data flow (TOML per SPEC §6.1):
 1. Update loaders and save/export paths together.
@@ -232,10 +238,11 @@ When changing character/data flow (TOML per SPEC §6.1):
 ## 11) Suggested Next Stabilization Tasks
 
 1. Replace stale command snippets in docs that reference removed packages.
-2. Decide policy for checked-in binary artifacts like root `editor-imgui`.
+2. Update `docs/SPEC.md` §12 phase status markers — F0–F7 are landed but
+   the roadmap table still reads `[todo]`.
 
 ## 12) Maintenance Rule
 
 Treat this file as living documentation.
 Whenever build commands, architecture, or known breakages change, update AGENTS.md in the same PR.
-Behavior changes update `SPEC.md` in the same PR instead (SPEC §11.6) — this file tracks build/architecture/breakage facts only.
+Behavior changes update `docs/SPEC.md` in the same PR instead (SPEC §11.6) — this file tracks build/architecture/breakage facts only.

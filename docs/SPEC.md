@@ -817,8 +817,8 @@ frames, resync UI from state. Nothing here requires implementation in v1.
 
 Phases are ordered; each phase's acceptance criteria must pass before the
 next phase starts (a phase may be *started* early only on explicit decision).
-(`lista de tarefas.md` is the Portuguese working task list and is subordinate
-to this section — on conflict, §12 wins.)
+(`docs/lista-de-tarefas.md` is the Portuguese working task list and is
+subordinate to this section — on conflict, §12 wins.)
 
 ### F0 — Foundations: determinism & data contract `[todo]` — **current**
 

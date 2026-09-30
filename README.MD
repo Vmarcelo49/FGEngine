@@ -35,7 +35,7 @@ remains the canonical test character used by the suite and CI.
 | `cmd/test/` | Utility/smoke-test binary |
 | `assets/characters/` | Character definitions (TOML) + art |
 | `assets/text/` | Localized text (EN, BR) |
-| `SPEC.md` | Normative source of truth for engine behavior |
+| `docs/SPEC.md` | Normative source of truth for engine behavior |
 | `AGENTS.md` | Agent onboarding & execution guide |
 
 ## Architecture in one minute
@@ -87,8 +87,9 @@ gated — tag a release when the build has to be green.
 
 ## Documentation
 
-- **`SPEC.md`** — normative specification: determinism, frame pipeline,
+- **`docs/SPEC.md`** — normative specification: determinism, frame pipeline,
   input model, character data contract, combat rules, physics, roadmap.
-- **`AGENTS.md`** — build commands, package layout, known constraints.
-- **`lista de tarefas.md`** — Portuguese working task list (subordinate to
-  SPEC §12).
+- **`AGENTS.md`** — build commands, package layout, known constraints
+  (kept at the repo root, where agent tooling discovers it).
+- **`docs/lista-de-tarefas.md`** — Portuguese working task list (subordinate
+  to SPEC §12).

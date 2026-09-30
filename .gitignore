@@ -41,3 +41,6 @@ study/
 
 # Local runtime config (created on first run)
 config.toml
+
+# Editor runtime state (created on first run)
+imgui.ini
