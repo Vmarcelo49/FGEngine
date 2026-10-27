@@ -17,14 +17,24 @@ type SceneStatus byte
 
 const (
 	SceneDontChange SceneStatus = iota
-	Scene1
-	Scene2
-	SceneController
+	SceneMainMenu
+	SceneControllerSelect
+	SceneSelectCPU
+	SceneSelectVersus
+	SceneStartMatch
+	SceneQuit
+)
+
+type MatchMode byte
+
+const (
+	MatchVersusCPU MatchMode = iota
+	MatchLocalVersus
 )
 
 type SceneManager struct {
 	currentScene Scene
-	// helper var to not trigger commands in scenes other than the active one
+	// After a scene swap, discard held input until both players are neutral.
 	waitNeutral bool
 }
 
@@ -32,7 +42,6 @@ func (sm *SceneManager) Update() error {
 	polledInputs := device.UpdateGamepads()
 	activeInputs := polledInputs
 
-	// Prevent button carry-over between scenes by waiting for full release.
 	if sm.waitNeutral {
 		if polledInputs[0] == input.NoInput && polledInputs[1] == input.NoInput {
 			sm.waitNeutral = false
@@ -43,15 +52,28 @@ func (sm *SceneManager) Update() error {
 
 	sceneSignal := sm.currentScene.Update(activeInputs)
 	switch sceneSignal {
-	case Scene1:
+	case SceneMainMenu:
 		sm.currentScene = MakeMainMenuScene()
 		sm.waitNeutral = true
-	case Scene2:
-		sm.currentScene = MakeGameplayScene()
-		sm.waitNeutral = true
-	case SceneController:
+	case SceneControllerSelect:
 		sm.currentScene = MakeControllerScene()
 		sm.waitNeutral = true
+	case SceneSelectCPU:
+		sm.currentScene = MakeCharacterSelectScene(MatchVersusCPU)
+		sm.waitNeutral = true
+	case SceneSelectVersus:
+		sm.currentScene = MakeCharacterSelectScene(MatchLocalVersus)
+		sm.waitNeutral = true
+	case SceneStartMatch:
+		if selection, ok := sm.currentScene.(*CharacterSelectScene); ok {
+			sm.currentScene = MakeGameplayScene(selection.playerOneName(), selection.playerTwoName(), selection.mode == MatchVersusCPU)
+			sm.waitNeutral = true
+		} else {
+			sm.currentScene = MakeMainMenuScene()
+			sm.waitNeutral = true
+		}
+	case SceneQuit:
+		return ebiten.Termination
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyEscape) {

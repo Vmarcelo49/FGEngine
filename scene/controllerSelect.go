@@ -5,8 +5,10 @@ import (
 	"fgengine/device"
 	"fgengine/graphics"
 	"fgengine/input"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type controllerEntry struct {
@@ -54,7 +56,7 @@ func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
 				continue
 			}
 			if input.JustPressed(cur, prev, input.A) {
-				return Scene1
+				return SceneMainMenu
 			}
 		}
 		if singleInput.Owner == device.P2Side {
@@ -63,7 +65,7 @@ func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
 				continue
 			}
 			if input.JustPressed(cur, prev, input.A) {
-				return Scene1
+				return SceneMainMenu
 			}
 		}
 		if singleInput.Owner == device.UnAssigned {
@@ -80,6 +82,10 @@ func (c *ControllerScene) Update(inputs [2]input.GameInput) SceneStatus {
 }
 
 func (c *ControllerScene) Draw(screen *ebiten.Image) {
+	screen.Fill(color.RGBA{R: 10, G: 16, B: 31, A: 255})
+	ebitenutil.DebugPrintAt(screen, "CONTROLLER SETUP", 24, 20)
+	ebitenutil.DebugPrintAt(screen, "PRESS LEFT TO JOIN P1  /  RIGHT TO JOIN P2", 24, 42)
+	ebitenutil.DebugPrintAt(screen, "KEYBOARD: WASD + U I O J  /  ARROWS + N M , .", 24, 60)
 	p1Count, p2Count, unassignedCount := 0, 0, 0
 	for _, entry := range c.controllerIMGs {
 		op := &ebiten.DrawImageOptions{}
@@ -108,4 +114,5 @@ func (c *ControllerScene) Draw(screen *ebiten.Image) {
 		}
 		screen.DrawImage(img, op)
 	}
+	ebitenutil.DebugPrintAt(screen, "PRESS U / N OR GAMEPAD A TO CONTINUE", 24, 328)
 }

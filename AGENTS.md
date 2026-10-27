@@ -18,14 +18,13 @@ The repository currently has three active surfaces:
 - Character editor executable (`cmd/editor`)
 - Utility/test executable (`cmd/test`)
 
-Current project state from README.MD: the F0–F7 roadmap is complete; the
-engine plays full local matches, and the first real character (Tiki) is in
-production.
+Current project state from README.MD: F0–F8 are complete; the runtime has
+four selectable fighters, local versus, a CPU opponent, and full match flow.
 
 ## 2) Tech Stack
 
 ### Language and runtime
-- Go 1.26.3 (`go.mod`) latest one!
+- Go 1.26.3 minimum (`go.mod`).
 
 ### Core libraries
 - `github.com/hajimehoshi/ebiten/v2` (game loop, rendering, input)
@@ -40,7 +39,18 @@ production.
   - `#cgo LDFLAGS: -lX11`
 
 ### Data and assets
-- Character definitions: TOML under `assets/characters` (fixture art in `assets/characters/placeholder/`)
+- Character definitions: TOML under `assets/characters`; the playable roster
+  uses transparent atlases under `assets/characters/{brasa,iris,muralha,vulto}/`.
+- Per-character source sprite sheets live in `assets/characters/<fighter>/sequences/`
+  and are packed into atlas cells by `cmd/generate_fighter_art/`.
+- Every playable fighter has its own four source sheets: 4×4 standing attacks,
+  crouching attacks, aerial attacks, and a special/defense sheet. The first
+  three use rows A–D; the final sheet uses rows special, high guard, crouch
+  guard, and standing/crouch/air/block hit reactions. Do not point one fighter
+  at another fighter's art or reuse a sequence sheet across the roster.
+- `4` is the back/guard animation and still needs `changeXSpeed` so holding
+  back continues to move the fighter; `blockHit` is the standing blockstun
+  reaction. Keep their art and movement data distinct.
 - Localized text: TOML under `assets/text`
 - Shared/stage art: `assets/common`, `assets/stages`
 
@@ -66,7 +76,10 @@ production.
 - Input carry-over prevention is implemented using a release-to-accept gate (`waitNeutral`) after scene swaps.
 
 ### Gameplay flow
-- `scene/gameplay.go` creates two placeholder characters, camera, stage, and `gameplay.GameState`.
+- Scene flow is controller setup → main menu → mode select → character select → gameplay → main menu.
+- `scene/characterSelect.go` loads top-level character TOMLs (excluding `PlaceHolder`) and returns selected file names to the scene manager.
+- `scene/gameplay.go` loads the selected fighters, camera, stage, and `gameplay.GameState`.
+- Versus-CPU mode generates deterministic P2 input from the current state and round timer, then feeds both input frames into `GameState.Update`.
 - `gameplay.GameState.Update` loop currently does:
   1. facing resolution
   2. input history + intent extraction
@@ -81,8 +94,9 @@ production.
 
 ### Rendering and debug model
 - Camera abstraction in `graphics/camera.go` centralizes world/screen transforms.
-- Gameplay scene draws stage, character sprites, debug boxes, and world guide lines.
-- Runtime debug telemetry is wired through `debugui` update path in gameplay scene.
+- Gameplay scene draws atlas-cropped character sprites, stage backdrop, and HUD.
+- Hitboxes and world guides are hidden by default; press F1 to toggle the debug view.
+- Runtime debug telemetry is wired through `debugui` in the gameplay scene.
 
 ### Editor model
 - `editor.CharacterEditor` is an `ebiten.Game` that edits:
@@ -138,6 +152,18 @@ Path behavior:
 
 Reference file:
 - `assets/characters/PlaceHolder.toml` (fixture art in `assets/characters/placeholder/`)
+
+Playable roster files are `Brasa.toml`, `Muralha.toml`, `Iris.toml`, and
+`Vulto.toml`. Their selection metadata (`role`, `tagline`, `specialName`,
+`specialInput`, `accentColor`) is presentation-only; combat balance remains
+in animation frame data. Sprite `rect` values crop tiles from each fighter's
+PNG atlas.
+
+### Local keyboard controls
+- P1: WASD + U/I/O/J.
+- P2: arrow keys + N/M/comma/period.
+- After the shared keyboard joins either side on the controller screen, both
+  layouts are routed independently for local-versus play.
 
 ### Language TOML contract
 - `language.Language` fields:
@@ -235,11 +261,11 @@ When changing character/data flow (TOML per SPEC §6.1):
 2. Preserve backward compatibility when practical.
 3. Keep sprite path handling consistent (relative vs absolute behavior).
 
-## 11) Suggested Next Stabilization Tasks
+## 11) Current Follow-up Notes
 
-1. Replace stale command snippets in docs that reference removed packages.
-2. Update `docs/SPEC.md` §12 phase status markers — F0–F7 are landed but
-   the roadmap table still reads `[todo]`.
+1. Pushbox resolution still uses the first overlapping collision box pair
+   (§8.4); multiple hit and hurt boxes are supported.
+2. Pause, audio, and richer stage authoring remain future work in `docs/SPEC.md`.
 
 ## 12) Maintenance Rule
 

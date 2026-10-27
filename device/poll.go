@@ -95,3 +95,46 @@ func PollGamepads(ids []ebiten.GamepadID) input.GameInput {
 	}
 	return localInputs
 }
+
+type keyboardBinding struct {
+	gameInput input.GameInput
+	keys      []ebiten.Key
+}
+
+var localKeyboardBindings = [2][]keyboardBinding{
+	{
+		{gameInput: input.Up, keys: []ebiten.Key{ebiten.KeyW}},
+		{gameInput: input.Down, keys: []ebiten.Key{ebiten.KeyS}},
+		{gameInput: input.Left, keys: []ebiten.Key{ebiten.KeyA}},
+		{gameInput: input.Right, keys: []ebiten.Key{ebiten.KeyD}},
+		{gameInput: input.A, keys: []ebiten.Key{ebiten.KeyU}},
+		{gameInput: input.B, keys: []ebiten.Key{ebiten.KeyI}},
+		{gameInput: input.C, keys: []ebiten.Key{ebiten.KeyO}},
+		{gameInput: input.D, keys: []ebiten.Key{ebiten.KeyJ}},
+	},
+	{
+		{gameInput: input.Up, keys: []ebiten.Key{ebiten.KeyUp}},
+		{gameInput: input.Down, keys: []ebiten.Key{ebiten.KeyDown}},
+		{gameInput: input.Left, keys: []ebiten.Key{ebiten.KeyLeft}},
+		{gameInput: input.Right, keys: []ebiten.Key{ebiten.KeyRight}},
+		{gameInput: input.A, keys: []ebiten.Key{ebiten.KeyN}},
+		{gameInput: input.B, keys: []ebiten.Key{ebiten.KeyM}},
+		{gameInput: input.C, keys: []ebiten.Key{ebiten.KeyComma}},
+		{gameInput: input.D, keys: []ebiten.Key{ebiten.KeyPeriod}},
+	},
+}
+
+// PollKeyboardPlayers returns independent P1 and P2 layouts for local play:
+// WASD + U/I/O/J and arrows + N/M/comma/period.
+func PollKeyboardPlayers() [2]input.GameInput {
+	var players [2]input.GameInput
+	for player, bindings := range localKeyboardBindings {
+		for _, binding := range bindings {
+			if slices.ContainsFunc(binding.keys, ebiten.IsKeyPressed) {
+				players[player] |= binding.gameInput
+			}
+		}
+		players[player] = input.ApplySOCD(players[player])
+	}
+	return players
+}

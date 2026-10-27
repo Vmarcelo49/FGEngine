@@ -16,7 +16,8 @@ Status legend used throughout:
 FGEngine is a 2D fighting-game engine written in idiomatic Go, rendered with
 Ebitengine. It simulates 1v1 matches between two data-driven characters at a
 fixed 60 FPS, with a deterministic simulation designed to support rollback
-netplay in the future.
+netplay in the future. The runtime ships four selectable fighters and supports
+local versus play against another player or a simple CPU opponent.
 
 ### 1.2 Design principles (normative)
 
@@ -37,7 +38,7 @@ netplay in the future.
 
 ### 1.3 In scope for v1
 
-- 1v1 local matches (two controllers/keyboard), fixed 60 FPS.
+- 1v1 local matches (versus CPU or another player), fixed 60 FPS.
 - Full combat pipeline: hit detection → damage/hitstun → guard → frame-data
   effects → rounds/KO → HUD (phases F0–F7, §12).
 - Character authoring data files (TOML) and the canonical data contract (§6).
@@ -52,7 +53,7 @@ netplay in the future.
   F0–F5 is solid. The editor (existing imgui tool) must eventually round-trip
   the §6 contract, but its feature set is out of scope here.
 - **Audio.** Frame data carries sound IDs (§6.5) but v1 has no audio system.
-- **Team/versus modes.** v1 is strictly 1v1.
+- **Team modes.** v1 is strictly 1v1.
 - **Stage data format.** v1 ships the solid-color stage; a stage data format
   is future work (§9).
 - **Mobile/touch input.** Desktop (keyboard + gamepad) only.
@@ -83,8 +84,9 @@ netplay in the future.
 
 `main` → `config.InitGameConfig()` → `ebiten.RunGame(scene.NewSceneManager())`.
 
-Scene flow: `controller select → main menu → gameplay → (match end)`,
-with pause overlaying gameplay `[todo]`. Pause (when implemented)
+Scene flow: `controller select → main menu → mode select → character select
+→ gameplay → main menu`. The main menu offers versus CPU, local versus,
+controller setup, and quit. Pause overlays gameplay `[todo]`. Pause (when implemented)
 suspends simulation steps entirely (no partial updates); resume continues
 with the exact next step — determinism-safe by construction.
 Scene transitions are gated by a release-to-accept rule: after a swap, inputs
@@ -138,9 +140,9 @@ everything it calls), it is forbidden to:
    is covered separately by §5.6 (input layer outside the contract);
    anything reachable from `GameState.Update` that branches, selects, or
    accumulates in iteration order is forbidden.
-   - *Known violation (must be fixed in F0):* `input.CheckInputSequences`
-     iterates the `InputSequences` map and takes the last detected sequence.
-     It must evaluate sequences in the fixed priority order of §5.5.
+   - *Historical violation, fixed in F0:* `input.CheckInputSequences` used
+     map iteration. It now evaluates the ordered `InputSequences` list in the
+     fixed priority order of §5.5.
 2. Use wall-clock time or real elapsed time.
 3. Use unseeded randomness (`math/rand` global, `crypto/rand`, OS entropy).
 4. Use goroutines, channels, or async state in the simulation path.
@@ -177,7 +179,7 @@ everything it calls), it is forbidden to:
 - A replay test must exist: a recorded list of `[2]input.GameInput` frames is
   applied from a fixed initial state for N frames; the final state hash is
   asserted against a golden value, and re-running the replay must produce the
-  same hash. `[todo]` (F0)
+  same hash. `[done]`
 - The test must fail if any §3 rule is violated in a way observable through
   state (map-order behavior, timing, etc.).
 
@@ -236,9 +238,13 @@ except where explicitly stated (e.g. initial positions, §8.5).
 
 ### 5.1 Devices
 
-- Keyboard and/or gamepad per player; mapping is data (config), not code.
+- Gamepads are assigned to player sides from controller setup.
 - `GamepadID(-1)` denotes the keyboard. Multiple devices may be OR-merged
   per player side.
+- After the keyboard joins either side, it provides two independent local
+  layouts: P1 uses WASD + U/I/O/J; P2 uses arrow keys + N/M/comma/period.
+  This allows local versus play on one keyboard. Gamepads can be used with
+  either layout.
 
 ### 5.2 Logical inputs
 
@@ -288,8 +294,8 @@ checks, so no ordering applies within those groups. Numpad intents:
   satisfies an expected `Down`).
 - Sequences are defined in data with an **explicit priority order**:
   supers/specials first, then normals, then movement. Evaluation order is the
-  defined order — never map iteration order (§3.3). `[todo]` — F0 migrates
-  `InputSequences` from a map to an ordered list.
+  defined order — never map iteration order (§3.3). `[done]` —
+  `InputSequences` is an ordered list.
 - When a sequence matches, its name is the intent. The engine-standard
   sequence set is the full input vocabulary of §6.7: dashes `44`, `66`
   and the seven special motions (`236x`, `214x`, `246x`, `642x`, `623x`,
@@ -355,9 +361,15 @@ with `[[animations."<name>".sprites]]` and
 | Field | Type | Meaning |
 |---|---|---|
 | `maxHP` | int | Health pool. **Required.** (Replaces the hardcoded 10000 in `character.initialize`.) |
+| `role` | string | Short archetype label shown in character select. |
+| `tagline` | string | One-line character description shown in character select. |
+| `specialName` | string | Display name of the character's featured special move. |
+| `specialInput` | string | Engine motion name for that special, e.g. `236A`; shown in UI and used by the CPU input policy. |
+| `accentColor` | string | UI accent color as `#RRGGBB`; character sprite colors remain in atlas art. |
 
-Extension rule: new properties are added here, never in code. (Future
-candidates, not yet contract: weight/push priority, walk speed — see §13.)
+Extension rule: new properties are added here, never in code. Character
+balance stays in animation frame data; the extra fields above are presentation
+metadata and do not affect simulation rules.
 
 ### 6.4 Animations
 
@@ -393,22 +405,22 @@ phase (§12) · `[reserved]` parsed and stored, no runtime effect yet.
 | `changeYSpeed` | float | Velocity increment Y (− = up) | `[active]` |
 | `cancelTypes` | [string] | Animations cancellable *into* during this frame. Empty = no cancels. `"any"` = everything | `[active]` |
 | `boxes` | map[BoxType → [Rect]] | `collision` / `hit` / `hurt` boxes, anchor-relative (§6.6). BoxType is a string-kind enum; unknown keys are a load error (§6.8 rule 10) | `[active]` |
-| `damage` | int | HP removed on hit | `[F2]` |
-| `hitstun` | int | Stun duration: value loaded into the defender's `StunFrames` in the selected hitstun state (§7.2, §7.6) | `[F2]` |
-| `pushback` | int | Horizontal position push applied on hit | `[F2]` |
-| `knockback` | int | Horizontal velocity impulse on hit | `[F2]` |
-| `knockup` | int | Vertical velocity impulse on hit (launch if >0) | `[F2]` |
-| `blockstun` | int | Stun duration: value loaded into the defender's `StunFrames` in the selected blockstun state (§7.4, §7.6) | `[F3]` |
-| `isInvincible` | bool | Hits pass through this frame | `[F2]` |
-| `hasArmor` | bool | Absorption, checked on the **defender's** frame: a hit on this frame deals damage but causes no hitstun/knockback (§7.2) | `[F2]` |
-| `isRecovery` | bool | No cancels out of this frame, even if `cancelTypes` lists some | `[F4]` |
-| `isHoldable` | bool | Frame continues while its trigger input is held | `[F4]` |
-| `animationSwitch` | string | Forced transition to this animation when this frame ends (data-driven transition) | `[F4]` |
-| `canHardKnockdown` | bool | Hit causes knockdown (fall down + get-up) | `[F4]` |
-| `canWallBounce` | bool | Knocked character bounces off stage walls | `[F4]` |
-| `canGroundBounce` | bool | Launched character bounces off the ground | `[F4]` |
-| `canOTG` | bool | OTG = Off The Ground: attack may connect with a downed (`knockdown`) opponent. Hits without `canOTG` pass through downed opponents (§7.5) | `[F4]` |
-| `priority` | int | Trade resolution priority (higher wins; equal = both hit) | `[F4]` |
+| `damage` | int | HP removed on hit | `[active]` |
+| `hitstun` | int | Stun duration: value loaded into the defender's `StunFrames` in the selected hitstun state (§7.2, §7.6) | `[active]` |
+| `pushback` | int | Horizontal position push applied on hit | `[active]` |
+| `knockback` | int | Horizontal velocity impulse on hit | `[active]` |
+| `knockup` | int | Vertical velocity impulse on hit (launch if >0) | `[active]` |
+| `blockstun` | int | Stun duration: value loaded into the defender's `StunFrames` in the selected blockstun state (§7.4, §7.6) | `[active]` |
+| `isInvincible` | bool | Hits pass through this frame | `[active]` |
+| `hasArmor` | bool | Absorption, checked on the **defender's** frame: a hit on this frame deals damage but causes no hitstun/knockback (§7.2) | `[active]` |
+| `isRecovery` | bool | No cancels out of this frame, even if `cancelTypes` lists some | `[active]` |
+| `isHoldable` | bool | Frame continues while its trigger input is held | `[active]` |
+| `animationSwitch` | string | Forced transition to this animation when this frame ends (data-driven transition) | `[active]` |
+| `canHardKnockdown` | bool | Hit causes knockdown (fall down + get-up) | `[active]` |
+| `canWallBounce` | bool | Knocked character bounces off stage walls | `[active]` |
+| `canGroundBounce` | bool | Launched character bounces off the ground | `[active]` |
+| `canOTG` | bool | OTG = Off The Ground: attack may connect with a downed (`knockdown`) opponent. Hits without `canOTG` pass through downed opponents (§7.5) | `[active]` |
+| `priority` | int | Trade resolution priority (higher wins; equal = both hit) | `[active]` |
 | `soundID` | int | Common sound effect id (0 = none) | `[reserved]` |
 | `uniqueSoundID` | int | Character-unique sound effect id | `[reserved]` |
 
@@ -457,7 +469,9 @@ Variant scheme — two axes:
 | Walk | `4` `6` | Walk back / walk front (facing axis). |
 | Dash | `44` `66` | Dash back / dash front (facing axis). |
 | Jump | `7` `8` `9` | Jump back / up / front (facing axis). |
-| Normals | `A` `B` `C` `D` | Four normal attack slots, single posture (per-posture normals are an open question, §13). |
+| Standing normals | `A` `B` `C` `D` | Four standing attack slots. |
+| Crouching normals (optional) | `2A` `2B` `2C` `2D` | Selected by holding down while pressing a normal button; absent aliases fall back to standing normals. |
+| Air normals (optional) | `airA` `airB` `airC` `airD` | Selected when a normal button is pressed while airborne; absent aliases fall back to standing normals. |
 | Specials (optional subset) | `236x` `214x` `246x` `642x` `623x` `423x` `22x`, x ∈ {A,B,C,D} | Engine-standard special-motion vocabulary (28 possible states). Each character implements only the motions it uses; absent ones are not an error. Motion names are engine data; what each move does is per character. |
 | Hitstun | `hurt` | Standing hitstun. |
 | Hitstun | `crouchHurt` | Hitstun from any crouch state. |
@@ -490,6 +504,13 @@ continues (no state change, no error). This is the normal case for
 unimplemented special motions — not a bug. (`cancelTypes` and
 `animationSwitch` targets are still validated at load, §6.8 rule 3, so
 only live input intents can hit this path.)
+
+**Posture-normal selection.** After the standard input matcher identifies
+`A`/`B`/`C`/`D`, the runtime checks the current posture and the character's
+animation map. A grounded normal with down held selects `2A`/`2B`/`2C`/`2D`
+when that alias exists; an airborne normal selects `airA`/`airB`/`airC`/`airD`
+when present. The alias is optional per character, so legacy character files
+continue using their standing normal animation.
 
 Extension rule: any additional names are allowed in files (e.g.
 `"41236A"`, `"360A"`). `cancelTypes` entries and `animationSwitch` values may
@@ -546,7 +567,7 @@ A character file is rejected if:
 
 ## 7. Combat rules
 
-### 7.1 Hit detection `[partial]`
+### 7.1 Hit detection `[done]`
 
 - For each ordered pair (attacker, defender): every `hit` box of the
   attacker's active frame is tested against every `hurt` box of the
@@ -562,7 +583,7 @@ A character file is rejected if:
   activations of the same move hit independently. The ledger is snapshot
   state (§3.5).
 
-### 7.2 Hit resolution `[todo]` (F1/F2)
+### 7.2 Hit resolution `[done]`
 
 On a hit candidate, in this order. Velocity always applies by increment
 — but hit resolution zeroes the defender's velocity first, so a hit
@@ -592,15 +613,15 @@ overwrites momentum:
    (integer division) away from the defender.
 7. **KO check** (§7.7).
 
-### 7.3 Trades `[todo]` (F1)
+### 7.3 Trades `[done]`
 
 - Both directions are checked every frame (§4.1 step 4), so **both hits can
   land on the same frame** (trade): both players apply §7.2 independently.
-- `priority` (when activated, F4): if priorities differ, only the higher
+- `priority`: if priorities differ, only the higher
   priority hits; equal (or both 0) = trade.
 - No hitlag, no hitstop in v1.
 
-### 7.4 Guard `[todo]` (F3)
+### 7.4 Guard `[done]`
 
 A hit is **guarded** when the defender is holding **back** (corrected
 history shows `Left`-family input toward the attacker on the hit frame)
@@ -624,7 +645,7 @@ Landing while `airBlock` is active converts the remaining blockstun to
 `blockHit` (grounded). When blockstun expires mid-air, the defender
 returns to `fall` via the post-physics rules (§6.7).
 
-### 7.5 Knockdown, bounce, OTG `[todo]` (F4)
+### 7.5 Knockdown, bounce, OTG `[done]`
 
 - `canHardKnockdown`: hit sends defender into a knockdown: launched per
   §7.2, falls, on ground contact enters `knockdown` (lying), then
@@ -662,7 +683,7 @@ returns to `fall` via the post-physics rules (§6.7).
   reaction, not the damage.
 - A hit while the defender is in `ko` is impossible (round already ended).
 
-### 7.7 Rounds and match flow `[todo]` (F5)
+### 7.7 Rounds and match flow `[done]`
 
 - **Round timer:** `GameState.TimerFrames int`, initialized to
   `RoundTimerFrames = 99 * 60` (constants, single source) and decremented
@@ -686,8 +707,12 @@ returns to `fall` via the post-physics rules (§6.7).
   flags cleared, histories and ledger cleared, timer reset, both to
   `idle`) or match end. Richer freeze behavior is future work.
 - Match end → scene transition out of gameplay (back to menu).
+- In versus-CPU mode, the scene supplies P2's input from the current game
+  state and round timer using a fixed deterministic policy. `GameState.Update`
+  still receives an explicit two-player input frame; replays record generated
+  CPU inputs like any other input stream.
 
-### 7.8 HUD `[todo]` (F6)
+### 7.8 HUD `[done]`
 
 - HP bars: P1 left, P2 right, mirrored drain depleting from the outer
   corners toward the middle; show current/max HP from snapshot state.
@@ -820,100 +845,53 @@ next phase starts (a phase may be *started* early only on explicit decision).
 (`docs/lista-de-tarefas.md` is the Portuguese working task list and is
 subordinate to this section — on conflict, §12 wins.)
 
-### F0 — Foundations: determinism & data contract `[todo]` — **current**
+### F0 — Foundations: determinism & data contract `[done]`
 
-1. Remove map-iteration nondeterminism: ordered sequence table with fixed
-   priority (§5.5), and an audit that no other map iteration reaches the
-   simulation (§3.3).
-2. Deterministic PRNG owned by `GameState` (SplitMix64, seeded per match,
-   §3.4); state snapshot + per-step hash (§3.5) and golden replay test
-   (§3.6). Snapshot includes `StunFrames`, the connect ledger, input
-   histories, PRNG state, and match counters (§7.1, §7.6, §7.7).
-3. Adopt the data contract (§6): `properties.maxHP` in file; strict load
-   validation (§6.8, incl. the `loopFrames`-on-reactions rule); canonical
-   name checks.
-4. TOML loader/writer (pick an actively maintained TOML 1.0 Go library
-   and validate quoted numeric keys like `"44"` against it); convert
-   `PlaceHolder` (and all assets) to TOML; remove the YAML loader; editor
-   save path updated to write TOML (editor itself remains non-goal,
-   §1.4). Extend the placeholder character to the **full** §6.7 set: it
-   currently lacks jumps (`7`/`8`/`9`), crouch (`1`/`2`/`3`), `fall`,
-   `landing`, `44`, and all reaction/round states (`hurt`, `crouchHurt`,
-   `airHurt`, `blockHit`, `crouchBlock`, `airBlock`, `ko`, `win`,
-   `knockdown`, `getup`). Special motions only as implemented (none
-   required initially). Minimal 1–2 frame placeholder animations are
-   acceptable until real content replaces them. Held states (`idle`,
-   walks) need valid `loopFrames`.
-5. Pushbox: all collision boxes per frame (§6.6).
-6. Input: ordered sequence table covering dashes (`44`, `66`) and the
-   full standard motion set with exact patterns (§5.5, §6.7), replacing
-   the map outright (including the non-standard `426A` entry); SOCD
-   filtering applies after the per-player device merge (§5.2).
-- **Acceptance:** replay test green; `PlaceHolder.toml` loads, validates,
-  plays; `config.toml` replaces `config.yaml`; `EN.toml`/`BR.toml`
-  replace the language YAML. No YAML remains.
-- **Note:** the game relies on ebiten's default 60 TPS; no tick-rate
-  pinning is required (§3.1).
+Fixed-timestep simulation, ordered input sequences, snapshot/hash support,
+golden replay checks, strict TOML character loading, and the full canonical
+state set are implemented. Pushbox resolution still uses the first authored
+collision box pair (§8.4).
 
-### F1 — Finish hit application `[todo]`
+### F1 — Hit application `[done]`
 
-- Requires a checked-in, valid, self-contained test character with
-  hittable frames (placeholder fixtures with missing sprites/boxes don't
-  qualify).
-- Apply hit effects per §7.2 (damage, knockback/knockup, pushback,
-  one-hit-per-frame rule).
-- Trade behavior per §7.3.
-- **Acceptance:** a scripted A-attack reduces defender HP and applies
-  knockback/pushback displacement; both hits in a trade land.
-  (Reaction-state entry belongs to F2.)
+Damage, impulses, pushback, one-hit-per-frame tracking, and trade priority
+are implemented (§7.1–§7.3).
 
-### F2 — Life & reactions `[todo]`
+### F2 — Life & reactions `[done]`
 
-- HP from `properties.maxHP` (replaces hardcoded 10000), HP clamping,
-  KO detection at 0.
-- `hurt` states with proper frame data for the test character;
-  invincibility and armor honored.
-- Stun-hold via `loopFrames` on reaction states (runtime must accept
-  `start == end` as single-frame hold, §6.4, §7.6); `StunFrames`
-  countdown per §4.1/§7.2.
-- **Acceptance:** hit → HP drop → `hurt` → back to `idle` cycle is stable
-  and repeatable in replay.
+Character HP, KO checks, hit reactions, invincibility, armor, and stun holds
+are implemented (§7.2, §7.6).
 
-### F3 — Guard `[todo]`
+### F3 — Guard `[done]`
 
-- Guard rule §7.4; `blockHit` state; blockstun.
-- **Acceptance:** holding back turns hits into blockstun with no damage,
-  grounded and airborne (into `blockHit`/`crouchBlock`/`airBlock`);
-  walking into an attack without holding back gets hit.
+Ground, crouch, and air guard with blockstun are implemented (§7.4).
 
-### F4 — Frame-data effects `[todo]`
+### F4 — Frame-data effects `[done]`
 
-- Wire remaining fields: `isRecovery`, `isHoldable`, `animationSwitch`,
-  `canHardKnockdown`, `canWallBounce`, `canGroundBounce`, `canOTG`,
-  `priority`.
-- Bounce mechanics need per-character launch flags (e.g.
-  `hasBouncedThisLaunch`, snapshot state, reset on neutral ground
-  contact) and a defined bounce frame source — specify before
-  implementing.
-- **Acceptance:** each field demonstrably changes runtime behavior in a
-  unit test.
+Recovery, holdable frames, animation switches, knockdown, OTG, and bounce
+effects are implemented (§6.5, §7.5).
 
-### F5 — Rounds, KO, match end `[todo]`
+### F5 — Rounds and match end `[done]`
 
-- Timer, round/match flow §7.7, `win`/`ko` states, scene transition out.
-- **Acceptance:** a full 2-round match ends and returns to the menu.
+Timer, round reset, KO/win states, best-of-three flow, and return to menu are
+implemented (§7.7).
 
-### F6 — Fight HUD `[todo]`
+### F6 — Fight HUD `[done]`
 
-- §7.8 HUD, localized.
-- **Acceptance:** HP, rounds, timer readable without debug overlays.
+Health bars, timer, round pips, and localized round-end text are implemented
+(§7.8).
 
-### F7 — End-to-end validation `[todo]`
+### F7 — End-to-end validation `[done]`
 
-- A dedicated test character (full required set plus at least one
-  implemented special motion) and a scripted scenario exercising: walk,
-  jump, normal, special, hit, block, trade, KO, round end, match end.
-- **Acceptance:** scenario passes unattended in CI; replay hashes stable.
+Scripted match scenarios and deterministic replay checks cover the combat
+pipeline and round flow.
+
+### F8 — Playable roster and local CPU `[done]`
+
+Four selectable data-driven characters, sprite atlases, versus-CPU and local
+versus modes, split keyboard controls, and the character-select flow are
+implemented. The CPU policy generates deterministic P2 input in the scene;
+the simulation continues to consume explicit input frames (§7.7).
 
 ---
 
@@ -922,16 +900,12 @@ subordinate to this section — on conflict, §12 wins.)
 1. **Chip damage** — v1 assumes 0 chip on block (§7.4). Confirm.
 2. **Throw** — no throw state/input in the model yet. Out of v1; define
    trigger + states later.
-3. **Sprite sheets** — v1 uses per-frame image files; sheet support is an
-   editor/format extension, not yet contract.
+3. **Sprite atlases** — character sprites may share an atlas image and select
+   a tile with `sprites[].rect` (§6.4). Dedicated layout tooling beyond the
+   shipped four character atlases is future work.
 4. **Weight** — pushbox weighting is velocity-based (§8.4). A per-character
    weight property is a candidate for §6.3 later.
 5. **Hitstop/hitlag** — explicitly out of v1; likely a later feel phase.
-6. **Crouch/air normals** — the input model maps Down+A and air+A to the
-   same `A` intents as standing, so normals are single-posture in v1.
-   Per-posture normals (`2A`-style crouch normals, air normals) are an
-   input-model + state-table extension; decide before F4 whether they
-   enter the contract.
 
 ---
 
