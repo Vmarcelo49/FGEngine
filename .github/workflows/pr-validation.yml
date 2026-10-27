@@ -1,0 +1,30 @@
+name: PR validation
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            libasound2-dev libgl1-mesa-dev libgtk-3-dev pkg-config \
+            libx11-dev libxcursor-dev libxi-dev libxinerama-dev \
+            libxrandr-dev libxxf86vm-dev
+      - name: Build all packages
+        run: go build ./...
+      - name: Run simulation and asset tests
+        run: go test ./...
