@@ -99,6 +99,32 @@ func TestPlayableRosterSpecialInputsBothSides(t *testing.T) {
 	}
 }
 
+func TestPlayableRosterCanAttackWhileFalling(t *testing.T) {
+	t.Chdir(gameplayRepoRoot(t))
+	for _, fighter := range playableRoster {
+		t.Run(fighter.name, func(t *testing.T) {
+			g := rosterMatch(t, fighter.name, "PlaceHolder")
+			sm := g.Characters[0].StateMachine
+			g.Update([2]input.GameInput{input.Up, input.NoInput})
+			falling := false
+			for frame := 0; frame < 120; frame++ {
+				g.Update([2]input.GameInput{})
+				if sm.IsAirborne() && sm.Velocity.Y > 0 && sm.AnimPlayer.ActiveAnimationName() == "fall" {
+					falling = true
+					break
+				}
+			}
+			if !falling {
+				t.Fatalf("never reached falling state: y=%v velocity=%v animation=%q", sm.Position.Y, sm.Velocity.Y, sm.AnimPlayer.ActiveAnimationName())
+			}
+			g.Update([2]input.GameInput{input.A, input.NoInput})
+			if got := sm.AnimPlayer.ActiveAnimationName(); got != "airA" {
+				t.Fatalf("attack while falling selected %q, want airA", got)
+			}
+		})
+	}
+}
+
 func mirrorRosterInput(in input.GameInput) input.GameInput {
 	if in&input.Left != 0 {
 		return (in &^ input.Left) | input.Right

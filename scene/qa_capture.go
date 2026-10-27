@@ -128,7 +128,7 @@ func (q *qaCapture) Update() error {
 	case "airborne":
 		if q.tick == 0 {
 			inputs[0] = input.Up
-		} else if attacker.IsAirborne() && !q.attackSent {
+		} else if attacker.IsAirborne() && attacker.Velocity.Y > 0 && attacker.Position.Y >= constants.GroundLevelY-80 && !q.attackSent {
 			inputs[0] = input.A
 			q.attackSent = true
 		}
@@ -138,7 +138,7 @@ func (q *qaCapture) Update() error {
 		}
 	case "guard":
 		inputs[1] = input.Right // The right-side defender faces left.
-		if q.tick == 5 {
+		if q.tick == 1 {
 			inputs[0] = input.A
 		}
 	}
@@ -160,7 +160,7 @@ func (q *qaCapture) Update() error {
 		q.afterImpact++
 	}
 	q.tick++
-	if q.afterImpact >= 18 || q.tick >= 60 {
+	if q.afterImpact >= 18 || q.tick >= 100 {
 		if !q.impactReached {
 			q.failures = append(q.failures, fmt.Sprintf("%s/%s: no verified impact in %d ticks (attacker=%s, defender=%s, HP=%d/%d)",
 				scenario.fighter, scenario.action, q.tick, attacker.AnimPlayer.ActiveAnimationName(),
