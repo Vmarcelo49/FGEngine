@@ -3,21 +3,15 @@ package graphics
 import (
 	"fgengine/animation"
 	"fgengine/character"
-
 	"fgengine/types"
+	"image"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 func DrawCharacter(screen *ebiten.Image, c *character.Character, camera *Camera) {
-	var img *ebiten.Image
 	sprite := c.Sprite()
-	if sprite == nil {
-		img = LoadImage("") // loads a placeholder image
-	} else {
-		img = LoadImage(sprite.ImagePath)
-	}
+	img := SpriteImage(sprite)
 
 	op := &ebiten.DrawImageOptions{}
 
@@ -32,7 +26,6 @@ func DrawCharacter(screen *ebiten.Image, c *character.Character, camera *Camera)
 	// Calcular posição na tela (posição real do personagem)
 	var screenPos types.Vector2
 	state := c.StateMachine
-	animName := "none"
 
 	if state != nil {
 		if camera != nil {
@@ -53,8 +46,28 @@ func DrawCharacter(screen *ebiten.Image, c *character.Character, camera *Camera)
 		CameraTransform(op, camera, types.Vector2{X: 1, Y: 1}, screenPos)
 		screen.DrawImage(img, op)
 
-		// Debug info on top of the character
-		animName = state.AnimPlayer.ActiveAnimationName()
 	}
-	ebitenutil.DebugPrintAt(screen, animName, int(screenPos.X)+int(anchorOffset.X), int(screenPos.Y))
+}
+
+// SpriteImage returns either the full source image or the authored atlas tile
+// for a character sprite. Character art files can therefore share a compact
+// atlas without changing the simulation data contract.
+func SpriteImage(sprite *animation.Sprite) *ebiten.Image {
+	if sprite == nil {
+		return LoadImage("")
+	}
+	img := LoadImage(sprite.ImagePath)
+	if sprite.Rect.W <= 0 || sprite.Rect.H <= 0 {
+		return img
+	}
+	rect := image.Rect(
+		int(sprite.Rect.X),
+		int(sprite.Rect.Y),
+		int(sprite.Rect.X+sprite.Rect.W),
+		int(sprite.Rect.Y+sprite.Rect.H),
+	)
+	if rect.Empty() || !rect.In(img.Bounds()) {
+		return img
+	}
+	return img.SubImage(rect).(*ebiten.Image)
 }

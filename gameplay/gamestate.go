@@ -68,10 +68,13 @@ func (g *GameState) Update(inputs [2]input.GameInput) {
 			sm.StunFrames--
 		}
 		g.pushInputToHistory(i, inputs[i])
+		correctedHistory := correctInputByFacing(g.inputHist[i], sm.IsFacingLeft)
+		intent := input.CheckInputIntent(correctedHistory)
+		intent = attackVariant(intent, correctedHistory, sm)
 
 		frame[i] = playerFrameContext{
 			stateMachine:    sm,
-			intentAnimation: input.CheckInputIntent(correctInputByFacing(g.inputHist[i], sm.IsFacingLeft)),
+			intentAnimation: intent,
 			wasAirborne:     sm.IsAirborne(),
 		}
 	}
@@ -242,6 +245,28 @@ func correctInputByFacing(history []input.GameInput, facing animation.Orientatio
 	}
 
 	return corrected
+}
+
+func attackVariant(intent string, history []input.GameInput, sm *animation.StateMachine) string {
+	switch intent {
+	case "A", "B", "C", "D":
+	default:
+		return intent
+	}
+	if sm == nil || sm.AnimPlayer == nil {
+		return intent
+	}
+
+	variant := ""
+	if sm.IsAirborne() {
+		variant = "air" + intent
+	} else if len(history) > 0 && history[len(history)-1]&input.Down != 0 {
+		variant = "2" + intent
+	}
+	if variant != "" && sm.AnimPlayer.Animations[variant] != nil {
+		return variant
+	}
+	return intent
 }
 
 func (g *GameState) applyAnimationPostPhysics(ctx playerFrameContext) {

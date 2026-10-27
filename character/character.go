@@ -19,7 +19,12 @@ type Character struct {
 // CharacterProperties holds per-character tuning (SPEC §6.3). It is the
 // only place character constants may live — never Go code (P2).
 type CharacterProperties struct {
-	MaxHP int `toml:"maxHP,omitempty"`
+	MaxHP        int    `toml:"maxHP,omitempty"`
+	Role         string `toml:"role,omitempty"`
+	Tagline      string `toml:"tagline,omitempty"`
+	SpecialName  string `toml:"specialName,omitempty"`
+	SpecialInput string `toml:"specialInput,omitempty"`
+	AccentColor  string `toml:"accentColor,omitempty"`
 }
 
 func LoadCharacter(name string, playerSide int) (*Character, error) {

@@ -1,8 +1,10 @@
 package scene
 
 import (
+	"fgengine/character"
 	"image/color"
 	"strconv"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -38,9 +40,13 @@ var (
 // through gameplay.HUDState, never mutates it.
 func (g *GameplayScene) drawHUD(screen *ebiten.Image) {
 	state := g.gamestate.HUD()
+	p1Accent := accentColor(g.gamestate.Characters[0].Properties.AccentColor)
+	p2Accent := accentColor(g.gamestate.Characters[1].Properties.AccentColor)
 
-	drawHPBar(screen, hudMargin, state.P1HP, state.P1MaxHP, true)
-	drawHPBar(screen, 640-hudMargin-hudBarW, state.P2HP, state.P2MaxHP, false)
+	drawHPBar(screen, hudMargin, state.P1HP, state.P1MaxHP, false, p1Accent)
+	drawHPBar(screen, 640-hudMargin-hudBarW, state.P2HP, state.P2MaxHP, true, p2Accent)
+	drawNameplate(screen, g.gamestate.Characters[0], int(hudMargin), 34, false)
+	drawNameplate(screen, g.gamestate.Characters[1], int(640-hudMargin), 34, true)
 
 	drawPips(screen, 288, state.P1Wins, false)
 	drawPips(screen, 352, state.P2Wins, true)
@@ -55,7 +61,7 @@ func (g *GameplayScene) drawHUD(screen *ebiten.Image) {
 
 // drawHPBar draws one mirrored HP bar. If mirror is set the fill drains
 // from the right edge (P2); otherwise from the left (P1).
-func drawHPBar(screen *ebiten.Image, x float64, hp, maxHP int, mirror bool) {
+func drawHPBar(screen *ebiten.Image, x float64, hp, maxHP int, mirror bool, accent color.RGBA) {
 	frac := 0.0
 	if maxHP > 0 && hp > 0 {
 		frac = float64(hp) / float64(maxHP)
@@ -63,7 +69,7 @@ func drawHPBar(screen *ebiten.Image, x float64, hp, maxHP int, mirror bool) {
 			frac = 1
 		}
 	}
-	fill := hudFull
+	fill := accent
 	if frac < 0.3 {
 		fill = hudLow
 	}
@@ -75,8 +81,22 @@ func drawHPBar(screen *ebiten.Image, x float64, hp, maxHP int, mirror bool) {
 			fx = float32(x+hudBarW) - fw
 		}
 		vector.DrawFilledRect(screen, fx, hudBarY, fw, hudBarH, fill, false)
+		vector.DrawFilledRect(screen, fx, hudBarY, fw, 2, color.RGBA{R: 255, G: 255, B: 255, A: 70}, false)
 	}
 	vector.StrokeRect(screen, float32(x), hudBarY, hudBarW, hudBarH, 1, hudBorder, false)
+}
+
+func drawNameplate(screen *ebiten.Image, fighter *character.Character, edge, y int, rightAligned bool) {
+	if fighter == nil {
+		return
+	}
+	name := strings.ToUpper(fighter.Name)
+	x := edge
+	if rightAligned {
+		x -= len(name) * hudFontW
+	}
+	vector.DrawFilledRect(screen, float32(x-3), float32(y-3), float32(len(name)*hudFontW+6), 16, color.RGBA{R: 12, G: 18, B: 31, A: 225}, false)
+	ebitenutil.DebugPrintAt(screen, name, x, y)
 }
 
 // drawPips draws round-win pips: left-aligned (P1) or right-aligned (P2).

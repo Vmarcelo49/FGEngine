@@ -35,7 +35,7 @@ const (
 
 const LayerCount = 4
 
-var StageColor = color.RGBA{R: 100, G: 149, B: 237, A: 255} // Cornflower Blue
+var StageColor = color.RGBA{R: 11, G: 17, B: 31, A: 255} // Deep arena navy
 
 var World = types.Rect{X: 0, Y: 0, W: WorldWidth, H: WorldHeight} // camera * 1.2
 var Camera = types.Rect{X: 0, Y: 0, W: CameraWidth, H: CameraHeight}

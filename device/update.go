@@ -44,6 +44,16 @@ func UpdateGamepads() [2]input.GameInput {
 
 	inputs := [2]input.GameInput{input.NoInput, input.NoInput}
 	for _, i := range GlobalInputs {
+		if i.ID == ebiten.GamepadID(-1) {
+			// The keyboard is a shared local device. Once joined on either
+			// side, it exposes two non-overlapping layouts for local versus.
+			if i.Owner != UnAssigned {
+				keyboard := PollKeyboardPlayers()
+				inputs[0] |= keyboard[0]
+				inputs[1] |= keyboard[1]
+			}
+			continue
+		}
 		if i.Owner == P1Side {
 			inputs[0] |= i.ActiveButtons
 		} else if i.Owner == P2Side {
