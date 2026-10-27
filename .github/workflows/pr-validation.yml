@@ -17,6 +17,8 @@ jobs:
         with:
           go-version-file: go.mod
           cache: true
+      - name: Run simulation and asset tests
+        run: go test ./animation ./character ./gameplay ./input ./types ./config ./language
       - name: Install build dependencies
         run: |
           sudo apt-get update -qq
@@ -26,5 +28,44 @@ jobs:
             libxrandr-dev libxxf86vm-dev
       - name: Build all packages
         run: go build ./...
-      - name: Run simulation and asset tests
+      - name: Run the complete test suite
         run: go test ./...
+
+  gameplay-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Install virtual display and build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq \
+            xvfb xauth ffmpeg libgl1-mesa-dri libasound2-dev libgl1-mesa-dev \
+            libx11-dev libxcursor-dev libxi-dev libxinerama-dev \
+            libxrandr-dev libxxf86vm-dev
+      - name: Capture verified gameplay frames
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: xvfb-run -a -s '-screen 0 1280x720x24' go run -tags fgengineqa ./cmd/qa-capture
+      - name: Encode gameplay video
+        if: always()
+        run: |
+          if [ -f artifacts/gameplay/frames/000000.png ]; then
+            ffmpeg -hide_banner -loglevel error -y -framerate 60 \
+              -i artifacts/gameplay/frames/%06d.png \
+              -vf 'scale=1280:720:flags=neighbor' -c:v libx264 -pix_fmt yuv420p \
+              -movflags +faststart artifacts/gameplay/fgengine-gameplay.mp4
+          fi
+      - name: Upload gameplay frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameplay-capture
+          path: |
+            artifacts/gameplay/fgengine-gameplay.mp4
+            artifacts/gameplay/impacts/*.png
+          if-no-files-found: warn
